@@ -1,0 +1,23 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: #ffffff;
+  --foreground: #000000;
+}
+
+.dark {
+  --background: #000000;
+  --foreground: #ffffff;
+}
+
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+  transition: background-color 0.3s, color 0.3s;
+  font-family: 'Inter', sans-serif; /* Clean font */
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+}
