@@ -199,6 +199,98 @@ export const PDFViewer = ({ file, onAddAnnotation, annotations = [], currentPage
     }
   };
 
+  const finishHighlight = () => {
+    if (activeTool === 'highlight' && selectionRect) {
+       const overlay = overlayRef.current;
+       if (overlay && (Math.abs(selectionRect.w) > 5 || Math.abs(selectionRect.h) > 5)) {
+           const overlayW = overlay.clientWidth;
+           const overlayH = overlay.clientHeight;
+           const norm = {
+              x: Math.max(0, Math.min(1, selectionRect.x / overlayW)),
+              y: Math.max(0, Math.min(1, selectionRect.y / overlayH)),
+              w: Math.max(0, Math.min(1, selectionRect.w / overlayW)),
+              h: Math.max(0, Math.min(1, selectionRect.h / overlayH)),
+              color: 'rgba(255, 235, 59, 0.35)',
+              id: Date.now(),
+           };
+           const next = { ...highlights, [pageNumber]: [...(highlights[pageNumber] || []), norm] };
+           saveHighlights(next);
+       }
+       setSelectionRect(null);
+       return;
+    }
+
+    if (activeTool.startsWith('note')) {
+        if (tempNoteRect && (Math.abs(tempNoteRect.w) > 0.01 || Math.abs(tempNoteRect.h) > 0.01)) {
+            const normalized = {
+                x: tempNoteRect.w < 0 ? tempNoteRect.x + tempNoteRect.w : tempNoteRect.x,
+                y: tempNoteRect.h < 0 ? tempNoteRect.y + tempNoteRect.h : tempNoteRect.y,
+                w: Math.abs(tempNoteRect.w),
+                h: Math.abs(tempNoteRect.h)
+            };
+            setTempNoteRect(normalized);
+            setIsNoteModalOpen(true);
+        } else {
+            setTempNoteRect(null);
+        }
+        return;
+    }
+  };
+
+  const handleTouchStartHighlight = (e) => {
+    if (activeTool === 'none') return;
+    e.stopPropagation();
+    const touch = e.touches[0];
+    const overlay = overlayRef.current;
+    if (!overlay) return;
+    const rect = overlay.getBoundingClientRect();
+    const startX = touch.clientX - rect.left;
+    const startY = touch.clientY - rect.top;
+    
+    if (activeTool === 'highlight') {
+      setSelectionRect({ x: startX, y: startY, w: 0, h: 0 });
+    } else if (activeTool.startsWith('note')) {
+      setTempNoteRect({ 
+        x: startX / rect.width, 
+        y: startY / rect.height, 
+        w: 0, 
+        h: 0 
+      });
+    }
+    if (optionsMenu.open) setOptionsMenu({ open: false, x: 0, y: 0, targetId: null });
+  };
+
+  const handleTouchMoveHighlight = (e) => {
+    if (activeTool === 'none') return;
+    e.stopPropagation();
+    if (e.cancelable) e.preventDefault();
+
+    const touch = e.touches[0];
+    const overlay = overlayRef.current;
+    if (!overlay) return;
+    const rect = overlay.getBoundingClientRect();
+
+    if (activeTool === 'highlight' && selectionRect) {
+      const mx = touch.clientX - rect.left;
+      const my = touch.clientY - rect.top;
+      setSelectionRect(prev => ({ ...prev, w: mx - prev.x, h: my - prev.y }));
+    } else if (activeTool.startsWith('note') && tempNoteRect) {
+      const currentX = (touch.clientX - rect.left) / rect.width;
+      const currentY = (touch.clientY - rect.top) / rect.height;
+      setTempNoteRect(prev => ({
+        ...prev,
+        w: currentX - prev.x,
+        h: currentY - prev.y
+      }));
+    }
+  };
+
+  const handleTouchEndHighlight = (e) => {
+    if (activeTool === 'none') return;
+    e.stopPropagation();
+    finishHighlight();
+  };
+
   const removeLastHighlight = () => {
     const list = highlights[pageNumber] || [];
     if (list.length === 0) return;
@@ -468,42 +560,11 @@ export const PDFViewer = ({ file, onAddAnnotation, annotations = [], currentPage
                    ref={overlayRef}
                    onMouseDown={beginHighlight}
                    onMouseMove={handleMouseMove}
+                   onTouchStart={handleTouchStartHighlight}
+                   onTouchMove={handleTouchMoveHighlight}
+                   onTouchEnd={handleTouchEndHighlight}
                    onMouseUp={() => {
-                     if (activeTool === 'highlight' && selectionRect) {
-                        const overlay = overlayRef.current;
-                        if (overlay && (Math.abs(selectionRect.w) > 5 || Math.abs(selectionRect.h) > 5)) {
-                            const overlayW = overlay.clientWidth;
-                            const overlayH = overlay.clientHeight;
-                            const norm = {
-                               x: Math.max(0, Math.min(1, selectionRect.x / overlayW)),
-                               y: Math.max(0, Math.min(1, selectionRect.y / overlayH)),
-                               w: Math.max(0, Math.min(1, selectionRect.w / overlayW)),
-                               h: Math.max(0, Math.min(1, selectionRect.h / overlayH)),
-                               color: 'rgba(255, 235, 59, 0.35)',
-                               id: Date.now(),
-                            };
-                            const next = { ...highlights, [pageNumber]: [...(highlights[pageNumber] || []), norm] };
-                            saveHighlights(next);
-                        }
-                        setSelectionRect(null);
-                        return;
-                     }
-
-                     if (activeTool.startsWith('note')) {
-                         if (tempNoteRect && (Math.abs(tempNoteRect.w) > 0.01 || Math.abs(tempNoteRect.h) > 0.01)) {
-                             const normalized = {
-                                 x: tempNoteRect.w < 0 ? tempNoteRect.x + tempNoteRect.w : tempNoteRect.x,
-                                 y: tempNoteRect.h < 0 ? tempNoteRect.y + tempNoteRect.h : tempNoteRect.y,
-                                 w: Math.abs(tempNoteRect.w),
-                                 h: Math.abs(tempNoteRect.h)
-                             };
-                             setTempNoteRect(normalized);
-                             setIsNoteModalOpen(true);
-                         } else {
-                             setTempNoteRect(null);
-                         }
-                         return;
-                     }
+                     finishHighlight();
 
                      if (activeTool === 'none') {
                        const sel = window.getSelection();
