@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Moon, Sun, User, BookOpen, PenTool, Info, ArrowLeft, LogIn, LogOut } from 'lucide-react';
+import { X, Moon, Sun, User, BookOpen, PenTool, Info, ArrowLeft, LogIn, LogOut, Github } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 export const Sidebar = ({ isOpen, onClose, theme, toggleTheme, annotations = {}, currentFileName, onOpenProfile, onAnnotationClick }) => {
@@ -27,6 +27,7 @@ export const Sidebar = ({ isOpen, onClose, theme, toggleTheme, annotations = {},
     { icon: <User size={20} />, label: currentUser ? `Hola, ${currentUser.displayName}` : 'Mi perfil', action: onOpenProfile },
     { icon: <BookOpen size={20} />, label: 'Mis Lecturas', action: () => setView('readings') },
     { icon: <PenTool size={20} />, label: 'Mis anotaciones', action: () => setView('annotations') },
+    { icon: <Github size={20} />, label: 'Código en GitHub', action: () => window.open('https://github.com/zeroferreira/Lee.Io', '_blank') },
     { icon: <Info size={20} />, label: 'Instrucciones', action: () => {} },
   ];
 
