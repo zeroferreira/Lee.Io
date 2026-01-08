@@ -7,7 +7,7 @@ import { getAnalytics } from "firebase/analytics";
 
 // Your web app's Firebase configuration
 export const firebaseConfig = {
-  apiKey: "AIzaSyBqAknzI2MSUX14hEbdMTIkE_kc30jsqdk",
+  apiKey: "AIzaSyDQHr01GZaojE3wdoGzejocuFM-cXQGwTU",
   authDomain: "leeio-f1ab6.firebaseapp.com",
   projectId: "leeio-f1ab6",
   storageBucket: "leeio-f1ab6.firebasestorage.app",
