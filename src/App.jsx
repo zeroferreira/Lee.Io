@@ -138,6 +138,21 @@ function AppContent() {
         setIsUploading(true);
         setUploadProgress(0);
         
+        // Timeout check for 0% progress (likely CORS issue)
+        const progressCheck = setTimeout(() => {
+          setUploadProgress(current => {
+            if (current === 0) {
+              uploadTask.cancel();
+              // Silent fallback to local for better UX while configuring cloud
+              console.warn("Upload timed out (CORS/Network). Falling back to local file.");
+              setIsUploading(false);
+              setPdfFile(file); 
+              return 0;
+            }
+            return current;
+          });
+        }, 2000); // Reduced to 2 seconds for instant feedback
+
         const storageRef = ref(storage, `users/${currentUser.uid}/documents/${file.name}`);
         const uploadTask = uploadBytesResumable(storageRef, file);
 
@@ -145,8 +160,10 @@ function AppContent() {
           (snapshot) => {
             const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
             setUploadProgress(progress);
+            if (progress > 0) clearTimeout(progressCheck);
           },
           (error) => {
+            clearTimeout(progressCheck);
             console.error("Error uploading file:", error);
             let errorMessage = "Error al subir el archivo.";
             if (error.code === 'storage/unauthorized') {
