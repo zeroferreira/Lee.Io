@@ -10,6 +10,7 @@ import { db, storage, firebaseConfig } from './firebase/config';
 import { doc, setDoc, getDoc, collection, addDoc, serverTimestamp, query, where, getDocs } from 'firebase/firestore';
 import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
 import { ProfileScreen } from './components/ProfileScreen';
+import { Notification } from './components/Notification';
 import useDrivePicker from 'react-google-drive-picker';
 
 // TODO: Reemplaza con tu Client ID de Google Cloud Console
@@ -21,6 +22,7 @@ function AppContent() {
   const [openPicker] = useDrivePicker();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
+  const [notification, setNotification] = useState(null);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [theme, setTheme] = useState(() => {
@@ -135,7 +137,7 @@ function AppContent() {
 
     if (file && file.type === 'application/pdf') {
       if (file.size > MAX_FILE_SIZE) {
-        alert('El archivo es demasiado grande. El límite es de 50MB por documento para optimizar el almacenamiento.');
+        setNotification('El archivo es demasiado grande. El límite es de 50MB por documento para optimizar el almacenamiento.');
         return;
       }
 
@@ -237,13 +239,13 @@ function AppContent() {
 
   const handleOpenDrive = () => {
     if (!currentUser) {
-      alert("Por favor inicia sesión para acceder a tu Google Drive.");
+      setNotification("Por favor inicia sesión para acceder a tu Google Drive.");
       setIsMenuOpen(true);
       return;
     }
     
     if (!accessToken) {
-       alert("Necesitamos renovar tu sesión para acceder a Drive. Por favor cierra sesión y vuelve a entrar.");
+       setNotification("Necesitamos renovar tu sesión para acceder a Drive. Por favor cierra sesión y vuelve a entrar.");
        return;
     }
 
@@ -284,7 +286,7 @@ function AppContent() {
         setPdfFile(file);
       } catch (error) {
         console.error("Error downloading from Drive:", error);
-        alert("Error al cargar el archivo desde Drive.");
+        setNotification("Error al cargar el archivo desde Drive.");
       } finally {
         setIsUploading(false);
       }
@@ -292,6 +294,10 @@ function AppContent() {
 
   return (
     <LayoutGroup>
+      <Notification 
+        message={notification} 
+        onClose={() => setNotification(null)} 
+      />
       <div className="min-h-screen bg-background text-foreground transition-colors duration-300 overflow-hidden relative flex flex-col">
         {/* Intro Overlay - Background and Title separated for Morph effect */}
         <AnimatePresence>
