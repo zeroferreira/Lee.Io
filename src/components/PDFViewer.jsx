@@ -390,7 +390,62 @@ export const PDFViewer = ({ file, onAddAnnotation, annotations = [], currentPage
     }
   };
 
-  if (!file) return null;
+  const handleTextSelection = () => {
+    if (activeTool !== 'none') return;
+    
+    // Small delay to ensure selection is complete
+    setTimeout(() => {
+        const sel = window.getSelection();
+        if (!sel || sel.isCollapsed) return;
+        const text = sel.toString();
+        
+        if (text && sel.rangeCount > 0) {
+          const range = sel.getRangeAt(0);
+          const overlay = overlayRef.current;
+          if (!overlay) return;
+          
+          // Check if selection is inside our PDF container
+          const container = containerRef.current;
+          if (!container || !container.contains(sel.anchorNode)) return;
+
+          const orect = overlay.getBoundingClientRect();
+          const rects = Array.from(range.getClientRects()).map(r => {
+            return {
+              x: Math.max(0, Math.min(1, (r.left - orect.left) / orect.width)),
+              y: Math.max(0, Math.min(1, (r.top - orect.top) / orect.height)),
+              w: Math.max(0, Math.min(1, r.width / orect.width)),
+              h: Math.max(0, Math.min(1, r.height / orect.height)),
+            };
+          }).filter(r => r.w > 0 && r.h > 0);
+
+          if (rects.length > 0) {
+            const id = Date.now();
+            const hx = { id, rects, color: 'rgba(255, 235, 59, 0.35)', text };
+            // Don't save yet, just show options menu to confirm action
+            // Or if we want auto-highlight:
+            const next = { ...highlights, [pageNumber]: [...(highlights[pageNumber] || []), hx] };
+            saveHighlights(next);
+            
+            const last = rects[rects.length - 1];
+            setSelectedText(text);
+            
+            // Calculate absolute screen position for menu
+            const screenX = orect.left + (last.x * orect.width) + (last.w * orect.width) / 2;
+            const screenY = orect.top + (last.y * orect.height);
+
+            setOptionsMenu({
+              open: true,
+              x: last.x, 
+              y: last.y,
+              screenX,
+              screenY,
+              targetId: id
+            });
+            try { sel.removeAllRanges(); } catch {}
+          }
+        }
+    }, 10);
+  };
 
   return (
     <div className="flex flex-col items-center w-full max-w-5xl mx-auto p-4 pt-20">
@@ -510,6 +565,7 @@ export const PDFViewer = ({ file, onAddAnnotation, annotations = [], currentPage
         onTouchStart={onTouchStart}
         onTouchMove={onTouchMove}
         onTouchEnd={onTouchEnd}
+        onMouseUp={handleTextSelection}
         className="w-full border border-foreground/10 shadow-lg flex justify-center bg-gray-100 dark:bg-gray-900 overflow-auto relative"
         style={{ height: 'calc(100vh - 200px)', perspective: '1500px' }} // viewport-based height minus header/toolbars
       >
@@ -565,53 +621,10 @@ export const PDFViewer = ({ file, onAddAnnotation, annotations = [], currentPage
                    onTouchEnd={handleTouchEndHighlight}
                    onMouseUp={() => {
                      finishHighlight();
-
-                     if (activeTool === 'none') {
-                       const sel = window.getSelection();
-                       if (!sel) return;
-                       const text = sel.toString();
-                       if (text && sel.rangeCount > 0) {
-                         const range = sel.getRangeAt(0);
-                         const overlay = overlayRef.current;
-                         if (!overlay) return;
-                         const orect = overlay.getBoundingClientRect();
-                         const rects = Array.from(range.getClientRects()).map(r => {
-                           return {
-                             x: Math.max(0, Math.min(1, (r.left - orect.left) / orect.width)),
-                             y: Math.max(0, Math.min(1, (r.top - orect.top) / orect.height)),
-                             w: Math.max(0, Math.min(1, r.width / orect.width)),
-                             h: Math.max(0, Math.min(1, r.height / orect.height)),
-                           };
-                         }).filter(r => r.w > 0 && r.h > 0);
-                         if (rects.length > 0) {
-                           const id = Date.now();
-                           const hx = { id, rects, color: 'rgba(255, 235, 59, 0.35)', text };
-                           const next = { ...highlights, [pageNumber]: [...(highlights[pageNumber] || []), hx] };
-                           saveHighlights(next);
-                           const last = rects[rects.length - 1];
-                           setSelectedText(text);
-                           
-                           // Calculate absolute screen position for menu
-                           const overlay = overlayRef.current;
-                           const overlayRect = overlay.getBoundingClientRect();
-                           const screenX = overlayRect.left + (last.x * overlayRect.width) + (last.w * overlayRect.width) / 2;
-                           const screenY = overlayRect.top + (last.y * overlayRect.height);
-
-                           setOptionsMenu({
-                             open: true,
-                             x: last.x, // keep relative for reference
-                             y: last.y,
-                             screenX,
-                             screenY,
-                             targetId: id
-                           });
-                           try { sel.removeAllRanges(); } catch {}
-                         }
-                       }
-                     }
                    }}
                    className="absolute inset-0 z-10"
                    style={{ 
+                     pointerEvents: activeTool === 'none' ? 'none' : 'auto',
                      cursor: activeTool === 'erase' 
                        ? "url('data:image/svg+xml;utf8,<svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\"><circle cx=\"12\" cy=\"12\" r=\"10\" stroke=\"black\" stroke-width=\"2\" fill=\"rgba(255,255,255,0.5)\"/></svg>') 12 12, auto"
                        : (activeTool !== 'none' ? 'crosshair' : 'text')
