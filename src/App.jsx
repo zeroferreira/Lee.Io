@@ -224,7 +224,7 @@ function AppContent() {
         setPdfFile(file);
       }
     } else {
-      alert('Por favor selecciona un archivo PDF válido.');
+      setNotification('Por favor selecciona un archivo PDF válido.');
     }
   };
 
