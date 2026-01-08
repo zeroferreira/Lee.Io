@@ -27,8 +27,7 @@ export const Sidebar = ({ isOpen, onClose, theme, toggleTheme, annotations = {},
     { icon: <User size={20} />, label: currentUser ? `Hola, ${currentUser.displayName}` : 'Mi perfil', action: onOpenProfile },
     { icon: <BookOpen size={20} />, label: 'Mis Lecturas', action: () => setView('readings') },
     { icon: <PenTool size={20} />, label: 'Mis anotaciones', action: () => setView('annotations') },
-    { icon: <Github size={20} />, label: 'Código en GitHub', action: () => window.open('https://github.com/zeroferreira/Lee.Io', '_blank') },
-    { icon: <Info size={20} />, label: 'Instrucciones', action: () => {} },
+    { icon: <Info size={20} />, label: 'Instrucciones', action: () => setView('instructions') },
   ];
 
 
@@ -132,6 +131,54 @@ export const Sidebar = ({ isOpen, onClose, theme, toggleTheme, annotations = {},
                     ))}
                   </div>
                 )}
+              </div>
+            ) : view === 'instructions' ? (
+              <div className="flex-1 overflow-y-auto space-y-6">
+                <h3 className="text-xl font-bold mb-4">Instrucciones</h3>
+                
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <h4 className="font-medium flex items-center gap-2">
+                      <BookOpen size={16} />
+                      Cargar Documento
+                    </h4>
+                    <p className="text-sm opacity-70">
+                      Arrastra un archivo PDF a la pantalla o haz clic en el botón "+" flotante para comenzar a leer.
+                    </p>
+                  </div>
+
+                  <div className="space-y-2">
+                    <h4 className="font-medium flex items-center gap-2">
+                      <PenTool size={16} />
+                      Herramientas
+                    </h4>
+                    <ul className="text-sm opacity-70 space-y-2 list-disc list-inside">
+                      <li><span className="font-medium">Subrayar:</span> Selecciona el resaltador y arrastra sobre el texto o la página.</li>
+                      <li><span className="font-medium">Notas:</span> Usa el icono de mensaje para agregar notas adhesivas (rectángulos o círculos).</li>
+                      <li><span className="font-medium">Borrador:</span> Elimina anotaciones tocándolas con la herramienta activa.</li>
+                    </ul>
+                  </div>
+
+                  <div className="space-y-2">
+                    <h4 className="font-medium flex items-center gap-2">
+                      <ArrowLeft size={16} />
+                      Navegación
+                    </h4>
+                    <p className="text-sm opacity-70">
+                      Usa las flechas, desliza en dispositivos táctiles o haz clic en tus anotaciones para saltar a páginas específicas.
+                    </p>
+                  </div>
+
+                  <div className="space-y-2">
+                    <h4 className="font-medium flex items-center gap-2">
+                      <User size={16} />
+                      Sincronización
+                    </h4>
+                    <p className="text-sm opacity-70">
+                      Inicia sesión con Google para guardar tu progreso y acceder a tus documentos desde cualquier dispositivo.
+                    </p>
+                  </div>
+                </div>
               </div>
             ) : (
               <div className="flex-1 overflow-y-auto">
