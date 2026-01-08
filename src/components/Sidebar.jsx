@@ -1,11 +1,34 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Moon, Sun, User, BookOpen, PenTool, Info, ArrowLeft, LogIn, LogOut, Github } from 'lucide-react';
+import { X, Moon, Sun, User, BookOpen, PenTool, Info, ArrowLeft, LogIn, LogOut, Github, Cloud } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { db } from '../firebase/config';
+import { collection, query, orderBy, getDocs } from 'firebase/firestore';
 
-export const Sidebar = ({ isOpen, onClose, theme, toggleTheme, annotations = {}, currentFileName, onOpenProfile, onAnnotationClick }) => {
+export const Sidebar = ({ isOpen, onClose, theme, toggleTheme, annotations = {}, currentFileName, onOpenProfile, onAnnotationClick, onCloudDocumentSelect }) => {
   const [view, setView] = useState('menu'); // 'menu' | 'annotations'
   const { currentUser, loginWithGoogle, logout } = useAuth();
+  const [cloudDocuments, setCloudDocuments] = useState([]);
+  const [loadingDocs, setLoadingDocs] = useState(false);
+
+  useEffect(() => {
+    if (view === 'readings' && currentUser) {
+      const fetchDocs = async () => {
+        setLoadingDocs(true);
+        try {
+          const q = query(collection(db, `users/${currentUser.uid}/documents`), orderBy("createdAt", "desc"));
+          const querySnapshot = await getDocs(q);
+          const docs = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+          setCloudDocuments(docs);
+        } catch (error) {
+          console.error("Error fetching documents:", error);
+        } finally {
+          setLoadingDocs(false);
+        }
+      };
+      fetchDocs();
+    }
+  }, [view, currentUser]);
 
   const handleLogin = async () => {
     try {
@@ -114,22 +137,57 @@ export const Sidebar = ({ isOpen, onClose, theme, toggleTheme, annotations = {},
             ) : view === 'readings' ? (
               <div className="flex-1 overflow-y-auto">
                 <h3 className="text-xl font-bold mb-4">Mis Lecturas</h3>
-                {readingHistory.length === 0 ? (
-                  <p className="text-sm opacity-50">No hay lecturas guardadas.</p>
-                ) : (
-                  <div className="space-y-4">
-                    {readingHistory.map((fileName, index) => (
-                      <div key={index} className="p-3 bg-foreground/5 rounded-lg">
-                        <div className="flex items-center gap-3 mb-2">
-                          <BookOpen size={16} className="opacity-70" />
-                          <p className="font-medium text-sm truncate">{fileName}</p>
+                
+                {currentUser ? (
+                  loadingDocs ? (
+                    <div className="flex justify-center p-4">
+                      <span className="opacity-50">Cargando...</span>
+                    </div>
+                  ) : cloudDocuments.length === 0 ? (
+                    <p className="text-sm opacity-50">No tienes documentos guardados en la nube.</p>
+                  ) : (
+                    <div className="space-y-4">
+                      {cloudDocuments.map((doc, index) => (
+                        <div 
+                          key={doc.id || index} 
+                          className="p-3 bg-foreground/5 rounded-lg cursor-pointer hover:bg-foreground/10 transition-colors"
+                          onClick={() => onCloudDocumentSelect && onCloudDocumentSelect(doc)}
+                        >
+                          <div className="flex items-center gap-3 mb-2">
+                            <Cloud size={16} className="opacity-70 text-blue-500" />
+                            <p className="font-medium text-sm truncate">{doc.name}</p>
+                          </div>
+                          <div className="flex justify-between items-center text-xs opacity-50">
+                            <span>{new Date(doc.createdAt?.seconds * 1000).toLocaleDateString()}</span>
+                            <span>{(doc.size / 1024 / 1024).toFixed(2)} MB</span>
+                          </div>
                         </div>
-                        <p className="text-xs opacity-50">
-                          {annotations[fileName]?.length || 0} anotaciones
-                        </p>
+                      ))}
+                    </div>
+                  )
+                ) : (
+                  <>
+                    <p className="text-sm opacity-70 mb-4 bg-yellow-500/10 p-2 rounded border border-yellow-500/20">
+                      Inicia sesión para sincronizar tus lecturas en todos tus dispositivos.
+                    </p>
+                    {readingHistory.length === 0 ? (
+                      <p className="text-sm opacity-50">No hay lecturas locales.</p>
+                    ) : (
+                      <div className="space-y-4">
+                        {readingHistory.map((fileName, index) => (
+                          <div key={index} className="p-3 bg-foreground/5 rounded-lg">
+                            <div className="flex items-center gap-3 mb-2">
+                              <BookOpen size={16} className="opacity-70" />
+                              <p className="font-medium text-sm truncate">{fileName}</p>
+                            </div>
+                            <p className="text-xs opacity-50">
+                              {annotations[fileName]?.length || 0} anotaciones (local)
+                            </p>
+                          </div>
+                        ))}
                       </div>
-                    ))}
-                  </div>
+                    )}
+                  </>
                 )}
               </div>
             ) : view === 'instructions' ? (
