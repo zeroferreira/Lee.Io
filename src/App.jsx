@@ -164,16 +164,24 @@ function AppContent() {
           },
           (error) => {
             clearTimeout(progressCheck);
+            
+            // Ignore intentional cancellations (fallback mechanism)
+            if (error.code === 'storage/canceled') {
+              console.log("Upload canceled intentionally for local fallback");
+              return;
+            }
+
             console.error("Error uploading file:", error);
             let errorMessage = "Error al subir el archivo.";
             if (error.code === 'storage/unauthorized') {
               errorMessage = "No tienes permisos para subir archivos. Verifica que has iniciado sesión.";
-            } else if (error.code === 'storage/canceled') {
-              errorMessage = "La subida fue cancelada.";
             } else if (error.code === 'storage/unknown') {
               errorMessage = "Ocurrió un error desconocido. Intenta de nuevo.";
             }
+            
+            // Only alert for real errors, not cancellations
             alert(`${errorMessage} (${error.message})`);
+            
             setIsUploading(false);
             setPdfFile(file); // Fallback local
           },

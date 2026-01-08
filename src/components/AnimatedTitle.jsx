@@ -56,7 +56,7 @@ export const AnimatedTitle = ({ size = 'small', layoutIdPrefix = 'title' }) => {
       </motion.div>
 
       {isLarge && (
-        <svg className="absolute -inset-x-12 -inset-y-6 w-[calc(100%+6rem)] h-[calc(100%+3rem)] pointer-events-none overflow-visible z-0">
+        <svg className="absolute -inset-x-12 -inset-y-6 w-[calc(100%+6rem)] h-[calc(100%+3rem)] pointer-events-none overflow-visible z-0 hidden">
           <defs>
             <filter id="pencil-effect">
               <feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="4" result="noise" />
