@@ -14,6 +14,7 @@ import { Notification } from './components/Notification';
 import useDrivePicker from 'react-google-drive-picker';
 
 const GOOGLE_CLIENT_ID = "741889878750-da4cbkfe3q9gjh2figu71gbt4e9vap5e.apps.googleusercontent.com";
+const GOOGLE_API_KEY = "AIzaSyDQHr01GZaojE3wdoGzejocuFM-cXQGwTU";
 
 function AppContent() {
   const [showIntro, setShowIntro] = useState(true);
@@ -250,7 +251,7 @@ function AppContent() {
 
     openPicker({
       clientId: GOOGLE_CLIENT_ID,
-      developerKey: firebaseConfig.apiKey,
+      developerKey: GOOGLE_API_KEY,
       viewId: "DOCS",
       token: accessToken,
       showUploadView: false,
