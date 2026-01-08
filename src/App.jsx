@@ -13,7 +13,7 @@ import { ProfileScreen } from './components/ProfileScreen';
 import { Notification } from './components/Notification';
 import useDrivePicker from 'react-google-drive-picker';
 
-const GOOGLE_CLIENT_ID = "900762317960-g972j1tn884t9pgbl9e6f3dhd857ef0k.apps.googleusercontent.com";
+const GOOGLE_CLIENT_ID = "741889878750-da4cbkfe3q9gjh2figu71gbt4e9vap5e.apps.googleusercontent.com";
 
 function AppContent() {
   const [showIntro, setShowIntro] = useState(true);
