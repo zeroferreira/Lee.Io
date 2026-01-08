@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { X, Moon, Sun, User, BookOpen, PenTool, Info, ArrowLeft, LogIn, LogOut, Github, Cloud } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { db } from '../firebase/config';
-import { collection, query, orderBy, getDocs } from 'firebase/firestore';
+import { collection, query, orderBy, onSnapshot } from 'firebase/firestore';
 
 export const Sidebar = ({ isOpen, onClose, theme, toggleTheme, annotations = {}, currentFileName, onOpenProfile, onAnnotationClick, onCloudDocumentSelect }) => {
   const [view, setView] = useState('menu'); // 'menu' | 'annotations'
@@ -13,20 +13,19 @@ export const Sidebar = ({ isOpen, onClose, theme, toggleTheme, annotations = {},
 
   useEffect(() => {
     if (view === 'readings' && currentUser) {
-      const fetchDocs = async () => {
-        setLoadingDocs(true);
-        try {
-          const q = query(collection(db, `users/${currentUser.uid}/documents`), orderBy("createdAt", "desc"));
-          const querySnapshot = await getDocs(q);
-          const docs = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-          setCloudDocuments(docs);
-        } catch (error) {
-          console.error("Error fetching documents:", error);
-        } finally {
-          setLoadingDocs(false);
-        }
-      };
-      fetchDocs();
+      setLoadingDocs(true);
+      const q = query(collection(db, `users/${currentUser.uid}/documents`), orderBy("createdAt", "desc"));
+      
+      const unsubscribe = onSnapshot(q, (querySnapshot) => {
+        const docs = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        setCloudDocuments(docs);
+        setLoadingDocs(false);
+      }, (error) => {
+        console.error("Error fetching documents:", error);
+        setLoadingDocs(false);
+      });
+
+      return () => unsubscribe();
     }
   }, [view, currentUser]);
 

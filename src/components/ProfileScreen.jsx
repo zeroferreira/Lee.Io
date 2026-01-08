@@ -1,12 +1,38 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, LogOut, Cloud, Smartphone, User, Shield, Check, ChevronDown, ChevronUp } from 'lucide-react';
+import { X, LogOut, Cloud, Smartphone, User, Shield, Check, ChevronDown, ChevronUp, HardDrive } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { db } from '../firebase/config';
+import { collection, getDocs, query } from 'firebase/firestore';
 
 export const ProfileScreen = ({ isOpen, onClose, annotations = {} }) => {
   const { currentUser, loginWithGoogle, logout } = useAuth();
   const [error, setError] = React.useState(null);
   const [showPrivacy, setShowPrivacy] = useState(false);
+  const [storageUsed, setStorageUsed] = useState(0);
+  const [loadingStorage, setLoadingStorage] = useState(false);
+
+  useEffect(() => {
+    if (currentUser && isOpen) {
+      const calculateStorage = async () => {
+        setLoadingStorage(true);
+        try {
+          const q = query(collection(db, `users/${currentUser.uid}/documents`));
+          const snapshot = await getDocs(q);
+          let total = 0;
+          snapshot.forEach(doc => {
+            total += doc.data().size || 0;
+          });
+          setStorageUsed(total);
+        } catch (e) {
+          console.error("Error calculating storage:", e);
+        } finally {
+          setLoadingStorage(false);
+        }
+      };
+      calculateStorage();
+    }
+  }, [currentUser, isOpen]);
 
   // Calculate stats
   const totalBooks = Object.keys(annotations).length;
@@ -16,6 +42,17 @@ export const ProfileScreen = ({ isOpen, onClose, annotations = {} }) => {
   const memberSince = currentUser?.metadata?.creationTime 
     ? new Date(currentUser.metadata.creationTime).toLocaleDateString('es-ES', { month: 'long', year: 'numeric' })
     : '';
+
+  const formatBytes = (bytes) => {
+    if (bytes === 0) return '0 B';
+    const k = 1024;
+    const sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+  };
+
+  const STORAGE_LIMIT = 5 * 1024 * 1024 * 1024; // 5 GB
+  const percentageUsed = Math.min((storageUsed / STORAGE_LIMIT) * 100, 100);
 
   const handleLogin = async () => {
     try {
@@ -98,6 +135,29 @@ export const ProfileScreen = ({ isOpen, onClose, annotations = {} }) => {
                 {memberSince && (
                   <p className="text-xs text-foreground/40 mt-1">Miembro desde {memberSince}</p>
                 )}
+              </div>
+
+              {/* Storage Usage */}
+              <div className="bg-foreground/5 p-4 rounded-xl text-left space-y-2">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center gap-2 text-sm font-medium">
+                    <HardDrive size={16} />
+                    <span>Almacenamiento en la nube</span>
+                  </div>
+                  <span className="text-xs opacity-60">
+                    {loadingStorage ? 'Calculando...' : `${formatBytes(storageUsed)} / 5 GB`}
+                  </span>
+                </div>
+                <div className="h-2 bg-foreground/10 rounded-full overflow-hidden">
+                  <motion.div 
+                    initial={{ width: 0 }}
+                    animate={{ width: `${percentageUsed}%` }}
+                    className={`h-full rounded-full ${percentageUsed > 90 ? 'bg-red-500' : 'bg-blue-500'}`}
+                  />
+                </div>
+                <p className="text-[10px] opacity-40 text-center pt-1">
+                  Plan Gratuito (Spark). Actualiza en Firebase Console para espacio ilimitado.
+                </p>
               </div>
 
               {/* Stats Grid */}

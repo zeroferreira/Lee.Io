@@ -8,7 +8,7 @@ import { Plus, Undo2, Loader2 } from 'lucide-react';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { db, storage } from './firebase/config';
 import { doc, setDoc, getDoc, collection, addDoc, serverTimestamp, query, where, getDocs } from 'firebase/firestore';
-import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
 import { ProfileScreen } from './components/ProfileScreen';
 
 function AppContent() {
@@ -17,6 +17,7 @@ function AppContent() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
   const [theme, setTheme] = useState(() => {
     if (typeof window !== 'undefined') {
       return localStorage.getItem('theme') || 'light';
@@ -56,7 +57,7 @@ function AppContent() {
     // Intro duration: wait for initial animation + a bit more before moving
     const timer = setTimeout(() => {
       setShowIntro(false);
-    }, 4500); // Even longer to allow full fall animation + pause
+    }, 3000); // Reduced time for faster transition
     return () => clearTimeout(timer);
   }, []);
 
@@ -123,46 +124,70 @@ function AppContent() {
     }
   };
 
-  const handleFileChange = async (event) => {
+  const handleFileChange = (event) => {
     const file = event.target.files[0];
-    if (file && file.type === 'application/pdf') {
-      if (currentUser) {
-        try {
-          setIsUploading(true);
-          
-          // Check if file already exists in Firestore to avoid duplicates (optional but good)
-          // For simplicity, we'll just upload and let Firestore handle IDs, or check by name?
-          // Let's check by name to update if exists or just create new. For now, create new or update.
-          // Actually, let's just upload.
-          
-          const storageRef = ref(storage, `users/${currentUser.uid}/documents/${file.name}`);
-          await uploadBytes(storageRef, file);
-          const downloadURL = await getDownloadURL(storageRef);
-          
-          // Save metadata to Firestore
-          // Check if document exists in collection
-          const q = query(collection(db, `users/${currentUser.uid}/documents`), where("name", "==", file.name));
-          const querySnapshot = await getDocs(q);
-          
-          if (querySnapshot.empty) {
-            await addDoc(collection(db, `users/${currentUser.uid}/documents`), {
-              name: file.name,
-              url: downloadURL,
-              createdAt: serverTimestamp(),
-              size: file.size
-            });
-          } else {
-             // Update existing if needed, or just leave it
-          }
+    const MAX_FILE_SIZE = 50 * 1024 * 1024; // 50MB limit
 
-          setPdfFile({ name: file.name, url: downloadURL });
-        } catch (error) {
-          console.error("Error uploading file:", error);
-          alert("Error al subir el archivo a la nube. Se abrirá localmente.");
-          setPdfFile(file);
-        } finally {
-          setIsUploading(false);
-        }
+    if (file && file.type === 'application/pdf') {
+      if (file.size > MAX_FILE_SIZE) {
+        alert('El archivo es demasiado grande. El límite es de 50MB por documento para optimizar el almacenamiento.');
+        return;
+      }
+
+      if (currentUser) {
+        setIsUploading(true);
+        setUploadProgress(0);
+        
+        const storageRef = ref(storage, `users/${currentUser.uid}/documents/${file.name}`);
+        const uploadTask = uploadBytesResumable(storageRef, file);
+
+        uploadTask.on('state_changed',
+          (snapshot) => {
+            const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+            setUploadProgress(progress);
+          },
+          (error) => {
+            console.error("Error uploading file:", error);
+            let errorMessage = "Error al subir el archivo.";
+            if (error.code === 'storage/unauthorized') {
+              errorMessage = "No tienes permisos para subir archivos. Verifica que has iniciado sesión.";
+            } else if (error.code === 'storage/canceled') {
+              errorMessage = "La subida fue cancelada.";
+            } else if (error.code === 'storage/unknown') {
+              errorMessage = "Ocurrió un error desconocido. Intenta de nuevo.";
+            }
+            alert(`${errorMessage} (${error.message})`);
+            setIsUploading(false);
+            setPdfFile(file); // Fallback local
+          },
+          async () => {
+            try {
+              const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
+              
+              // Save metadata to Firestore
+              const q = query(collection(db, `users/${currentUser.uid}/documents`), where("name", "==", file.name));
+              const querySnapshot = await getDocs(q);
+              
+              if (querySnapshot.empty) {
+                await addDoc(collection(db, `users/${currentUser.uid}/documents`), {
+                  name: file.name,
+                  url: downloadURL,
+                  createdAt: serverTimestamp(),
+                  size: file.size
+                });
+              } else {
+                 // Optional: update timestamp or size if changed
+              }
+
+              setPdfFile({ name: file.name, url: downloadURL });
+            } catch (error) {
+              console.error("Error finishing upload:", error);
+              setPdfFile(file); // Fallback
+            } finally {
+              setIsUploading(false);
+            }
+          }
+        );
       } else {
         setPdfFile(file);
       }
@@ -238,10 +263,18 @@ function AppContent() {
              />
 
              {isUploading && (
-               <div className="absolute inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm">
-                 <div className="flex flex-col items-center gap-4">
+               <div className="absolute inset-0 z-[150] flex items-center justify-center bg-background/80 backdrop-blur-sm">
+                 <div className="flex flex-col items-center gap-4 w-64">
                    <Loader2 className="animate-spin h-10 w-10 text-foreground" />
-                   <p className="text-lg font-medium">Subiendo documento a la nube...</p>
+                   <p className="text-lg font-medium">Subiendo documento...</p>
+                   <div className="w-full h-2 bg-foreground/10 rounded-full overflow-hidden">
+                     <motion.div 
+                        className="h-full bg-foreground"
+                        initial={{ width: 0 }}
+                        animate={{ width: `${uploadProgress}%` }}
+                     />
+                   </div>
+                   <p className="text-sm opacity-60">{Math.round(uploadProgress)}%</p>
                  </div>
                </div>
              )}
