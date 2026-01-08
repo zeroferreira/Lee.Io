@@ -81,13 +81,13 @@ export const AnimatedTitle = ({ size = 'small', layoutIdPrefix = 'title' }) => {
             filter="url(#pencil-effect)"
             initial={{ pathLength: 0, opacity: 0, pathOffset: 0 }}
             animate={{ 
-              pathLength: [0, 1.05, 1.05], 
-              pathOffset: [0, 0, 1],
+              pathLength: [0, 0.6, 0.6, 0], 
+              pathOffset: [0, 0.4, 1, 1],
               opacity: [0, 1, 1, 0] 
             }}
             transition={{ 
-              duration: 1.5, 
-              times: [0, 0.5, 0.9, 1],
+              duration: 2, 
+              times: [0, 0.4, 0.9, 1],
               ease: "easeInOut", 
               delay: 0.5 
             }}
@@ -106,13 +106,13 @@ export const AnimatedTitle = ({ size = 'small', layoutIdPrefix = 'title' }) => {
             filter="url(#pencil-effect-2)"
             initial={{ pathLength: 0, opacity: 0, pathOffset: 0 }}
             animate={{ 
-              pathLength: [0, 1.1, 1.1], 
-              pathOffset: [0, 0, 1],
+              pathLength: [0, 0.7, 0.7, 0], 
+              pathOffset: [0, 0.3, 1, 1],
               opacity: [0, 1, 1, 0] 
             }}
             transition={{ 
-              duration: 1.6, 
-              times: [0, 0.5, 0.9, 1],
+              duration: 2.1, 
+              times: [0, 0.4, 0.9, 1],
               ease: "easeInOut", 
               delay: 0.6 
             }}
