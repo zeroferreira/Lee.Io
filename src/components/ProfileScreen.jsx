@@ -156,7 +156,7 @@ export const ProfileScreen = ({ isOpen, onClose, annotations = {} }) => {
                   />
                 </div>
                 <p className="text-[10px] opacity-40 text-center pt-1">
-                  Plan Gratuito (Spark). Actualiza en Firebase Console para espacio ilimitado.
+                  Espacio disponible en tu cuenta.
                 </p>
               </div>
 
