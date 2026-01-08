@@ -62,7 +62,7 @@ function AppContent() {
     // Intro duration: wait for initial animation + a bit more before moving
     const timer = setTimeout(() => {
       setShowIntro(false);
-    }, 2500); // Reduced time to match oval animation end (2.5s)
+    }, 1500); // Reduced time for faster transition
     return () => clearTimeout(timer);
   }, []);
 
