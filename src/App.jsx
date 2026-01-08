@@ -4,16 +4,21 @@ import { Header } from './components/Header';
 import { Sidebar } from './components/Sidebar';
 import { PDFViewer } from './components/PDFViewer';
 import { AnimatedTitle } from './components/AnimatedTitle';
-import { Plus, Undo2, Loader2 } from 'lucide-react';
+import { Plus, Undo2, Loader2, HardDrive } from 'lucide-react';
 import { AuthProvider, useAuth } from './context/AuthContext';
-import { db, storage } from './firebase/config';
+import { db, storage, firebaseConfig } from './firebase/config';
 import { doc, setDoc, getDoc, collection, addDoc, serverTimestamp, query, where, getDocs } from 'firebase/firestore';
 import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
 import { ProfileScreen } from './components/ProfileScreen';
+import useDrivePicker from 'react-google-drive-picker';
+
+// TODO: Reemplaza con tu Client ID de Google Cloud Console
+const GOOGLE_CLIENT_ID = "741889878750-insert-your-client-id-here.apps.googleusercontent.com";
 
 function AppContent() {
   const [showIntro, setShowIntro] = useState(true);
-  const { currentUser } = useAuth();
+  const { currentUser, accessToken } = useAuth();
+  const [openPicker] = useDrivePicker();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
@@ -230,6 +235,61 @@ function AppContent() {
     fileInputRef.current?.click();
   };
 
+  const handleOpenDrive = () => {
+    if (!currentUser) {
+      alert("Por favor inicia sesión para acceder a tu Google Drive.");
+      setIsMenuOpen(true);
+      return;
+    }
+    
+    if (!accessToken) {
+       alert("Necesitamos renovar tu sesión para acceder a Drive. Por favor cierra sesión y vuelve a entrar.");
+       return;
+    }
+
+    openPicker({
+      clientId: GOOGLE_CLIENT_ID,
+      developerKey: firebaseConfig.apiKey,
+      viewId: "DOCS",
+      token: accessToken,
+      showUploadView: false,
+      showUploadFolders: true,
+      supportDrives: true,
+      multiselect: false,
+      mimeTypes: "application/pdf",
+      callbackFunction: (data) => {
+        if (data.action === 'picked') {
+          const fileId = data.docs[0].id;
+          const fileName = data.docs[0].name;
+          downloadFileFromDrive(fileId, fileName, accessToken);
+        }
+      },
+    });
+  };
+
+  const downloadFileFromDrive = async (fileId, fileName, token) => {
+      setIsUploading(true);
+      try {
+        const response = await fetch(`https://www.googleapis.com/drive/v3/files/${fileId}?alt=media`, {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+        
+        if (!response.ok) throw new Error('Failed to download');
+        
+        const blob = await response.blob();
+        const file = new File([blob], fileName, { type: 'application/pdf' });
+        
+        setPdfFile(file);
+      } catch (error) {
+        console.error("Error downloading from Drive:", error);
+        alert("Error al cargar el archivo desde Drive.");
+      } finally {
+        setIsUploading(false);
+      }
+  };
+
   return (
     <LayoutGroup>
       <div className="min-h-screen bg-background text-foreground transition-colors duration-300 overflow-hidden relative flex flex-col">
@@ -318,15 +378,23 @@ function AppContent() {
                        Tu espacio minimalista para leer y anotar documentos PDF.
                      </p>
                      
-                     <div className="pt-4">
-                       <button
-                         onClick={handleAddClick}
-                         className="group flex items-center justify-center space-x-3 bg-foreground text-background px-10 py-4 rounded-full text-xl font-medium hover:opacity-90 transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-1 w-full sm:w-auto min-w-[200px]"
-                       >
-                         <Plus className="group-hover:rotate-90 transition-transform duration-300" />
-                         <span>Agregar</span>
-                       </button>
-                     </div>
+                     <div className="pt-4 flex flex-col sm:flex-row gap-4 justify-center w-full">
+                      <button
+                        onClick={handleAddClick}
+                        className="group flex items-center justify-center space-x-3 bg-foreground text-background px-10 py-4 rounded-full text-xl font-medium hover:opacity-90 transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-1 w-full sm:w-auto min-w-[200px]"
+                      >
+                        <Plus className="group-hover:rotate-90 transition-transform duration-300" />
+                        <span>Agregar</span>
+                      </button>
+
+                      <button
+                        onClick={handleOpenDrive}
+                        className="group flex items-center justify-center space-x-3 bg-background border-2 border-foreground text-foreground px-10 py-4 rounded-full text-xl font-medium hover:bg-foreground/5 transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-1 w-full sm:w-auto min-w-[200px]"
+                      >
+                        <HardDrive className="group-hover:scale-110 transition-transform duration-300" />
+                        <span>Drive</span>
+                      </button>
+                    </div>
                    </motion.div>
                  </div>
                ) : (

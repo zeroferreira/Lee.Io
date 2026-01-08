@@ -16,15 +16,27 @@ export function useAuth() {
 export function AuthProvider({ children }) {
   const [currentUser, setCurrentUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [accessToken, setAccessToken] = useState(null);
 
   // Sign in with Google
-  const loginWithGoogle = () => {
+  const loginWithGoogle = async () => {
     const provider = new GoogleAuthProvider();
-    return signInWithPopup(auth, provider);
+    provider.addScope('https://www.googleapis.com/auth/drive.readonly');
+    try {
+      const result = await signInWithPopup(auth, provider);
+      const credential = GoogleAuthProvider.credentialFromResult(result);
+      if (credential?.accessToken) {
+        setAccessToken(credential.accessToken);
+      }
+      return result;
+    } catch (error) {
+      throw error;
+    }
   };
 
   // Sign out
   const logout = () => {
+    setAccessToken(null);
     return firebaseSignOut(auth);
   };
 
@@ -41,7 +53,8 @@ export function AuthProvider({ children }) {
     currentUser,
     loginWithGoogle,
     logout,
-    loading
+    loading,
+    accessToken
   };
 
   return (
