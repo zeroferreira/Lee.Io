@@ -62,7 +62,7 @@ function AppContent() {
     // Intro duration: wait for initial animation + a bit more before moving
     const timer = setTimeout(() => {
       setShowIntro(false);
-    }, 3000); // Reduced time for faster transition
+    }, 2500); // Reduced time to match oval animation end (2.5s)
     return () => clearTimeout(timer);
   }, []);
 
@@ -323,7 +323,7 @@ function AppContent() {
         <motion.div 
           initial={{ opacity: 0 }}
           animate={{ opacity: showIntro ? 0 : 1 }}
-          transition={{ duration: 1, delay: 0.2 }} // Faster fade in
+          transition={{ duration: 0.8, delay: 0.1 }} // Faster fade in
           className="flex-1 flex flex-col relative"
         >
              <Sidebar 
