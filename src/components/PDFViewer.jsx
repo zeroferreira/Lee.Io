@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo, useRef } from 'react';
 import { Document, Page, pdfjs } from 'react-pdf';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronLeft, ChevronRight, ZoomIn, ZoomOut, MessageSquarePlus, Highlighter, Eraser, Maximize, Minimize, MoreHorizontal, Square, Circle } from 'lucide-react';
+import { ChevronLeft, ChevronRight, ZoomIn, ZoomOut, MessageSquarePlus, Highlighter, Eraser, Maximize, Minimize, MoreHorizontal, Square, Circle, Copy } from 'lucide-react';
 import 'react-pdf/dist/Page/AnnotationLayer.css';
 import 'react-pdf/dist/Page/TextLayer.css';
 
@@ -769,6 +769,27 @@ export const PDFViewer = ({ file, onAddAnnotation, annotations = [], currentPage
               />
             ))}
           </div>
+          <button
+            onClick={() => {
+                const targetList = highlights[pageNumber] || [];
+                const h = targetList.find(x => x.id === optionsMenu.targetId);
+                const text = selectedText || (h?.text || '');
+                if (text) {
+                  navigator.clipboard.writeText(text).then(() => {
+                    alert('Texto copiado al portapapeles');
+                  }).catch(err => {
+                    console.error('Error al copiar:', err);
+                  });
+                } else {
+                  alert('No hay texto para copiar');
+                }
+                setOptionsMenu({ open: false, x: 0, y: 0, targetId: null });
+            }}
+            className="px-2 py-1 text-sm rounded hover:bg-foreground/5 flex items-center gap-1"
+            title="Copiar texto"
+          >
+            <Copy size={14} />
+          </button>
           <button
             onClick={() => {
               const targetList = highlights[pageNumber] || [];
