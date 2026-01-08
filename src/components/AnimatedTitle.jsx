@@ -87,7 +87,7 @@ export const AnimatedTitle = ({ size = 'small', layoutIdPrefix = 'title' }) => {
             }}
             transition={{ 
               duration: 2, 
-              times: [0, 0.4, 0.9, 1],
+              times: [0, 0.1, 0.9, 1], // Fade in quickly (0.1) to avoid initial dot
               ease: "easeInOut", 
               delay: 0.5 
             }}
@@ -112,7 +112,7 @@ export const AnimatedTitle = ({ size = 'small', layoutIdPrefix = 'title' }) => {
             }}
             transition={{ 
               duration: 2.1, 
-              times: [0, 0.4, 0.9, 1],
+              times: [0, 0.1, 0.9, 1], // Fade in quickly (0.1)
               ease: "easeInOut", 
               delay: 0.6 
             }}
