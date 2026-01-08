@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo, useRef } from 'react';
 import { Document, Page, pdfjs } from 'react-pdf';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronLeft, ChevronRight, ZoomIn, ZoomOut, MessageSquarePlus, Highlighter, Eraser, Maximize, Minimize, MoreHorizontal, Square, Circle, Copy } from 'lucide-react';
+import { ChevronLeft, ChevronRight, ZoomIn, ZoomOut, MessageSquarePlus, Highlighter, Eraser, Maximize, Minimize, MoreHorizontal, Square, Circle, Copy, Search } from 'lucide-react';
 import 'react-pdf/dist/Page/AnnotationLayer.css';
 import 'react-pdf/dist/Page/TextLayer.css';
 
@@ -31,7 +31,8 @@ export const PDFViewer = ({ file, onAddAnnotation, annotations = [], currentPage
     }
     return 'flip';
   });
-  const [optionsMenu, setOptionsMenu] = useState({ open: false, x: 0, y: 0, targetId: null });
+  const [optionsMenu, setOptionsMenu] = useState({ open: false, x: 0, y: 0, targetId: null, isNewSelection: false });
+  const [tempSelection, setTempSelection] = useState(null);
   const [selectedText, setSelectedText] = useState('');
   const overlayRef = useRef(null);
   const containerRef = useRef(null);
@@ -421,10 +422,8 @@ export const PDFViewer = ({ file, onAddAnnotation, annotations = [], currentPage
           if (rects.length > 0) {
             const id = Date.now();
             const hx = { id, rects, color: 'rgba(255, 235, 59, 0.35)', text };
-            // Don't save yet, just show options menu to confirm action
-            // Or if we want auto-highlight:
-            const next = { ...highlights, [pageNumber]: [...(highlights[pageNumber] || []), hx] };
-            saveHighlights(next);
+            
+            setTempSelection(hx);
             
             const last = rects[rects.length - 1];
             setSelectedText(text);
@@ -439,7 +438,8 @@ export const PDFViewer = ({ file, onAddAnnotation, annotations = [], currentPage
               y: last.y,
               screenX,
               screenY,
-              targetId: id
+              targetId: id,
+              isNewSelection: true
             });
             try { sel.removeAllRanges(); } catch {}
           }
@@ -751,81 +751,159 @@ export const PDFViewer = ({ file, onAddAnnotation, annotations = [], currentPage
           }}
           onClick={(e) => e.stopPropagation()}
         >
-          <button
-            onClick={() => {
-              const targetList = highlights[pageNumber] || [];
-              const h = targetList.find(x => x.id === optionsMenu.targetId);
-              const text = selectedText || (h?.text || '');
-              
-              setNoteText(text ? `"${text}"\n\n` : '');
-              setIsNoteModalOpen(true);
-              setOptionsMenu({ open: false, x: 0, y: 0, targetId: null });
-            }}
-            className="px-2 py-1 text-sm rounded hover:bg-foreground/5"
-          >
-            Idea
-          </button>
-          <div className="flex items-center gap-1">
-            {['rgba(255, 235, 59, 0.35)','rgba(76, 175, 80, 0.35)','rgba(255, 105, 180, 0.35)','rgba(30, 144, 255, 0.35)'].map(c => (
+          {optionsMenu.isNewSelection ? (
+            <>
               <button
-                key={c}
                 onClick={() => {
-                  const list = highlights[pageNumber] || [];
-                  const next = list.map(h => h.id === optionsMenu.targetId ? { ...h, color: c } : h);
-                  const merged = { ...highlights, [pageNumber]: next };
-                  saveHighlights(merged);
-                  setOptionsMenu({ ...optionsMenu });
+                  if (selectedText) {
+                    const q = encodeURIComponent(selectedText);
+                    window.open(`https://www.google.com/search?q=${q}`, '_blank');
+                  }
+                  setOptionsMenu({ open: false, x: 0, y: 0, targetId: null });
+                  setTempSelection(null);
                 }}
-                className="w-5 h-5 rounded"
-                style={{ background: c }}
-                title="Color"
-              />
-            ))}
-          </div>
-          <button
-            onClick={() => {
-                const targetList = highlights[pageNumber] || [];
-                const h = targetList.find(x => x.id === optionsMenu.targetId);
-                const text = selectedText || (h?.text || '');
-                if (text) {
-                  navigator.clipboard.writeText(text).then(() => {
-                    alert('Texto copiado al portapapeles');
-                  }).catch(err => {
-                    console.error('Error al copiar:', err);
-                  });
-                } else {
-                  alert('No hay texto para copiar');
-                }
-                setOptionsMenu({ open: false, x: 0, y: 0, targetId: null });
-            }}
-            className="px-2 py-1 text-sm rounded hover:bg-foreground/5 flex items-center gap-1"
-            title="Copiar texto"
-          >
-            <Copy size={14} />
-          </button>
-          <button
-            onClick={() => {
-              const targetList = highlights[pageNumber] || [];
-              const h = targetList.find(x => x.id === optionsMenu.targetId);
-              const text = selectedText || (h?.text || '');
-              if (text) {
-                const q = encodeURIComponent(text);
-                window.open(`https://www.google.com/search?q=${q}`, '_blank');
-              } else {
-                alert("No hay texto seleccionado para buscar.");
-              }
-              setOptionsMenu({ open: false, x: 0, y: 0, targetId: null });
-            }}
-            className="px-2 py-1 text-sm rounded hover:bg-foreground/5"
-          >
-            Buscar
-          </button>
-          <button
-            onClick={() => setOptionsMenu({ open: false, x: 0, y: 0, targetId: null })}
-            className="px-2 py-1 text-sm rounded hover:bg-foreground/5"
-          >
-            Cerrar
-          </button>
+                className="px-2 py-1 text-sm rounded hover:bg-foreground/5 flex items-center gap-1"
+                title="Buscar en Google"
+              >
+                <Search size={14} />
+              </button>
+              <button
+                onClick={() => {
+                  if (tempSelection) {
+                    const next = { ...highlights, [pageNumber]: [...(highlights[pageNumber] || []), tempSelection] };
+                    saveHighlights(next);
+                  }
+                  setOptionsMenu({ open: false, x: 0, y: 0, targetId: null });
+                  setTempSelection(null);
+                }}
+                className="px-2 py-1 text-sm rounded hover:bg-foreground/5 flex items-center gap-1"
+                title="Subrayar"
+              >
+                <Highlighter size={14} />
+              </button>
+              <button
+                onClick={() => {
+                  if (tempSelection) {
+                    const next = { ...highlights, [pageNumber]: [...(highlights[pageNumber] || []), tempSelection] };
+                    saveHighlights(next);
+                    
+                    setNoteText(selectedText ? `"${selectedText}"\n\n` : '');
+                    setIsNoteModalOpen(true);
+                  }
+                  setOptionsMenu({ open: false, x: 0, y: 0, targetId: null });
+                  setTempSelection(null);
+                }}
+                className="px-2 py-1 text-sm rounded hover:bg-foreground/5 flex items-center gap-1"
+                title="Anotar"
+              >
+                <MessageSquarePlus size={14} />
+              </button>
+              <button
+                onClick={() => {
+                  if (selectedText) {
+                    navigator.clipboard.writeText(selectedText).then(() => {
+                      alert('Texto copiado al portapapeles');
+                    }).catch(err => {
+                      console.error('Error al copiar:', err);
+                    });
+                  }
+                  setOptionsMenu({ open: false, x: 0, y: 0, targetId: null });
+                  setTempSelection(null);
+                }}
+                className="px-2 py-1 text-sm rounded hover:bg-foreground/5 flex items-center gap-1"
+                title="Copiar"
+              >
+                <Copy size={14} />
+              </button>
+              <button
+                onClick={() => {
+                    setOptionsMenu({ open: false, x: 0, y: 0, targetId: null });
+                    setTempSelection(null);
+                }}
+                className="px-2 py-1 text-sm rounded hover:bg-foreground/5"
+              >
+                X
+              </button>
+            </>
+          ) : (
+            <>
+              <button
+                onClick={() => {
+                  const targetList = highlights[pageNumber] || [];
+                  const h = targetList.find(x => x.id === optionsMenu.targetId);
+                  const text = selectedText || (h?.text || '');
+                  
+                  setNoteText(text ? `"${text}"\n\n` : '');
+                  setIsNoteModalOpen(true);
+                  setOptionsMenu({ open: false, x: 0, y: 0, targetId: null });
+                }}
+                className="px-2 py-1 text-sm rounded hover:bg-foreground/5"
+              >
+                Idea
+              </button>
+              <div className="flex items-center gap-1">
+                {['rgba(255, 235, 59, 0.35)','rgba(76, 175, 80, 0.35)','rgba(255, 105, 180, 0.35)','rgba(30, 144, 255, 0.35)'].map(c => (
+                  <button
+                    key={c}
+                    onClick={() => {
+                      const list = highlights[pageNumber] || [];
+                      const next = list.map(h => h.id === optionsMenu.targetId ? { ...h, color: c } : h);
+                      const merged = { ...highlights, [pageNumber]: next };
+                      saveHighlights(merged);
+                      setOptionsMenu({ ...optionsMenu });
+                    }}
+                    className="w-5 h-5 rounded"
+                    style={{ background: c }}
+                    title="Color"
+                  />
+                ))}
+              </div>
+              <button
+                onClick={() => {
+                    const targetList = highlights[pageNumber] || [];
+                    const h = targetList.find(x => x.id === optionsMenu.targetId);
+                    const text = selectedText || (h?.text || '');
+                    if (text) {
+                      navigator.clipboard.writeText(text).then(() => {
+                        alert('Texto copiado al portapapeles');
+                      }).catch(err => {
+                        console.error('Error al copiar:', err);
+                      });
+                    } else {
+                      alert('No hay texto para copiar');
+                    }
+                    setOptionsMenu({ open: false, x: 0, y: 0, targetId: null });
+                }}
+                className="px-2 py-1 text-sm rounded hover:bg-foreground/5 flex items-center gap-1"
+                title="Copiar texto"
+              >
+                <Copy size={14} />
+              </button>
+              <button
+                onClick={() => {
+                  const targetList = highlights[pageNumber] || [];
+                  const h = targetList.find(x => x.id === optionsMenu.targetId);
+                  const text = selectedText || (h?.text || '');
+                  if (text) {
+                    const q = encodeURIComponent(text);
+                    window.open(`https://www.google.com/search?q=${q}`, '_blank');
+                  } else {
+                    alert("No hay texto seleccionado para buscar.");
+                  }
+                  setOptionsMenu({ open: false, x: 0, y: 0, targetId: null });
+                }}
+                className="px-2 py-1 text-sm rounded hover:bg-foreground/5"
+              >
+                Buscar
+              </button>
+              <button
+                onClick={() => setOptionsMenu({ open: false, x: 0, y: 0, targetId: null })}
+                className="px-2 py-1 text-sm rounded hover:bg-foreground/5"
+              >
+                Cerrar
+              </button>
+            </>
+          )}
         </div>
       )}
 
