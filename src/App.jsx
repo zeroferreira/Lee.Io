@@ -13,7 +13,7 @@ import { ProfileScreen } from './components/ProfileScreen';
 import useDrivePicker from 'react-google-drive-picker';
 
 // TODO: Reemplaza con tu Client ID de Google Cloud Console
-const GOOGLE_CLIENT_ID = "741889878750-insert-your-client-id-here.apps.googleusercontent.com";
+const GOOGLE_CLIENT_ID = "900762317960-j8481f1d3vd3gvl1e1qg98n024jp70ci.apps.googleusercontent.com";
 
 function AppContent() {
   const [showIntro, setShowIntro] = useState(true);
