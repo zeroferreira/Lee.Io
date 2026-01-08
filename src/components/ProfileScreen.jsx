@@ -29,7 +29,7 @@ export const ProfileScreen = ({ isOpen, onClose, annotations = {} }) => {
       if (error.code === 'auth/popup-closed-by-user') {
         errorMessage = "El inicio de sesión fue cancelado.";
       } else if (error.code === 'auth/unauthorized-domain') {
-        errorMessage = "Error de configuración: Este dominio (localhost) no está autorizado en Firebase Console.";
+        errorMessage = `Error de configuración: Este dominio (${window.location.hostname}) no está autorizado en Firebase Console.`;
       } else if (error.code === 'auth/configuration-not-found') {
         errorMessage = "Error: El inicio de sesión con Google no está habilitado en Firebase Console.";
       } else if (error.code === 'auth/cancelled-popup-request') {
