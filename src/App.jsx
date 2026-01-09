@@ -431,6 +431,8 @@ function AppContent() {
                }}
                onAnnotationClick={handleAnnotationClick}
                onCloudDocumentSelect={handleCloudDocumentSelect}
+               documents={recentDocuments}
+               loadingDocs={loadingDocuments}
              />
 
              <ProfileScreen 

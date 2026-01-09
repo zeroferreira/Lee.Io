@@ -6,38 +6,15 @@ import { db } from '../firebase/config';
 import { collection, query, orderBy, onSnapshot } from 'firebase/firestore';
 import { localFileStorage } from '../utils/localFileStorage';
 
-export const Sidebar = ({ isOpen, onClose, theme, toggleTheme, annotations = {}, currentFileName, onOpenProfile, onAnnotationClick, onCloudDocumentSelect }) => {
+export const Sidebar = ({ isOpen, onClose, theme, toggleTheme, annotations = {}, currentFileName, onOpenProfile, onAnnotationClick, onCloudDocumentSelect, documents = [], loadingDocs = false }) => {
   const [view, setView] = useState('menu'); // 'menu' | 'annotations'
   const { currentUser, loginWithGoogle, logout } = useAuth();
-  const [cloudDocuments, setCloudDocuments] = useState([]);
-  const [localDocuments, setLocalDocuments] = useState([]);
-  const [loadingDocs, setLoadingDocs] = useState(false);
-
-  useEffect(() => {
-    if (view === 'readings') {
-       // Load Local Documents (IndexedDB)
-       localFileStorage.getFiles().then(files => {
-          setLocalDocuments(files.sort((a, b) => new Date(b.lastModified) - new Date(a.lastModified)));
-       });
-
-       if (currentUser) {
-          setLoadingDocs(true);
-          const q = query(collection(db, `users/${currentUser.uid}/documents`), orderBy("createdAt", "desc"));
-          
-          const unsubscribe = onSnapshot(q, (querySnapshot) => {
-            const docs = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-            setCloudDocuments(docs);
-            setLoadingDocs(false);
-          }, (error) => {
-            console.error("Error fetching documents:", error);
-            setLoadingDocs(false);
-          });
-
-          return () => unsubscribe();
-       }
-    }
-  }, [view, currentUser]);
-
+  // Internal state removed as we now use props for documents
+  // But we need to handle if props are not passed (backward compatibility or if sidebar used elsewhere)
+  // For now, let's assume props are passed from App.jsx or default to empty.
+  
+  // We keep the prop names consistent with what useDocuments returns
+  
   const handleLogin = async () => {
     try {
       await loginWithGoogle();
@@ -53,22 +30,6 @@ export const Sidebar = ({ isOpen, onClose, theme, toggleTheme, annotations = {},
       console.error("Error logging out", error);
     }
   };
-
-  // Combine lists, preferring Cloud if duplicates exist (by name)
-  const combinedDocuments = [...cloudDocuments];
-  localDocuments.forEach(localDoc => {
-    if (!combinedDocuments.find(cd => cd.name === localDoc.name)) {
-      combinedDocuments.push(localDoc);
-    }
-  });
-
-  // Sort combined list by date (newest first)
-  // Cloud docs have createdAt (Timestamp), Local have lastModified (ISO string)
-  combinedDocuments.sort((a, b) => {
-    const dateA = a.createdAt?.seconds ? new Date(a.createdAt.seconds * 1000) : new Date(a.lastModified || 0);
-    const dateB = b.createdAt?.seconds ? new Date(b.createdAt.seconds * 1000) : new Date(b.lastModified || 0);
-    return dateB - dateA;
-  });
 
   const menuItems = [
     { icon: <User size={20} />, label: currentUser ? `Hola, ${currentUser.displayName}` : 'Mi perfil', action: onOpenProfile },
@@ -159,49 +120,41 @@ export const Sidebar = ({ isOpen, onClose, theme, toggleTheme, annotations = {},
                 </div>
               </>
             ) : view === 'readings' ? (
-              <div className="flex-1 overflow-y-auto">
-                <h3 className="text-xl font-bold mb-4">Mis Lecturas</h3>
-                
-                {loadingDocs ? (
+              <div className="flex-1 overflow-y-auto space-y-4">
+                 <h3 className="text-sm font-semibold text-foreground/50 uppercase tracking-wider mb-4">
+                   Mis Lecturas
+                 </h3>
+                 {loadingDocs ? (
                     <div className="flex justify-center p-4">
-                      <span className="opacity-50">Cargando...</span>
+                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-foreground"></div>
                     </div>
-                ) : combinedDocuments.length === 0 ? (
-                    <div className="flex flex-col items-center justify-center h-40 opacity-50 space-y-2">
-                        <BookOpen size={40} />
-                        <p className="text-sm text-center">No hay documentos guardados.</p>
-                        {!currentUser && <p className="text-xs text-center text-blue-500">Inicia sesión para sincronizar.</p>}
-                    </div>
-                ) : (
-                    <div className="space-y-4">
-                      {combinedDocuments.map((doc, index) => (
-                        <div 
-                          key={doc.id || index} 
-                          className="p-3 bg-foreground/5 rounded-lg cursor-pointer hover:bg-foreground/10 transition-colors"
-                          onClick={() => onCloudDocumentSelect && onCloudDocumentSelect(doc)}
-                        >
-                          <div className="flex items-center gap-3 mb-2">
-                            {doc.source === 'drive' ? (
-                                <Cloud size={16} className="opacity-70 text-blue-500" />
-                            ) : doc.source === 'local' || !doc.createdAt ? (
-                                <HardDrive size={16} className="opacity-70 text-green-500" />
-                            ) : (
-                                <Cloud size={16} className="opacity-70" />
-                            )}
-                            <p className="font-medium text-sm truncate flex-1">{doc.name}</p>
+                 ) : documents.length === 0 ? (
+                    <p className="text-sm opacity-60 italic text-center py-8">No hay documentos guardados</p>
+                 ) : (
+                   <div className="space-y-2">
+                     {documents.map((doc, i) => (
+                       <button
+                         key={i}
+                         onClick={() => onCloudDocumentSelect(doc)}
+                         className="w-full flex items-center p-3 rounded-lg hover:bg-foreground/5 transition-colors text-left group"
+                       >
+                          <div className="w-8 h-8 rounded bg-foreground/10 flex items-center justify-center mr-3 text-xs font-bold shrink-0">
+                             {doc.source === 'drive' ? <HardDrive size={14}/> : 'PDF'}
                           </div>
-                          <div className="flex justify-between items-center text-xs opacity-50">
-                            <span>
+                          <div className="flex-1 min-w-0">
+                             <p className="text-sm font-medium truncate">{doc.name}</p>
+                             <p className="text-xs opacity-50">
                                 {doc.createdAt?.seconds 
-                                    ? new Date(doc.createdAt.seconds * 1000).toLocaleDateString() 
-                                    : new Date(doc.lastModified || Date.now()).toLocaleDateString()}
-                            </span>
-                            <span>{doc.size ? (doc.size / 1024 / 1024).toFixed(2) + ' MB' : ''}</span>
+                                  ? new Date(doc.createdAt.seconds * 1000).toLocaleDateString() 
+                                  : new Date(doc.lastModified || Date.now()).toLocaleDateString()
+                                }
+                                {doc.size && ` • ${(doc.size / 1024 / 1024).toFixed(1)} MB`}
+                             </p>
                           </div>
-                        </div>
-                      ))}
-                    </div>
-                )}
+                       </button>
+                     ))}
+                   </div>
+                 )}
               </div>
             ) : view === 'instructions' ? (
               <div className="flex-1 overflow-y-auto space-y-6">
