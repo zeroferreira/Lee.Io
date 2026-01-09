@@ -313,18 +313,35 @@ function AppContent() {
             const storageRef = ref(storage, `users/${currentUser.uid}/documents/${file.name}`);
             const uploadTask = uploadBytesResumable(storageRef, file);
 
+            // Safety timeout: If upload doesn't start in 3 seconds, show file anyway
+            const safetyTimer = setTimeout(() => {
+                if (uploadTask.snapshot.bytesTransferred === 0) {
+                    console.warn("Upload timed out or stalled. Showing local file.");
+                    uploadTask.cancel();
+                    setIsUploading(false);
+                    setPdfFile(file);
+                }
+            }, 3000);
+
             uploadTask.on('state_changed',
               (snapshot) => {
                 const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
                 setUploadProgress(progress);
+                if (progress > 0) clearTimeout(safetyTimer);
               },
               (error) => {
+                clearTimeout(safetyTimer);
+                if (error.code === 'storage/canceled') {
+                    // Canceled by our timeout, handled above
+                    return;
+                }
                 console.error("Error uploading Drive file to Storage:", error);
-                setNotification("Error al guardar el archivo en tu biblioteca.");
-                setPdfFile(file); // Fallback: show file anyway
+                // Don't show error notification to user, just show the file
+                setPdfFile(file); 
                 setIsUploading(false);
               },
               async () => {
+                clearTimeout(safetyTimer);
                 try {
                   const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
                   
