@@ -11,7 +11,7 @@ pdfjs.GlobalWorkerOptions.workerSrc = new URL(
   import.meta.url,
 ).toString();
 
-export const PDFViewer = ({ file, onAddAnnotation, annotations = [], currentPage, onPageChange }) => {
+export const PDFViewer = ({ file, isMobile, onAddAnnotation, annotations = [], currentPage, onPageChange }) => {
   const [numPages, setNumPages] = useState(null);
   const [pageNumber, setPageNumber] = useState(1);
   const [scale, setScale] = useState(1.0);
@@ -448,8 +448,8 @@ export const PDFViewer = ({ file, onAddAnnotation, annotations = [], currentPage
   };
 
   return (
-    <div className={`flex flex-col items-center w-full max-w-5xl mx-auto ${isMobile ? 'p-0 pt-14' : 'p-4 pt-20'}`}>
-      <div className={`flex items-center flex-wrap gap-3 mb-4 bg-background border border-foreground/10 p-2 rounded-lg shadow-sm sticky z-20 backdrop-blur-md ${isMobile ? 'top-0 w-full justify-between rounded-none border-x-0 border-t-0 fixed left-0 right-0' : 'top-20 rounded-lg'}`}>
+    <div className={`flex flex-col w-full max-w-5xl mx-auto h-full relative ${isMobile ? 'bg-background' : 'p-4 pt-20'}`}>
+      <div className={`flex items-center flex-wrap gap-3 bg-background border-foreground/10 z-20 ${isMobile ? 'w-full justify-between shadow-sm p-2 border-b flex-none' : 'p-2 rounded-lg border shadow-sm mb-4 sticky top-20'}`}>
         <div className="flex items-center gap-2">
             <button
             disabled={pageNumber <= 1}
@@ -568,8 +568,8 @@ export const PDFViewer = ({ file, onAddAnnotation, annotations = [], currentPage
         onTouchMove={onTouchMove}
         onTouchEnd={onTouchEnd}
         onMouseUp={handleTextSelection}
-        className="w-full border border-foreground/10 shadow-lg flex justify-center bg-gray-100 dark:bg-gray-900 overflow-auto relative"
-        style={{ height: 'calc(100vh - 200px)', perspective: '1500px' }} // viewport-based height minus header/toolbars
+        className={`w-full flex justify-center bg-gray-100 dark:bg-gray-900 overflow-auto relative flex-1 ${isMobile ? '' : 'border border-foreground/10 shadow-lg rounded-lg'}`}
+        style={{ perspective: '1500px' }}
       >
         <Document
           file={file}

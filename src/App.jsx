@@ -4,7 +4,7 @@ import { Header } from './components/Header';
 import { Sidebar } from './components/Sidebar';
 import { PDFViewer } from './components/PDFViewer';
 import { AnimatedTitle } from './components/AnimatedTitle';
-import { Plus, Undo2, Loader2, HardDrive, Trash2, BookOpen, X } from 'lucide-react';
+import { Plus, Undo2, Loader2, HardDrive, Trash2, BookOpen, X, ArrowLeft } from 'lucide-react';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { db, storage, firebaseConfig } from './firebase/config';
 import { doc, setDoc, getDoc, collection, addDoc, serverTimestamp, query, where, getDocs } from 'firebase/firestore';
