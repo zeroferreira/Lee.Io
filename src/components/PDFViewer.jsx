@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo, useRef } from 'react';
 import { Document, Page, pdfjs } from 'react-pdf';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronLeft, ChevronRight, ZoomIn, ZoomOut, MessageSquarePlus, Highlighter, Eraser, Maximize, Minimize, MoreHorizontal, Square, Circle, Copy, Search } from 'lucide-react';
+import { ChevronLeft, ChevronRight, ZoomIn, ZoomOut, MessageSquarePlus, Highlighter, Eraser, Maximize, Minimize, MoreHorizontal, Square, Circle, Copy, Search, Expand, Shrink, Menu, X } from 'lucide-react';
 import 'react-pdf/dist/Page/AnnotationLayer.css';
 import 'react-pdf/dist/Page/TextLayer.css';
 
@@ -34,6 +34,8 @@ export const PDFViewer = ({ file, isMobile, onAddAnnotation, annotations = [], c
   const [optionsMenu, setOptionsMenu] = useState({ open: false, x: 0, y: 0, targetId: null, isNewSelection: false });
   const [tempSelection, setTempSelection] = useState(null);
   const [selectedText, setSelectedText] = useState('');
+  const [isFullScreen, setIsFullScreen] = useState(false);
+  const [isFabMenuOpen, setIsFabMenuOpen] = useState(false);
   const overlayRef = useRef(null);
   const containerRef = useRef(null);
   
@@ -448,7 +450,8 @@ export const PDFViewer = ({ file, isMobile, onAddAnnotation, annotations = [], c
   };
 
   return (
-    <div className={`flex flex-col w-full max-w-5xl mx-auto h-full relative ${isMobile ? 'bg-background' : 'p-4 pt-20'}`}>
+    <div className={`flex flex-col w-full mx-auto h-full relative ${isFullScreen ? 'fixed inset-0 z-50 bg-background max-w-none' : (isMobile ? 'bg-background max-w-5xl' : 'p-4 pt-20 max-w-5xl')}`}>
+      {!isFullScreen && (
       <div className={`flex items-center flex-wrap gap-3 bg-background border-foreground/10 z-20 ${isMobile ? 'w-full justify-between shadow-sm p-2 border-b flex-none' : 'p-2 rounded-lg border shadow-sm mb-4 sticky top-20'}`}>
         <div className="flex items-center gap-2">
             <button
@@ -559,7 +562,16 @@ export const PDFViewer = ({ file, isMobile, onAddAnnotation, annotations = [], c
              </div>
            )}
         </div>
+        <div className="w-px h-6 bg-foreground/10 mx-2" />
+        <button 
+          onClick={() => setIsFullScreen(true)} 
+          className="p-1 hover:bg-foreground/5 rounded"
+          title="Pantalla completa"
+        >
+          <Expand size={20} />
+        </button>
       </div>
+      )}
 
       <div 
         id="pdf-container"
@@ -938,6 +950,84 @@ export const PDFViewer = ({ file, isMobile, onAddAnnotation, annotations = [], c
           </div>
         </div>
       )}
+      {/* Full Screen FAB */}
+      {isFullScreen && (
+        <div className="fixed bottom-6 right-6 z-[100] flex flex-col items-end gap-4">
+            <AnimatePresence>
+                {isFabMenuOpen && (
+                    <motion.div
+                        initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                        animate={{ opacity: 1, scale: 1, y: 0 }}
+                        exit={{ opacity: 0, scale: 0.9, y: 20 }}
+                        className="bg-background border border-foreground/10 rounded-2xl shadow-2xl p-4 mb-2 flex flex-col gap-4 min-w-[250px]"
+                    >
+                         {/* Header with Exit */}
+                         <div className="flex items-center justify-between border-b border-foreground/10 pb-2">
+                            <span className="font-medium text-sm">Controles</span>
+                            <button 
+                                onClick={() => setIsFullScreen(false)}
+                                className="p-1 hover:bg-foreground/5 rounded text-xs flex items-center gap-1 text-red-500 font-medium"
+                            >
+                                <Shrink size={14} />
+                                <span>Salir</span>
+                            </button>
+                         </div>
+
+                         {/* Page Navigation */}
+                         <div className="flex items-center justify-between gap-2">
+                            <button disabled={pageNumber <= 1} onClick={() => changePage(-1)} className="p-2 hover:bg-foreground/5 rounded-full disabled:opacity-50"><ChevronLeft size={20}/></button>
+                            <span className="text-sm font-medium">{pageNumber} / {numPages || '--'}</span>
+                            <button disabled={pageNumber >= numPages} onClick={() => changePage(1)} className="p-2 hover:bg-foreground/5 rounded-full disabled:opacity-50"><ChevronRight size={20}/></button>
+                         </div>
+                         
+                         {/* Zoom */}
+                         <div className="flex items-center justify-between gap-2 bg-foreground/5 rounded-lg p-1">
+                            <button onClick={() => setScale(s => Math.max(0.5, s - 0.1))} className="p-1 hover:bg-background rounded"><ZoomOut size={16}/></button>
+                            <span className="text-xs w-8 text-center">{Math.round(scale * 100)}%</span>
+                            <button onClick={() => setScale(s => Math.min(2, s + 0.1))} className="p-1 hover:bg-background rounded"><ZoomIn size={16}/></button>
+                         </div>
+
+                         {/* Tools Grid */}
+                         <div className="grid grid-cols-4 gap-2">
+                            <button onClick={() => setActiveTool(activeTool === 'highlight' ? 'none' : 'highlight')} className={`p-2 rounded flex items-center justify-center ${activeTool === 'highlight' ? 'bg-foreground text-background' : 'hover:bg-foreground/5'}`} title="Subrayar"><Highlighter size={18}/></button>
+                            <button onClick={() => setActiveTool(activeTool === 'erase' ? 'none' : 'erase')} className={`p-2 rounded flex items-center justify-center ${activeTool === 'erase' ? 'bg-foreground text-background' : 'hover:bg-foreground/5'}`} title="Borrador"><Eraser size={18}/></button>
+                            <button onClick={() => setActiveTool(activeTool.startsWith('note') ? 'none' : 'note_rect')} className={`p-2 rounded flex items-center justify-center ${activeTool.startsWith('note') ? 'bg-foreground text-background' : 'hover:bg-foreground/5'}`} title="Nota"><MessageSquarePlus size={18}/></button>
+                            <button onClick={clearPageHighlights} className="p-2 hover:bg-foreground/5 rounded flex items-center justify-center text-red-500" title="Limpiar todo"><X size={18}/></button>
+                         </div>
+                         
+                         {/* Additional Note Tools */}
+                         {activeTool.startsWith('note') && (
+                            <div className="flex items-center gap-2 justify-center bg-foreground/5 p-1 rounded-lg">
+                                <button onClick={() => setActiveTool('note_rect')} className={`p-1 rounded ${activeTool === 'note_rect' ? 'bg-background shadow' : ''}`}><Square size={14}/></button>
+                                <button onClick={() => setActiveTool('note_circle')} className={`p-1 rounded ${activeTool === 'note_circle' ? 'bg-background shadow' : ''}`}><Circle size={14}/></button>
+                            </div>
+                         )}
+
+                         {/* View Options */}
+                         <div className="flex items-center gap-2 border-t border-foreground/10 pt-2">
+                             <select
+                                value={animationMode}
+                                onChange={e => { setAnimationMode(e.target.value); localStorage.setItem('animationMode', e.target.value); }}
+                                className="text-xs border border-foreground/20 rounded px-2 py-1 bg-background flex-1"
+                              >
+                                <option value="slide">Deslizar</option>
+                                <option value="flip">Volteo 3D</option>
+                                <option value="curl">Página</option>
+                              </select>
+                         </div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+            
+            <button
+                onClick={() => setIsFabMenuOpen(!isFabMenuOpen)}
+                className="w-14 h-14 rounded-full bg-foreground text-background shadow-xl flex items-center justify-center hover:scale-105 transition-transform active:scale-95"
+            >
+                {isFabMenuOpen ? <X size={24} /> : <Menu size={24} />}
+            </button>
+        </div>
+      )}
+
     </div>
   );
 };
