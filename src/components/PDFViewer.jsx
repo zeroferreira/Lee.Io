@@ -450,7 +450,7 @@ export const PDFViewer = ({ file, isMobile, onAddAnnotation, annotations = [], c
   };
 
   return (
-    <div className={`flex flex-col w-full mx-auto h-full relative ${isFullScreen ? 'fixed inset-0 z-50 bg-background max-w-none' : (isMobile ? 'bg-background max-w-5xl' : 'p-4 pt-20 max-w-5xl')}`}>
+    <div className={`flex flex-col w-full mx-auto relative ${isFullScreen ? 'fixed inset-0 z-50 bg-background max-w-none h-[100dvh]' : (isMobile ? 'bg-background max-w-5xl h-full' : 'p-4 pt-20 max-w-5xl h-full')}`}>
       {!isFullScreen && (
       <div className={`flex items-center flex-wrap gap-3 bg-background border-foreground/10 z-20 ${isMobile ? 'w-full justify-between shadow-sm p-2 border-b flex-none' : 'p-2 rounded-lg border shadow-sm mb-4 sticky top-20'}`}>
         <div className="flex items-center gap-2">
@@ -586,7 +586,7 @@ export const PDFViewer = ({ file, isMobile, onAddAnnotation, annotations = [], c
         <Document
           file={file}
           onLoadSuccess={onDocumentLoadSuccess}
-          className="flex flex-col items-center w-full min-h-full py-8"
+          className={`flex flex-col items-center w-full min-h-full ${isFullScreen ? 'py-0' : 'py-8'}`}
           loading={<div className="p-10">Cargando PDF...</div>}
           error={<div className="p-10 text-red-500">Error al cargar el PDF.</div>}
         >
