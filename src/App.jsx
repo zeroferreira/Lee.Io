@@ -228,9 +228,35 @@ function AppContent() {
     }
   };
 
-  const handleCloudDocumentSelect = (docData) => {
-    setPdfFile({ name: docData.name, url: docData.url });
+  const handleCloudDocumentSelect = async (docData) => {
     setIsMenuOpen(false);
+    
+    // If it's a Drive document, fetch it using the stored ID
+    if (docData.source === 'drive' && docData.driveId) {
+       // Ensure we have a valid token
+       let token = accessToken;
+       if (!token && currentUser) {
+          try {
+             // Try to get token silently if possible, or notify user
+             // For now, if no token, we might need to prompt login or use stored one
+             // But since we persist token in localStorage, it should be there usually.
+             // If completely expired, downloadFileFromDrive will handle error/re-login flow if we call it carefully.
+             // But simpler: just try to download.
+          } catch (e) {
+             console.error(e);
+          }
+       }
+       
+       if (token) {
+           await downloadFileFromDrive(docData.driveId, docData.name, token, false); // false = don't save again
+       } else {
+           setNotification("Por favor inicia sesión de nuevo para abrir este archivo de Drive.");
+           handleOpenDrive(); // Trigger auth flow
+       }
+    } else {
+       // Standard Firebase Storage file
+       setPdfFile({ name: docData.name, url: docData.url });
+    }
   };
 
   const handleAddClick = () => {
@@ -279,13 +305,13 @@ function AppContent() {
         if (data.action === 'picked') {
           const fileId = data.docs[0].id;
           const fileName = data.docs[0].name;
-          downloadFileFromDrive(fileId, fileName, token);
+          downloadFileFromDrive(fileId, fileName, token, true); // true = save to library
         }
       },
     });
   };
 
-  const downloadFileFromDrive = async (fileId, fileName, token) => {
+  const downloadFileFromDrive = async (fileId, fileName, token, shouldSaveToLibrary = true) => {
       setIsUploading(true);
       try {
         const response = await fetch(`https://www.googleapis.com/drive/v3/files/${fileId}?alt=media`, {
@@ -308,74 +334,36 @@ function AppContent() {
         const blob = await response.blob();
         const file = new File([blob], fileName, { type: 'application/pdf' });
         
-        // If user is logged in, upload to Firebase Storage and save to Firestore
-        if (currentUser) {
-            const storageRef = ref(storage, `users/${currentUser.uid}/documents/${file.name}`);
-            const uploadTask = uploadBytesResumable(storageRef, file);
-
-            // Safety timeout: If upload doesn't start in 3 seconds, show file anyway
-            const safetyTimer = setTimeout(() => {
-                if (uploadTask.snapshot.bytesTransferred === 0) {
-                    console.warn("Upload timed out or stalled. Showing local file.");
-                    uploadTask.cancel();
-                    setIsUploading(false);
-                    setPdfFile(file);
-                }
-            }, 3000);
-
-            uploadTask.on('state_changed',
-              (snapshot) => {
-                const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-                setUploadProgress(progress);
-                if (progress > 0) clearTimeout(safetyTimer);
-              },
-              (error) => {
-                clearTimeout(safetyTimer);
-                if (error.code === 'storage/canceled') {
-                    // Canceled by our timeout, handled above
-                    return;
-                }
-                console.error("Error uploading Drive file to Storage:", error);
-                // Don't show error notification to user, just show the file
-                setPdfFile(file); 
-                setIsUploading(false);
-              },
-              async () => {
-                clearTimeout(safetyTimer);
-                try {
-                  const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
-                  
-                  // Save metadata to Firestore
-                  const q = query(collection(db, `users/${currentUser.uid}/documents`), where("name", "==", file.name));
-                  const querySnapshot = await getDocs(q);
-                  
-                  if (querySnapshot.empty) {
+        // Show file immediately
+        setPdfFile(file);
+        
+        // If it's a new import (shouldSaveToLibrary is true), save metadata to Firestore instantly
+        // No need to upload the file to Storage anymore
+        if (currentUser && shouldSaveToLibrary) {
+            try {
+                const q = query(collection(db, `users/${currentUser.uid}/documents`), where("driveId", "==", fileId));
+                const querySnapshot = await getDocs(q);
+                
+                if (querySnapshot.empty) {
                     await addDoc(collection(db, `users/${currentUser.uid}/documents`), {
-                      name: file.name,
-                      url: downloadURL,
-                      createdAt: serverTimestamp(),
-                      size: file.size
+                        name: fileName,
+                        driveId: fileId,
+                        source: 'drive',
+                        createdAt: serverTimestamp(),
+                        size: file.size,
+                        // No 'url' field needed for Drive files
                     });
-                  }
-
-                  setPdfFile({ name: file.name, url: downloadURL });
-                } catch (error) {
-                  console.error("Error saving metadata:", error);
-                  setPdfFile(file); // Fallback
-                } finally {
-                  setIsUploading(false);
+                    console.log("Drive document saved to library");
                 }
-              }
-            );
-        } else {
-            // If not logged in, just show the file
-            setPdfFile(file);
-            setIsUploading(false);
+            } catch (err) {
+                console.error("Error saving Drive metadata:", err);
+            }
         }
 
       } catch (error) {
         console.error("Error downloading from Drive:", error);
         setNotification(`Error al descargar: ${error.message}`);
+      } finally {
         setIsUploading(false);
       }
   };
