@@ -4,7 +4,7 @@ import { Header } from './components/Header';
 import { Sidebar } from './components/Sidebar';
 import { PDFViewer } from './components/PDFViewer';
 import { AnimatedTitle } from './components/AnimatedTitle';
-import { Plus, Undo2, Loader2, HardDrive } from 'lucide-react';
+import { Plus, Undo2, Loader2, HardDrive, Trash2 } from 'lucide-react';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { db, storage, firebaseConfig } from './firebase/config';
 import { doc, setDoc, getDoc, collection, addDoc, serverTimestamp, query, where, getDocs } from 'firebase/firestore';
@@ -45,7 +45,8 @@ function AppContent() {
     return {};
   });
   
-  const { documents: recentDocuments, loading: loadingDocuments } = useDocuments();
+  const [deleteConfirmation, setDeleteConfirmation] = useState({ isOpen: false, doc: null });
+  const { documents: recentDocuments, loading: loadingDocuments, deleteDocument } = useDocuments();
   
   const fileInputRef = useRef(null);
 
@@ -386,12 +387,73 @@ function AppContent() {
     setIsMenuOpen(false);
   };
 
+  const handleDeleteRequest = (doc, e) => {
+    e.stopPropagation();
+    setDeleteConfirmation({ isOpen: true, doc });
+  };
+
+  const confirmDelete = async () => {
+    if (deleteConfirmation.doc) {
+      const success = await deleteDocument(deleteConfirmation.doc);
+      if (success) {
+        setNotification({ type: 'success', text: 'Documento eliminado correctamente' });
+      } else {
+        setNotification({ type: 'error', text: 'Error al eliminar el documento' });
+      }
+    }
+    setDeleteConfirmation({ isOpen: false, doc: null });
+  };
+
   return (
     <LayoutGroup>
       <Notification 
         message={notification} 
         onClose={() => setNotification(null)} 
       />
+      
+      {/* Delete Confirmation Modal */}
+      <AnimatePresence>
+        {deleteConfirmation.isOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[200] flex items-center justify-center bg-background/80 backdrop-blur-sm p-4"
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              className="bg-background border border-foreground/10 rounded-3xl p-8 max-w-sm w-full shadow-2xl"
+            >
+              <div className="flex flex-col items-center text-center gap-4">
+                <div className="w-16 h-16 rounded-full bg-red-50 text-red-500 flex items-center justify-center mb-2">
+                  <Trash2 size={32} />
+                </div>
+                <h3 className="text-xl font-medium">¿Eliminar lectura?</h3>
+                <p className="text-sm opacity-60">
+                  ¿Estás seguro que deseas eliminar "{deleteConfirmation.doc?.name}" de tus lecturas recientes? Esta acción no se puede deshacer.
+                </p>
+                <div className="flex gap-3 w-full mt-4">
+                  <button
+                    onClick={() => setDeleteConfirmation({ isOpen: false, doc: null })}
+                    className="flex-1 py-3 px-4 rounded-xl border border-foreground/10 hover:bg-foreground/5 transition-colors font-medium"
+                  >
+                    Cancelar
+                  </button>
+                  <button
+                    onClick={confirmDelete}
+                    className="flex-1 py-3 px-4 rounded-xl bg-red-500 text-white hover:bg-red-600 transition-colors font-medium shadow-lg shadow-red-500/20"
+                  >
+                    Eliminar
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       <div className="min-h-screen bg-background text-foreground transition-colors duration-300 overflow-hidden relative flex flex-col">
         {/* Intro Overlay - Background and Title separated for Morph effect */}
         <AnimatePresence>
@@ -501,26 +563,34 @@ function AppContent() {
                         </h3>
                         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
                           {recentDocuments.slice(0, 3).map((doc, index) => (
-                            <button
-                              key={index}
-                              onClick={() => handleCloudDocumentSelect(doc)}
-                              className="group flex flex-col items-start p-6 bg-foreground/5 hover:bg-foreground/10 rounded-2xl transition-all hover:scale-[1.02] text-left w-full border border-foreground/5 hover:border-foreground/20"
-                            >
-                              <div className="w-10 h-10 rounded-full bg-background flex items-center justify-center mb-4 shadow-sm group-hover:shadow-md transition-shadow">
-                                <span className="text-lg font-serif italic font-bold text-foreground/80">
-                                  {doc.name.charAt(0).toUpperCase()}
-                                </span>
-                              </div>
-                              <h4 className="font-medium text-lg line-clamp-2 mb-2 group-hover:text-primary transition-colors">
-                                {doc.name.replace('.pdf', '')}
-                              </h4>
-                              <p className="text-xs opacity-50 mt-auto">
-                                {doc.createdAt?.seconds 
-                                  ? new Date(doc.createdAt.seconds * 1000).toLocaleDateString()
-                                  : new Date(doc.lastModified || Date.now()).toLocaleDateString()
-                                }
-                              </p>
-                            </button>
+                            <div key={index} className="relative group">
+                                <button
+                                  onClick={() => handleCloudDocumentSelect(doc)}
+                                  className="flex flex-col items-start p-6 bg-foreground/5 hover:bg-foreground/10 rounded-2xl transition-all hover:scale-[1.02] text-left w-full border border-foreground/5 hover:border-foreground/20"
+                                >
+                                  <div className="w-10 h-10 rounded-full bg-background flex items-center justify-center mb-4 shadow-sm group-hover:shadow-md transition-shadow">
+                                    <span className="text-lg font-serif italic font-bold text-foreground/80">
+                                      {doc.name.charAt(0).toUpperCase()}
+                                    </span>
+                                  </div>
+                                  <h4 className="font-medium text-lg line-clamp-2 mb-2 group-hover:text-primary transition-colors">
+                                    {doc.name.replace('.pdf', '')}
+                                  </h4>
+                                  <p className="text-xs opacity-50 mt-auto">
+                                    {doc.createdAt?.seconds 
+                                      ? new Date(doc.createdAt.seconds * 1000).toLocaleDateString()
+                                      : new Date(doc.lastModified || Date.now()).toLocaleDateString()
+                                    }
+                                  </p>
+                                </button>
+                                <button
+                                    onClick={(e) => handleDeleteRequest(doc, e)}
+                                    className="absolute top-2 right-2 p-2 rounded-full bg-background/80 hover:bg-red-50 text-foreground/40 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all shadow-sm z-10"
+                                    title="Eliminar lectura"
+                                >
+                                    <X size={16} />
+                                </button>
+                            </div>
                           ))}
                         </div>
                       </motion.div>
