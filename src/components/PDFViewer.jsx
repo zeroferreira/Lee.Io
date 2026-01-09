@@ -449,7 +449,7 @@ export const PDFViewer = ({ file, onAddAnnotation, annotations = [], currentPage
 
   return (
     <div className={`flex flex-col items-center w-full max-w-5xl mx-auto ${isMobile ? 'p-0 pt-14' : 'p-4 pt-20'}`}>
-      <div className={`flex items-center flex-wrap gap-3 mb-4 bg-background border border-foreground/10 p-2 rounded-lg shadow-sm sticky z-20 backdrop-blur-md ${isMobile ? 'top-0 w-full justify-between rounded-none border-x-0 border-t-0' : 'top-20 rounded-lg'}`}>
+      <div className={`flex items-center flex-wrap gap-3 mb-4 bg-background border border-foreground/10 p-2 rounded-lg shadow-sm sticky z-20 backdrop-blur-md ${isMobile ? 'top-0 w-full justify-between rounded-none border-x-0 border-t-0 fixed left-0 right-0' : 'top-20 rounded-lg'}`}>
         <div className="flex items-center gap-2">
             <button
             disabled={pageNumber <= 1}
