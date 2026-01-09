@@ -16,7 +16,13 @@ export function useAuth() {
 export function AuthProvider({ children }) {
   const [currentUser, setCurrentUser] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [accessToken, setAccessToken] = useState(null);
+  // Initialize from localStorage if available
+  const [accessToken, setAccessToken] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('googleAccessToken') || null;
+    }
+    return null;
+  });
 
   // Sign in with Google
   const loginWithGoogle = async () => {
@@ -27,6 +33,7 @@ export function AuthProvider({ children }) {
       const credential = GoogleAuthProvider.credentialFromResult(result);
       if (credential?.accessToken) {
         setAccessToken(credential.accessToken);
+        localStorage.setItem('googleAccessToken', credential.accessToken);
       }
       return result;
     } catch (error) {
@@ -37,6 +44,7 @@ export function AuthProvider({ children }) {
   // Sign out
   const logout = () => {
     setAccessToken(null);
+    localStorage.removeItem('googleAccessToken');
     return firebaseSignOut(auth);
   };
 
