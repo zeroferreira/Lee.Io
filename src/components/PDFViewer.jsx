@@ -448,10 +448,11 @@ export const PDFViewer = ({ file, onAddAnnotation, annotations = [], currentPage
   };
 
   return (
-    <div className="flex flex-col items-center w-full max-w-5xl mx-auto p-4 pt-20">
-      <div className="flex items-center flex-wrap gap-3 mb-4 bg-background border border-foreground/10 p-2 rounded-lg shadow-sm sticky top-20 z-20 backdrop-blur-md">
-        <button
-          disabled={pageNumber <= 1}
+    <div className={`flex flex-col items-center w-full max-w-5xl mx-auto ${isMobile ? 'p-0 pt-14' : 'p-4 pt-20'}`}>
+      <div className={`flex items-center flex-wrap gap-3 mb-4 bg-background border border-foreground/10 p-2 rounded-lg shadow-sm sticky z-20 backdrop-blur-md ${isMobile ? 'top-0 w-full justify-between rounded-none border-x-0 border-t-0' : 'top-20 rounded-lg'}`}>
+        <div className="flex items-center gap-2">
+            <button
+            disabled={pageNumber <= 1}
           onClick={() => changePage(-1)}
           className="p-1 hover:bg-foreground/5 rounded disabled:opacity-50"
         >
@@ -467,6 +468,7 @@ export const PDFViewer = ({ file, onAddAnnotation, annotations = [], currentPage
         >
           <ChevronRight />
         </button>
+        </div>
         <div className="w-px h-6 bg-foreground/10 mx-2" />
         <button onClick={() => setScale(s => Math.max(0.5, s - 0.1))} className="p-1 hover:bg-foreground/5 rounded">
           <ZoomOut size={20} />

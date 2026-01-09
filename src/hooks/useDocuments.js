@@ -11,14 +11,16 @@ export const useDocuments = () => {
 
   useEffect(() => {
     let unsubscribe = () => {};
+    let localFiles = [];
 
-    const fetchDocs = async () => {
+    const fetchLocalAndCloud = async () => {
       setLoading(true);
       
-      // 1. Get Local Docs
-      let localFiles = [];
+      // 1. Start fetching local files immediately
       try {
         localFiles = await localFileStorage.getFiles();
+        // Set initial documents with just local files while waiting for cloud
+        mergeAndSetDocuments(localFiles, []);
       } catch (error) {
         console.error("Error getting local files:", error);
       }
@@ -28,17 +30,18 @@ export const useDocuments = () => {
         const q = query(collection(db, `users/${currentUser.uid}/documents`), orderBy("createdAt", "desc"));
         unsubscribe = onSnapshot(q, (querySnapshot) => {
           const cloudDocs = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+          // Merge with the already fetched local files
           mergeAndSetDocuments(localFiles, cloudDocs);
         }, (error) => {
           console.error("Error fetching cloud docs:", error);
           mergeAndSetDocuments(localFiles, []);
         });
       } else {
-        mergeAndSetDocuments(localFiles, []);
+        setLoading(false); // If not logged in and local done, stop loading
       }
     };
 
-    fetchDocs();
+    fetchLocalAndCloud();
 
     return () => unsubscribe();
   }, [currentUser]);
@@ -52,11 +55,15 @@ export const useDocuments = () => {
        }
      });
 
-     // Sort by date
+     // Sort by date (most recent first)
      combined.sort((a, b) => {
-       const dateA = a.createdAt?.seconds ? new Date(a.createdAt.seconds * 1000) : new Date(a.lastModified || 0);
-       const dateB = b.createdAt?.seconds ? new Date(b.createdAt.seconds * 1000) : new Date(b.lastModified || 0);
-       return dateB - dateA;
+       const getTime = (doc) => {
+         // Priority: lastOpened > createdAt > lastModified
+         if (doc.lastOpened?.seconds) return doc.lastOpened.seconds * 1000;
+         if (doc.createdAt?.seconds) return doc.createdAt.seconds * 1000;
+         return new Date(doc.lastModified || 0).getTime();
+       };
+       return getTime(b) - getTime(a);
      });
 
      setDocuments(combined);

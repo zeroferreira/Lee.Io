@@ -46,6 +46,14 @@ function AppContent() {
   
   const [deleteConfirmation, setDeleteConfirmation] = useState({ isOpen: false, doc: null });
   const { documents: recentDocuments, loading: loadingDocuments, deleteDocument } = useDocuments();
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
   
   const fileInputRef = useRef(null);
 
@@ -225,6 +233,17 @@ function AppContent() {
   const handleCloudDocumentSelect = async (docData) => {
     setIsMenuOpen(false);
     
+    // Update lastOpened in Firestore if logged in
+    if (currentUser && docData.id) {
+        try {
+            await setDoc(doc(db, `users/${currentUser.uid}/documents`, docData.id), {
+                lastOpened: serverTimestamp()
+            }, { merge: true });
+        } catch (e) { 
+            console.error("Error updating lastOpened", e); 
+        }
+    }
+
     // 1. Try to load from local IndexedDB first (Fastest & works offline)
     const localFile = await localFileStorage.getFile(docData.name);
     if (localFile) {
@@ -618,9 +637,18 @@ function AppContent() {
                  </div>
                ) : (
                  <div className="relative flex-1">
+                    {isMobile && (
+                      <button
+                        onClick={handleHomeClick}
+                        className="fixed top-4 left-4 z-50 p-3 bg-background/80 backdrop-blur-md border border-foreground/10 text-foreground rounded-full shadow-lg hover:bg-background transition-all"
+                      >
+                        <ArrowLeft size={20} />
+                      </button>
+                    )}
                     <PDFViewer 
-                  file={pdfFile} 
-                  onAddAnnotation={addAnnotation} 
+                   file={pdfFile}  
+                   isMobile={isMobile}
+                   onAddAnnotation={addAnnotation} 
                   annotations={annotations[pdfFile.name] || []}
                   currentPage={currentPage}
                   onPageChange={setCurrentPage}
