@@ -141,43 +141,24 @@ function AppContent() {
         return;
       }
 
+      // Optimistic UI: Show file IMMEDIATELY
+      setPdfFile(file);
+
       if (currentUser) {
-        setIsUploading(true);
-        setUploadProgress(0);
+        // Upload in background - don't block UI
+        setNotification("Guardando en tu biblioteca...");
         
         const storageRef = ref(storage, `users/${currentUser.uid}/documents/${file.name}`);
         const uploadTask = uploadBytesResumable(storageRef, file);
 
-        // Timeout check for 0% progress (likely CORS issue)
-        const progressCheck = setTimeout(() => {
-           if (uploadTask.snapshot.bytesTransferred === 0) {
-              uploadTask.cancel();
-              // Silent fallback to local for better UX while configuring cloud
-              console.warn("Upload timed out (CORS/Network). Falling back to local file.");
-              setIsUploading(false);
-              setPdfFile(file); 
-           }
-        }, 3000); // 3 seconds timeout
-
         uploadTask.on('state_changed',
           (snapshot) => {
-            const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-            setUploadProgress(progress);
-            if (progress > 0) clearTimeout(progressCheck);
+             // Optional: update some background progress indicator if needed
           },
           (error) => {
-            clearTimeout(progressCheck);
-            
-            // Ignore intentional cancellations (fallback mechanism)
-            if (error.code === 'storage/canceled') {
-              console.log("Upload canceled intentionally for local fallback");
-              return;
-            }
-
             console.error("Error uploading file:", error);
-            // Don't alert user, just show local file
-            setIsUploading(false);
-            setPdfFile(file); // Fallback local
+            // Silent fail for UX - user is already reading
+            setNotification("Modo lectura local (no se pudo guardar en la nube)");
           },
           async () => {
             try {
@@ -195,18 +176,15 @@ function AppContent() {
                   size: file.size
                 });
               }
-
+              setNotification("Documento guardado en tu biblioteca");
+              
+              // Update URL to remote one silently
               setPdfFile({ name: file.name, url: downloadURL });
             } catch (error) {
               console.error("Error finishing upload:", error);
-              setPdfFile(file); // Fallback
-            } finally {
-              setIsUploading(false);
             }
           }
         );
-      } else {
-        setPdfFile(file);
       }
     } else {
       setNotification('Por favor selecciona un archivo PDF válido.');
