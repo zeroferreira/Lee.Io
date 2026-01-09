@@ -379,6 +379,13 @@ function AppContent() {
       }
   };
 
+  const handleHomeClick = () => {
+    setPdfFile(null);
+    setCurrentPage(1);
+    setReturnPage(null);
+    setIsMenuOpen(false);
+  };
+
   return (
     <LayoutGroup>
       <Notification 
@@ -410,7 +417,11 @@ function AppContent() {
         </AnimatePresence>
 
         {/* Header - Always mounted, controls Small Title visibility */}
-        <Header onMenuOpen={() => setIsMenuOpen(true)} showTitle={!showIntro} />
+        <Header 
+          onMenuOpen={() => setIsMenuOpen(true)} 
+          showTitle={!showIntro} 
+          onHomeClick={handleHomeClick}
+        />
 
         {/* Main Interface Content - Fades in */}
         <motion.div 
@@ -440,6 +451,8 @@ function AppContent() {
                isOpen={showProfile} 
                onClose={() => setShowProfile(false)} 
                annotations={annotations}
+               documents={recentDocuments}
+               onDocumentSelect={handleCloudDocumentSelect}
              />
 
              <main className="relative flex-1 flex flex-col pt-16">
