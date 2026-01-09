@@ -13,6 +13,8 @@ import { ProfileScreen } from './components/ProfileScreen';
 import { Notification } from './components/Notification';
 import useDrivePicker from 'react-google-drive-picker';
 import { localFileStorage } from './utils/localFileStorage';
+import { useDocuments } from './hooks/useDocuments';
+import { BookOpen } from 'lucide-react';
 
 const GOOGLE_CLIENT_ID = "741889878750-da4cbkfe3q9gjh2figu71gbt4e9vap5e.apps.googleusercontent.com";
 const GOOGLE_API_KEY = "AIzaSyDQHr01GZaojE3wdoGzejocuFM-cXQGwTU";
@@ -42,6 +44,9 @@ function AppContent() {
     }
     return {};
   });
+  
+  const { documents: recentDocuments, loading: loadingDocuments } = useDocuments();
+  
   const fileInputRef = useRef(null);
 
   useEffect(() => {
@@ -465,6 +470,45 @@ function AppContent() {
                         <span>Drive</span>
                       </button>
                     </div>
+
+                    {/* Recent Readings Section */}
+                    {!loadingDocuments && recentDocuments.length > 0 && (
+                      <motion.div 
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.2 }}
+                        className="mt-16 w-full max-w-4xl mx-auto px-4"
+                      >
+                        <h3 className="text-xl font-medium mb-6 flex items-center gap-2 opacity-80">
+                          <BookOpen size={20} />
+                          Mis Lecturas Recientes
+                        </h3>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                          {recentDocuments.slice(0, 3).map((doc, index) => (
+                            <button
+                              key={index}
+                              onClick={() => handleCloudDocumentSelect(doc)}
+                              className="group flex flex-col items-start p-6 bg-foreground/5 hover:bg-foreground/10 rounded-2xl transition-all hover:scale-[1.02] text-left w-full border border-foreground/5 hover:border-foreground/20"
+                            >
+                              <div className="w-10 h-10 rounded-full bg-background flex items-center justify-center mb-4 shadow-sm group-hover:shadow-md transition-shadow">
+                                <span className="text-lg font-serif italic font-bold text-foreground/80">
+                                  {doc.name.charAt(0).toUpperCase()}
+                                </span>
+                              </div>
+                              <h4 className="font-medium text-lg line-clamp-2 mb-2 group-hover:text-primary transition-colors">
+                                {doc.name.replace('.pdf', '')}
+                              </h4>
+                              <p className="text-xs opacity-50 mt-auto">
+                                {doc.createdAt?.seconds 
+                                  ? new Date(doc.createdAt.seconds * 1000).toLocaleDateString()
+                                  : new Date(doc.lastModified || Date.now()).toLocaleDateString()
+                                }
+                              </p>
+                            </button>
+                          ))}
+                        </div>
+                      </motion.div>
+                    )}
                    </motion.div>
                  </div>
                ) : (
