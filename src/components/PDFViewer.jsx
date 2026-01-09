@@ -108,6 +108,26 @@ export const PDFViewer = ({ file, isMobile, onAddAnnotation, annotations = [], c
   };
 
   useEffect(() => {
+    if (isFullScreen) {
+      // Force update size and set fit mode to width for mobile
+      const update = () => {
+        const el = document.getElementById('pdf-container');
+        if (el) {
+          setContainerWidth(el.clientWidth);
+          setContainerHeight(el.clientHeight);
+        }
+      };
+      // Small delay to allow layout transition
+      setTimeout(update, 100);
+      setTimeout(update, 500); // Double check
+      
+      if (isMobile) {
+        setFitMode('width');
+      }
+    }
+  }, [isFullScreen, isMobile]);
+
+  useEffect(() => {
     const updateSize = () => {
       const el = document.getElementById('pdf-container');
       if (el) {
@@ -604,7 +624,7 @@ export const PDFViewer = ({ file, isMobile, onAddAnnotation, annotations = [], c
               <div className="relative shadow-2xl">
                 <Page 
                   pageNumber={pageNumber} 
-                  scale={scale} 
+                  scale={fitMode === 'width' ? undefined : scale} 
                   width={fitMode === 'width' ? containerWidth || undefined : undefined}
                   height={fitMode === 'height' ? containerHeight || undefined : undefined}
                   className=""

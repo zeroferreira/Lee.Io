@@ -7,7 +7,7 @@ import { AnimatedTitle } from './components/AnimatedTitle';
 import { Plus, Undo2, Loader2, HardDrive, Trash2, BookOpen, X, ArrowLeft } from 'lucide-react';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { db, storage, firebaseConfig } from './firebase/config';
-import { doc, setDoc, getDoc, collection, addDoc, serverTimestamp, query, where, getDocs } from 'firebase/firestore';
+import { doc, setDoc, getDoc, collection, addDoc, serverTimestamp, query, where, getDocs, onSnapshot } from 'firebase/firestore';
 import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
 import { ProfileScreen } from './components/ProfileScreen';
 import { Notification } from './components/Notification';
@@ -59,19 +59,35 @@ function AppContent() {
 
   useEffect(() => {
     // Load user annotations from Firestore if logged in
+    let unsubscribe = () => {};
+
     const loadUserAnnotations = async () => {
       if (currentUser) {
         const docRef = doc(db, "users", currentUser.uid);
-        const docSnap = await getDoc(docRef);
-        if (docSnap.exists()) {
-          const data = docSnap.data();
-          if (data.annotations) {
-            setAnnotations(prev => ({ ...prev, ...data.annotations }));
-          }
-        }
+        
+        // Use onSnapshot for real-time updates
+        unsubscribe = onSnapshot(docRef, (docSnap) => {
+            if (docSnap.exists()) {
+                const data = docSnap.data();
+                if (data.annotations) {
+                    // We merge with local state to avoid overwriting optimistic updates if any
+                    // But here we prioritize the cloud source as the truth for sync
+                    setAnnotations(prev => {
+                        const next = { ...prev, ...data.annotations };
+                        // Compare if actually changed to avoid unnecessary re-renders
+                        if (JSON.stringify(prev) !== JSON.stringify(next)) {
+                            return next;
+                        }
+                        return prev;
+                    });
+                }
+            }
+        });
       }
     };
     loadUserAnnotations();
+    
+    return () => unsubscribe();
   }, [currentUser]);
 
   useEffect(() => {
