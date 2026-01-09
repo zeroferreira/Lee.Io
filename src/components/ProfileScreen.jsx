@@ -20,6 +20,25 @@ export const ProfileScreen = ({ isOpen, onClose, annotations = {}, documents = [
     ? new Date(currentUser.metadata.creationTime).toLocaleDateString('es-ES', { month: 'long', year: 'numeric' })
     : '';
 
+  const annotationBasedRecentReadings = Object.entries(annotations)
+    .map(([name, notes]) => {
+      const lastTimestamp = Array.isArray(notes)
+        ? notes.reduce((acc, n) => {
+            const t = n?.date ? new Date(n.date).getTime() : 0;
+            return t > acc ? t : acc;
+          }, 0)
+        : 0;
+
+      return {
+        name,
+        source: 'local',
+        lastModified: lastTimestamp ? new Date(lastTimestamp).toISOString() : undefined
+      };
+    })
+    .sort((a, b) => new Date(b.lastModified || 0) - new Date(a.lastModified || 0));
+
+  const recentReadings = documents.length > 0 ? documents : annotationBasedRecentReadings;
+
   // Storage logic removed
 
   const handleLogin = async () => {
@@ -112,11 +131,11 @@ export const ProfileScreen = ({ isOpen, onClose, annotations = {}, documents = [
                     <span>Lecturas Recientes</span>
                  </div>
                  
-                 {documents.length === 0 ? (
+                 {recentReadings.length === 0 ? (
                     <p className="text-xs opacity-50 italic">No hay lecturas recientes.</p>
                  ) : (
                     <div className="space-y-2">
-                       {documents.slice(0, 3).map((doc, i) => (
+                       {recentReadings.slice(0, 3).map((doc, i) => (
                           <button 
                              key={i}
                              onClick={() => {

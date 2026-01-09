@@ -236,29 +236,44 @@ function AppContent() {
     // 2. If not found locally, download from source
     // If it's a Drive document, fetch it using the stored ID
     if (docData.source === 'drive' && docData.driveId) {
-       // Ensure we have a valid token
-       let token = accessToken;
+       let token = accessToken || localStorage.getItem('googleAccessToken');
        if (!token && currentUser) {
-          try {
-             // Try to get token silently if possible, or notify user
-             // For now, if no token, we might need to prompt login or use stored one
-             // But since we persist token in localStorage, it should be there usually.
-             // If completely expired, downloadFileFromDrive will handle error/re-login flow if we call it carefully.
-             // But simpler: just try to download.
-          } catch (e) {
-             console.error(e);
-          }
+         try {
+           await loginWithGoogle();
+           token = localStorage.getItem('googleAccessToken');
+         } catch (e) {
+           console.error(e);
+         }
        }
-       
+
        if (token) {
-           await downloadFileFromDrive(docData.driveId, docData.name, token, false); // false = don't save again
+         await downloadFileFromDrive(docData.driveId, docData.name, token, false); // false = don't save again
        } else {
-           setNotification("Por favor inicia sesión de nuevo para abrir este archivo de Drive.");
-           handleOpenDrive(); // Trigger auth flow
+         setNotification("Por favor inicia sesión de nuevo para abrir este archivo de Drive.");
        }
     } else {
-       // Standard Firebase Storage file
-       setPdfFile({ name: docData.name, url: docData.url });
+       if (docData.url) {
+         setPdfFile({ name: docData.name, url: docData.url });
+         return;
+       }
+
+       if (currentUser) {
+         try {
+           const q = query(collection(db, `users/${currentUser.uid}/documents`), where("name", "==", docData.name));
+           const snapshot = await getDocs(q);
+           if (!snapshot.empty) {
+             const resolved = { id: snapshot.docs[0].id, ...snapshot.docs[0].data() };
+             if (resolved.url || (resolved.source === 'drive' && resolved.driveId)) {
+               await handleCloudDocumentSelect(resolved);
+               return;
+             }
+           }
+         } catch (error) {
+           console.error(error);
+         }
+       }
+
+       setNotification("Este documento no está sincronizado en la nube.");
     }
   };
 
@@ -279,9 +294,8 @@ function AppContent() {
     if (!token) {
        try {
          // This will trigger the popup flow again to get a fresh token
-         const result = await loginWithGoogle();
-         const credential = GoogleAuthProvider.credentialFromResult(result);
-         token = credential?.accessToken;
+         await loginWithGoogle();
+         token = localStorage.getItem('googleAccessToken');
        } catch (e) {
          console.error("Error refreshing token:", e);
          setNotification("No se pudo conectar con Drive. Intenta iniciar sesión nuevamente.");
