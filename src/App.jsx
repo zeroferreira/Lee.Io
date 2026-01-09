@@ -308,11 +308,57 @@ function AppContent() {
         const blob = await response.blob();
         const file = new File([blob], fileName, { type: 'application/pdf' });
         
-        setPdfFile(file);
+        // If user is logged in, upload to Firebase Storage and save to Firestore
+        if (currentUser) {
+            const storageRef = ref(storage, `users/${currentUser.uid}/documents/${file.name}`);
+            const uploadTask = uploadBytesResumable(storageRef, file);
+
+            uploadTask.on('state_changed',
+              (snapshot) => {
+                const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                setUploadProgress(progress);
+              },
+              (error) => {
+                console.error("Error uploading Drive file to Storage:", error);
+                setNotification("Error al guardar el archivo en tu biblioteca.");
+                setPdfFile(file); // Fallback: show file anyway
+                setIsUploading(false);
+              },
+              async () => {
+                try {
+                  const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
+                  
+                  // Save metadata to Firestore
+                  const q = query(collection(db, `users/${currentUser.uid}/documents`), where("name", "==", file.name));
+                  const querySnapshot = await getDocs(q);
+                  
+                  if (querySnapshot.empty) {
+                    await addDoc(collection(db, `users/${currentUser.uid}/documents`), {
+                      name: file.name,
+                      url: downloadURL,
+                      createdAt: serverTimestamp(),
+                      size: file.size
+                    });
+                  }
+
+                  setPdfFile({ name: file.name, url: downloadURL });
+                } catch (error) {
+                  console.error("Error saving metadata:", error);
+                  setPdfFile(file); // Fallback
+                } finally {
+                  setIsUploading(false);
+                }
+              }
+            );
+        } else {
+            // If not logged in, just show the file
+            setPdfFile(file);
+            setIsUploading(false);
+        }
+
       } catch (error) {
         console.error("Error downloading from Drive:", error);
         setNotification(`Error al descargar: ${error.message}`);
-      } finally {
         setIsUploading(false);
       }
   };
