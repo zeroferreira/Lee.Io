@@ -12,6 +12,7 @@ import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
 import { ProfileScreen } from './components/ProfileScreen';
 import { Notification } from './components/Notification';
 import useDrivePicker from 'react-google-drive-picker';
+import { localFileStorage } from './utils/localFileStorage';
 
 const GOOGLE_CLIENT_ID = "741889878750-da4cbkfe3q9gjh2figu71gbt4e9vap5e.apps.googleusercontent.com";
 const GOOGLE_API_KEY = "AIzaSyDQHr01GZaojE3wdoGzejocuFM-cXQGwTU";
@@ -143,6 +144,9 @@ function AppContent() {
 
       // Optimistic UI: Show file IMMEDIATELY
       setPdfFile(file);
+      
+      // Save locally to IndexedDB for offline access
+      localFileStorage.saveFile(file, 'local');
 
       if (currentUser) {
         // Upload in background - don't block UI
@@ -194,6 +198,15 @@ function AppContent() {
   const handleCloudDocumentSelect = async (docData) => {
     setIsMenuOpen(false);
     
+    // 1. Try to load from local IndexedDB first (Fastest & works offline)
+    const localFile = await localFileStorage.getFile(docData.name);
+    if (localFile) {
+        console.log("Loaded file from local cache");
+        setPdfFile(localFile);
+        return;
+    }
+
+    // 2. If not found locally, download from source
     // If it's a Drive document, fetch it using the stored ID
     if (docData.source === 'drive' && docData.driveId) {
        // Ensure we have a valid token
@@ -302,6 +315,9 @@ function AppContent() {
         // Show file immediately
         setPdfFile(file);
         
+        // Save to local IndexedDB
+        await localFileStorage.saveFile(file, 'drive', fileId);
+
         // If it's a new import (shouldSaveToLibrary is true), save metadata to Firestore instantly
         // No need to upload the file to Storage anymore
         if (currentUser && shouldSaveToLibrary) {

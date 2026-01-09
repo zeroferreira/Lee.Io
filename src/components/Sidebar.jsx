@@ -1,31 +1,40 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Moon, Sun, User, BookOpen, PenTool, Info, ArrowLeft, LogIn, LogOut, Github, Cloud } from 'lucide-react';
+import { X, Moon, Sun, User, BookOpen, PenTool, Info, ArrowLeft, LogIn, LogOut, Github, Cloud, HardDrive } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { db } from '../firebase/config';
 import { collection, query, orderBy, onSnapshot } from 'firebase/firestore';
+import { localFileStorage } from '../utils/localFileStorage';
 
 export const Sidebar = ({ isOpen, onClose, theme, toggleTheme, annotations = {}, currentFileName, onOpenProfile, onAnnotationClick, onCloudDocumentSelect }) => {
   const [view, setView] = useState('menu'); // 'menu' | 'annotations'
   const { currentUser, loginWithGoogle, logout } = useAuth();
   const [cloudDocuments, setCloudDocuments] = useState([]);
+  const [localDocuments, setLocalDocuments] = useState([]);
   const [loadingDocs, setLoadingDocs] = useState(false);
 
   useEffect(() => {
-    if (view === 'readings' && currentUser) {
-      setLoadingDocs(true);
-      const q = query(collection(db, `users/${currentUser.uid}/documents`), orderBy("createdAt", "desc"));
-      
-      const unsubscribe = onSnapshot(q, (querySnapshot) => {
-        const docs = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-        setCloudDocuments(docs);
-        setLoadingDocs(false);
-      }, (error) => {
-        console.error("Error fetching documents:", error);
-        setLoadingDocs(false);
-      });
+    if (view === 'readings') {
+       // Load Local Documents (IndexedDB)
+       localFileStorage.getFiles().then(files => {
+          setLocalDocuments(files.sort((a, b) => new Date(b.lastModified) - new Date(a.lastModified)));
+       });
 
-      return () => unsubscribe();
+       if (currentUser) {
+          setLoadingDocs(true);
+          const q = query(collection(db, `users/${currentUser.uid}/documents`), orderBy("createdAt", "desc"));
+          
+          const unsubscribe = onSnapshot(q, (querySnapshot) => {
+            const docs = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            setCloudDocuments(docs);
+            setLoadingDocs(false);
+          }, (error) => {
+            console.error("Error fetching documents:", error);
+            setLoadingDocs(false);
+          });
+
+          return () => unsubscribe();
+       }
     }
   }, [view, currentUser]);
 
@@ -44,6 +53,22 @@ export const Sidebar = ({ isOpen, onClose, theme, toggleTheme, annotations = {},
       console.error("Error logging out", error);
     }
   };
+
+  // Combine lists, preferring Cloud if duplicates exist (by name)
+  const combinedDocuments = [...cloudDocuments];
+  localDocuments.forEach(localDoc => {
+    if (!combinedDocuments.find(cd => cd.name === localDoc.name)) {
+      combinedDocuments.push(localDoc);
+    }
+  });
+
+  // Sort combined list by date (newest first)
+  // Cloud docs have createdAt (Timestamp), Local have lastModified (ISO string)
+  combinedDocuments.sort((a, b) => {
+    const dateA = a.createdAt?.seconds ? new Date(a.createdAt.seconds * 1000) : new Date(a.lastModified || 0);
+    const dateB = b.createdAt?.seconds ? new Date(b.createdAt.seconds * 1000) : new Date(b.lastModified || 0);
+    return dateB - dateA;
+  });
 
   const menuItems = [
     { icon: <User size={20} />, label: currentUser ? `Hola, ${currentUser.displayName}` : 'Mi perfil', action: onOpenProfile },
@@ -137,56 +162,45 @@ export const Sidebar = ({ isOpen, onClose, theme, toggleTheme, annotations = {},
               <div className="flex-1 overflow-y-auto">
                 <h3 className="text-xl font-bold mb-4">Mis Lecturas</h3>
                 
-                {currentUser ? (
-                  loadingDocs ? (
+                {loadingDocs ? (
                     <div className="flex justify-center p-4">
                       <span className="opacity-50">Cargando...</span>
                     </div>
-                  ) : cloudDocuments.length === 0 ? (
-                    <p className="text-sm opacity-50">No tienes documentos guardados en la nube.</p>
-                  ) : (
+                ) : combinedDocuments.length === 0 ? (
+                    <div className="flex flex-col items-center justify-center h-40 opacity-50 space-y-2">
+                        <BookOpen size={40} />
+                        <p className="text-sm text-center">No hay documentos guardados.</p>
+                        {!currentUser && <p className="text-xs text-center text-blue-500">Inicia sesión para sincronizar.</p>}
+                    </div>
+                ) : (
                     <div className="space-y-4">
-                      {cloudDocuments.map((doc, index) => (
+                      {combinedDocuments.map((doc, index) => (
                         <div 
                           key={doc.id || index} 
                           className="p-3 bg-foreground/5 rounded-lg cursor-pointer hover:bg-foreground/10 transition-colors"
                           onClick={() => onCloudDocumentSelect && onCloudDocumentSelect(doc)}
                         >
                           <div className="flex items-center gap-3 mb-2">
-                            <Cloud size={16} className="opacity-70 text-blue-500" />
-                            <p className="font-medium text-sm truncate">{doc.name}</p>
+                            {doc.source === 'drive' ? (
+                                <Cloud size={16} className="opacity-70 text-blue-500" />
+                            ) : doc.source === 'local' || !doc.createdAt ? (
+                                <HardDrive size={16} className="opacity-70 text-green-500" />
+                            ) : (
+                                <Cloud size={16} className="opacity-70" />
+                            )}
+                            <p className="font-medium text-sm truncate flex-1">{doc.name}</p>
                           </div>
                           <div className="flex justify-between items-center text-xs opacity-50">
-                            <span>{new Date(doc.createdAt?.seconds * 1000).toLocaleDateString()}</span>
-                            <span>{(doc.size / 1024 / 1024).toFixed(2)} MB</span>
+                            <span>
+                                {doc.createdAt?.seconds 
+                                    ? new Date(doc.createdAt.seconds * 1000).toLocaleDateString() 
+                                    : new Date(doc.lastModified || Date.now()).toLocaleDateString()}
+                            </span>
+                            <span>{doc.size ? (doc.size / 1024 / 1024).toFixed(2) + ' MB' : ''}</span>
                           </div>
                         </div>
                       ))}
                     </div>
-                  )
-                ) : (
-                  <>
-                    <p className="text-sm opacity-70 mb-4 bg-yellow-500/10 p-2 rounded border border-yellow-500/20">
-                      Inicia sesión para sincronizar tus lecturas en todos tus dispositivos.
-                    </p>
-                    {readingHistory.length === 0 ? (
-                      <p className="text-sm opacity-50">No hay lecturas locales.</p>
-                    ) : (
-                      <div className="space-y-4">
-                        {readingHistory.map((fileName, index) => (
-                          <div key={index} className="p-3 bg-foreground/5 rounded-lg">
-                            <div className="flex items-center gap-3 mb-2">
-                              <BookOpen size={16} className="opacity-70" />
-                              <p className="font-medium text-sm truncate">{fileName}</p>
-                            </div>
-                            <p className="text-xs opacity-50">
-                              {annotations[fileName]?.length || 0} anotaciones (local)
-                            </p>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </>
                 )}
               </div>
             ) : view === 'instructions' ? (
