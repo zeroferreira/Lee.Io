@@ -18,7 +18,7 @@ const GOOGLE_API_KEY = "AIzaSyDQHr01GZaojE3wdoGzejocuFM-cXQGwTU";
 
 function AppContent() {
   const [showIntro, setShowIntro] = useState(true);
-  const { currentUser, accessToken } = useAuth();
+  const { currentUser, accessToken, loginWithGoogle } = useAuth();
   const [openPicker] = useDrivePicker();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
@@ -237,15 +237,31 @@ function AppContent() {
     fileInputRef.current?.click();
   };
 
-  const handleOpenDrive = () => {
+  const handleOpenDrive = async () => {
     if (!currentUser) {
       setNotification("Por favor inicia sesión para acceder a tu Google Drive.");
       setIsMenuOpen(true);
       return;
     }
     
-    if (!accessToken) {
-       setNotification("Necesitamos renovar tu sesión para acceder a Drive. Por favor cierra sesión y vuelve a entrar.");
+    let token = accessToken;
+    
+    // If no access token (e.g. after refresh), try to get one silently/interactively
+    if (!token) {
+       try {
+         // This will trigger the popup flow again to get a fresh token
+         const result = await loginWithGoogle();
+         const credential = GoogleAuthProvider.credentialFromResult(result);
+         token = credential?.accessToken;
+       } catch (e) {
+         console.error("Error refreshing token:", e);
+         setNotification("No se pudo conectar con Drive. Intenta iniciar sesión nuevamente.");
+         return;
+       }
+    }
+
+    if (!token) {
+       setNotification("No se pudo verificar la sesión de Drive.");
        return;
     }
 
@@ -253,7 +269,7 @@ function AppContent() {
       clientId: GOOGLE_CLIENT_ID,
       developerKey: GOOGLE_API_KEY,
       viewId: "DOCS",
-      token: accessToken,
+      token: token,
       showUploadView: false,
       showUploadFolders: true,
       supportDrives: true,
@@ -263,7 +279,7 @@ function AppContent() {
         if (data.action === 'picked') {
           const fileId = data.docs[0].id;
           const fileName = data.docs[0].name;
-          downloadFileFromDrive(fileId, fileName, accessToken);
+          downloadFileFromDrive(fileId, fileName, token);
         }
       },
     });
@@ -278,7 +294,16 @@ function AppContent() {
           }
         });
         
-        if (!response.ok) throw new Error('Failed to download');
+        if (!response.ok) {
+            let errorMessage = `Error ${response.status}`;
+            try {
+                const errorData = await response.json();
+                errorMessage = errorData.error?.message || await response.text();
+            } catch (e) {
+                errorMessage = await response.text();
+            }
+            throw new Error(errorMessage);
+        }
         
         const blob = await response.blob();
         const file = new File([blob], fileName, { type: 'application/pdf' });
@@ -286,7 +311,7 @@ function AppContent() {
         setPdfFile(file);
       } catch (error) {
         console.error("Error downloading from Drive:", error);
-        setNotification("Error al cargar el archivo desde Drive.");
+        setNotification(`Error al descargar: ${error.message}`);
       } finally {
         setIsUploading(false);
       }
