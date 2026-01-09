@@ -132,6 +132,18 @@ function AppContent() {
     }
   };
 
+  useEffect(() => {
+    const handleBeforeUnload = (e) => {
+      if (isUploading) {
+        e.preventDefault();
+        e.returnValue = 'Hay una subida en progreso. Si sales ahora, el documento no se guardará en la nube para otros dispositivos.';
+        return e.returnValue;
+      }
+    };
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, [isUploading]);
+
   const handleFileChange = (event) => {
     const file = event.target.files[0];
     const MAX_FILE_SIZE = 50 * 1024 * 1024; // 50MB limit
@@ -150,19 +162,25 @@ function AppContent() {
 
       if (currentUser) {
         // Upload in background - don't block UI
-        setNotification("Guardando en tu biblioteca...");
+        setIsUploading(true);
+        setNotification("Sincronizando con la nube (0%)...");
         
         const storageRef = ref(storage, `users/${currentUser.uid}/documents/${file.name}`);
         const uploadTask = uploadBytesResumable(storageRef, file);
 
         uploadTask.on('state_changed',
           (snapshot) => {
-             // Optional: update some background progress indicator if needed
+             const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+             setUploadProgress(progress);
+             if (progress % 10 === 0 || progress === 100) {
+                setNotification(`Sincronizando con la nube (${Math.round(progress)}%)...`);
+             }
           },
           (error) => {
             console.error("Error uploading file:", error);
             // Silent fail for UX - user is already reading
-            setNotification("Modo lectura local (no se pudo guardar en la nube)");
+            setNotification("Modo lectura local (error de sincronización)");
+            setIsUploading(false);
           },
           async () => {
             try {
@@ -180,12 +198,15 @@ function AppContent() {
                   size: file.size
                 });
               }
-              setNotification("Documento guardado en tu biblioteca");
+              setNotification("Documento sincronizado correctamente");
               
               // Update URL to remote one silently
               setPdfFile({ name: file.name, url: downloadURL });
             } catch (error) {
               console.error("Error finishing upload:", error);
+              setNotification("Error al finalizar sincronización");
+            } finally {
+              setIsUploading(false);
             }
           }
         );
