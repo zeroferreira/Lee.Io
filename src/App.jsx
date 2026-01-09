@@ -392,15 +392,21 @@ function AppContent() {
   };
 
   const confirmDelete = async () => {
-    if (deleteConfirmation.doc) {
-      const success = await deleteDocument(deleteConfirmation.doc);
-      if (success) {
-        setNotification({ type: 'success', text: 'Documento eliminado correctamente' });
-      } else {
-        setNotification({ type: 'error', text: 'Error al eliminar el documento' });
+    try {
+      if (deleteConfirmation.doc) {
+        const success = await deleteDocument(deleteConfirmation.doc);
+        if (success) {
+          setNotification({ type: 'success', text: 'Documento eliminado correctamente' });
+        } else {
+          setNotification({ type: 'error', text: 'Error al eliminar el documento' });
+        }
       }
+    } catch (error) {
+      console.error(error);
+      setNotification({ type: 'error', text: 'Error al eliminar el documento' });
+    } finally {
+      setDeleteConfirmation({ isOpen: false, doc: null });
     }
-    setDeleteConfirmation({ isOpen: false, doc: null });
   };
 
   return (
