@@ -4,7 +4,7 @@ import { Header } from './components/Header';
 import { Sidebar } from './components/Sidebar';
 import { PDFViewer } from './components/PDFViewer';
 import { AnimatedTitle } from './components/AnimatedTitle';
-import { Plus, Undo2, Loader2, HardDrive, Trash2 } from 'lucide-react';
+import { Plus, Undo2, Loader2, HardDrive, Trash2, BookOpen, X } from 'lucide-react';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { db, storage, firebaseConfig } from './firebase/config';
 import { doc, setDoc, getDoc, collection, addDoc, serverTimestamp, query, where, getDocs } from 'firebase/firestore';
@@ -14,7 +14,6 @@ import { Notification } from './components/Notification';
 import useDrivePicker from 'react-google-drive-picker';
 import { localFileStorage } from './utils/localFileStorage';
 import { useDocuments } from './hooks/useDocuments';
-import { BookOpen } from 'lucide-react';
 
 const GOOGLE_CLIENT_ID = "741889878750-da4cbkfe3q9gjh2figu71gbt4e9vap5e.apps.googleusercontent.com";
 const GOOGLE_API_KEY = "AIzaSyDQHr01GZaojE3wdoGzejocuFM-cXQGwTU";
