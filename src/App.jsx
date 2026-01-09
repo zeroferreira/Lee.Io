@@ -141,8 +141,9 @@ function AppContent() {
     const handleBeforeUnload = (e) => {
       if (isUploading) {
         e.preventDefault();
-        e.returnValue = 'Hay una subida en progreso. Si sales ahora, el documento no se guardará en la nube para otros dispositivos.';
-        return e.returnValue;
+        // Standard way to trigger prompt in modern browsers
+        e.returnValue = '';
+        return '';
       }
     };
     window.addEventListener('beforeunload', handleBeforeUnload);
