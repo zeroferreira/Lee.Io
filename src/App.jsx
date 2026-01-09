@@ -145,23 +145,19 @@ function AppContent() {
         setIsUploading(true);
         setUploadProgress(0);
         
+        const storageRef = ref(storage, `users/${currentUser.uid}/documents/${file.name}`);
+        const uploadTask = uploadBytesResumable(storageRef, file);
+
         // Timeout check for 0% progress (likely CORS issue)
         const progressCheck = setTimeout(() => {
-          setUploadProgress(current => {
-            if (current === 0) {
+           if (uploadTask.snapshot.bytesTransferred === 0) {
               uploadTask.cancel();
               // Silent fallback to local for better UX while configuring cloud
               console.warn("Upload timed out (CORS/Network). Falling back to local file.");
               setIsUploading(false);
               setPdfFile(file); 
-              return 0;
-            }
-            return current;
-          });
-        }, 2000); // Reduced to 2 seconds for instant feedback
-
-        const storageRef = ref(storage, `users/${currentUser.uid}/documents/${file.name}`);
-        const uploadTask = uploadBytesResumable(storageRef, file);
+           }
+        }, 3000); // 3 seconds timeout
 
         uploadTask.on('state_changed',
           (snapshot) => {
@@ -179,16 +175,7 @@ function AppContent() {
             }
 
             console.error("Error uploading file:", error);
-            let errorMessage = "Error al subir el archivo.";
-            if (error.code === 'storage/unauthorized') {
-              errorMessage = "No tienes permisos para subir archivos. Verifica que has iniciado sesión.";
-            } else if (error.code === 'storage/unknown') {
-              errorMessage = "Ocurrió un error desconocido. Intenta de nuevo.";
-            }
-            
-            // Only alert for real errors, not cancellations
-            alert(`${errorMessage} (${error.message})`);
-            
+            // Don't alert user, just show local file
             setIsUploading(false);
             setPdfFile(file); // Fallback local
           },
@@ -207,8 +194,6 @@ function AppContent() {
                   createdAt: serverTimestamp(),
                   size: file.size
                 });
-              } else {
-                 // Optional: update timestamp or size if changed
               }
 
               setPdfFile({ name: file.name, url: downloadURL });
