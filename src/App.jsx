@@ -275,7 +275,9 @@ function AppContent() {
   };
 
   const downloadFileFromDrive = async (fileId, fileName, token, shouldSaveToLibrary = true) => {
-      setIsUploading(true);
+      // Show non-blocking notification
+      setNotification("Descargando documento de Drive...");
+      
       try {
         const response = await fetch(`https://www.googleapis.com/drive/v3/files/${fileId}?alt=media`, {
           headers: {
@@ -317,10 +319,13 @@ function AppContent() {
                         // No 'url' field needed for Drive files
                     });
                     console.log("Drive document saved to library");
+                    setNotification("Documento guardado en tu biblioteca");
                 }
             } catch (err) {
                 console.error("Error saving Drive metadata:", err);
             }
+        } else {
+            setNotification(null); // Clear "Downloading..." message
         }
 
       } catch (error) {
@@ -391,23 +396,6 @@ function AppContent() {
                onClose={() => setShowProfile(false)} 
                annotations={annotations}
              />
-
-             {isUploading && (
-               <div className="absolute inset-0 z-[150] flex items-center justify-center bg-background/80 backdrop-blur-sm">
-                 <div className="flex flex-col items-center gap-4 w-64">
-                   <Loader2 className="animate-spin h-10 w-10 text-foreground" />
-                   <p className="text-lg font-medium">Subiendo documento...</p>
-                   <div className="w-full h-2 bg-foreground/10 rounded-full overflow-hidden">
-                     <motion.div 
-                        className="h-full bg-foreground"
-                        initial={{ width: 0 }}
-                        animate={{ width: `${uploadProgress}%` }}
-                     />
-                   </div>
-                   <p className="text-sm opacity-60">{Math.round(uploadProgress)}%</p>
-                 </div>
-               </div>
-             )}
 
              <main className="relative flex-1 flex flex-col pt-16">
                {!pdfFile ? (
