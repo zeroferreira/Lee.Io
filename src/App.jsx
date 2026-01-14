@@ -7,7 +7,7 @@ import { AnimatedTitle } from './components/AnimatedTitle';
 import { Plus, Undo2, Loader2, HardDrive, Trash2, BookOpen, X, ArrowLeft } from 'lucide-react';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { db, storage, firebaseConfig } from './firebase/config';
-import { doc, setDoc, getDoc, collection, addDoc, serverTimestamp, query, where, getDocs, onSnapshot } from 'firebase/firestore';
+import { doc, setDoc, getDoc, collection, addDoc, serverTimestamp, query, where, getDocs, onSnapshot, updateDoc } from 'firebase/firestore';
 import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
 import { ProfileScreen } from './components/ProfileScreen';
 import { Notification } from './components/Notification';
@@ -47,6 +47,9 @@ function AppContent() {
   const [deleteConfirmation, setDeleteConfirmation] = useState({ isOpen: false, doc: null });
   const { documents: recentDocuments, loading: loadingDocuments, deleteDocument } = useDocuments();
   const [isMobile, setIsMobile] = useState(false);
+  const [currentDocId, setCurrentDocId] = useState(null);
+  const [pdfInitialPage, setPdfInitialPage] = useState(1);
+  const savePageTimer = useRef(null);
 
   useEffect(() => {
     const checkMobile = () => setIsMobile(window.innerWidth < 768);
@@ -174,6 +177,27 @@ function AppContent() {
     return () => window.removeEventListener('beforeunload', handleBeforeUnload);
   }, [isUploading]);
 
+  const handlePdfPageChange = (pageNum) => {
+      // Save local state if needed (optional)
+      // Save to Firestore with debounce
+      if (currentUser && currentDocId) {
+          if (savePageTimer.current) clearTimeout(savePageTimer.current);
+          
+          savePageTimer.current = setTimeout(() => {
+              const docRef = doc(db, `users/${currentUser.uid}/documents`, currentDocId);
+              updateDoc(docRef, { 
+                  lastPage: pageNum,
+                  lastOpened: serverTimestamp()
+              }).catch(e => console.error("Error saving page:", e));
+          }, 1000); // 1 second debounce
+      }
+      
+      // Also save to localStorage for offline resume
+      if (pdfFile?.name) {
+          localStorage.setItem(`lastPage:${pdfFile.name}`, pageNum);
+      }
+  };
+
   const handleFileChange = (event) => {
     const file = event.target.files[0];
     const MAX_FILE_SIZE = 50 * 1024 * 1024; // 50MB limit
@@ -186,11 +210,34 @@ function AppContent() {
 
       // Optimistic UI: Show file IMMEDIATELY
       setPdfFile(file);
+      setPdfInitialPage(1); // Default to 1 for new files
+      setCurrentDocId(null); // Reset until we find/create it
+      
+      // Try to recover local lastPage
+      const savedPage = localStorage.getItem(`lastPage:${file.name}`);
+      if (savedPage) setPdfInitialPage(parseInt(savedPage));
       
       // Save locally to IndexedDB for offline access
       localFileStorage.saveFile(file, 'local');
 
       if (currentUser) {
+        // Check if exists to get lastPage from cloud
+        // We do this in parallel with upload
+        (async () => {
+             try {
+                const q = query(collection(db, `users/${currentUser.uid}/documents`), where("name", "==", file.name));
+                const querySnapshot = await getDocs(q);
+                if (!querySnapshot.empty) {
+                    const docData = querySnapshot.docs[0].data();
+                    const docId = querySnapshot.docs[0].id;
+                    setCurrentDocId(docId);
+                    if (docData.lastPage) {
+                        setPdfInitialPage(docData.lastPage);
+                    }
+                }
+             } catch(e) { console.error(e); }
+        })();
+
         // Upload in background - don't block UI
         setIsUploading(true);
         setNotification("Sincronizando con la nube (0%)...");
@@ -221,12 +268,17 @@ function AppContent() {
               const querySnapshot = await getDocs(q);
               
               if (querySnapshot.empty) {
-                await addDoc(collection(db, `users/${currentUser.uid}/documents`), {
+                const newDoc = await addDoc(collection(db, `users/${currentUser.uid}/documents`), {
                   name: file.name,
                   url: downloadURL,
                   createdAt: serverTimestamp(),
-                  size: file.size
+                  size: file.size,
+                  lastPage: 1
                 });
+                setCurrentDocId(newDoc.id);
+              } else {
+                 // Already exists logic handled above, but ensure ID is set if race condition
+                 setCurrentDocId(querySnapshot.docs[0].id);
               }
               setNotification("Documento sincronizado correctamente");
               
@@ -248,6 +300,21 @@ function AppContent() {
 
   const handleCloudDocumentSelect = async (docData) => {
     setIsMenuOpen(false);
+    
+    // Set current ID for tracking
+    setCurrentDocId(docData.id);
+
+    // Set initial page from cloud data or local backup
+    let startPage = docData.lastPage || 1;
+    // Fallback to local if cloud page is missing/1 but local is ahead? 
+    // Usually cloud is source of truth, but if offline...
+    const localPage = localStorage.getItem(`lastPage:${docData.name}`);
+    if (localPage && parseInt(localPage) > startPage) {
+        // Maybe ask user? For now, trust cloud unless it's 1 (default) and local is > 1
+        // Actually, if we just opened from cloud, cloud wins.
+        // But if offline mode?
+    }
+    setPdfInitialPage(startPage);
     
     // Update lastOpened in Firestore if logged in
     if (currentUser && docData.id) {
@@ -402,16 +469,25 @@ function AppContent() {
                 const querySnapshot = await getDocs(q);
                 
                 if (querySnapshot.empty) {
-                    await addDoc(collection(db, `users/${currentUser.uid}/documents`), {
+                    const newDoc = await addDoc(collection(db, `users/${currentUser.uid}/documents`), {
                         name: fileName,
                         driveId: fileId,
                         source: 'drive',
                         createdAt: serverTimestamp(),
                         size: file.size,
+                        lastPage: 1
                         // No 'url' field needed for Drive files
                     });
+                    setCurrentDocId(newDoc.id);
+                    setPdfInitialPage(1);
                     console.log("Drive document saved to library");
                     setNotification("Documento guardado en tu biblioteca");
+                } else {
+                    const existing = querySnapshot.docs[0];
+                    setCurrentDocId(existing.id);
+                    if (existing.data().lastPage) {
+                        setPdfInitialPage(existing.data().lastPage);
+                    }
                 }
             } catch (err) {
                 console.error("Error saving Drive metadata:", err);
@@ -662,13 +738,14 @@ function AppContent() {
                       </button>
                     )}
                     <PDFViewer 
-                   file={pdfFile}  
-                   isMobile={isMobile}
-                   onAddAnnotation={addAnnotation} 
-                  annotations={annotations[pdfFile.name] || []}
-                  currentPage={currentPage}
-                  onPageChange={setCurrentPage}
-                />
+            file={pdfFile} 
+            isMobile={isMobile}
+            onAddAnnotation={addAnnotation}
+            annotations={annotations[pdfFile.name] || []}
+            currentPage={currentPage} // This is for external control if needed
+            initialPage={pdfInitialPage}
+            onPageChange={handlePdfPageChange}
+          />
                     
                     {/* Return to previous page button */}
                     <AnimatePresence>

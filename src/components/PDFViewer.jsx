@@ -11,9 +11,9 @@ pdfjs.GlobalWorkerOptions.workerSrc = new URL(
   import.meta.url,
 ).toString();
 
-export const PDFViewer = ({ file, isMobile, onAddAnnotation, annotations = [], currentPage, onPageChange }) => {
+export const PDFViewer = ({ file, isMobile, onAddAnnotation, annotations = [], currentPage, initialPage = 1, onPageChange }) => {
   const [numPages, setNumPages] = useState(null);
-  const [pageNumber, setPageNumber] = useState(1);
+  const [pageNumber, setPageNumber] = useState(initialPage);
   const [scale, setScale] = useState(1.0);
   const [containerWidth, setContainerWidth] = useState(null);
   const [containerHeight, setContainerHeight] = useState(null);
@@ -87,9 +87,11 @@ export const PDFViewer = ({ file, isMobile, onAddAnnotation, annotations = [], c
 
   function onDocumentLoadSuccess({ numPages }) {
     setNumPages(numPages);
-    setPageNumber(1);
+    // Use initialPage if provided and valid, otherwise 1
+    const startPage = (initialPage && initialPage > 0 && initialPage <= numPages) ? initialPage : 1;
+    setPageNumber(startPage);
     if (onPageChange) {
-      onPageChange(1);
+      onPageChange(startPage);
     }
   }
 
