@@ -90,9 +90,8 @@ export const PDFViewer = ({ file, isMobile, onAddAnnotation, annotations = [], c
     // Use initialPage if provided and valid, otherwise 1
     const startPage = (initialPage && initialPage > 0 && initialPage <= numPages) ? initialPage : 1;
     setPageNumber(startPage);
-    if (onPageChange) {
-      onPageChange(startPage);
-    }
+    // Don't trigger onPageChange on load to avoid overwriting persisted state with default (1)
+    // before async fetch completes
   }
 
   // React to initialPage changes after mount (e.g. async fetch)
