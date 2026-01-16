@@ -36,6 +36,7 @@ export const PDFViewer = ({ file, isMobile, onAddAnnotation, annotations = [], c
   const [selectedText, setSelectedText] = useState('');
   const [isFullScreen, setIsFullScreen] = useState(false);
   const [isFabMenuOpen, setIsFabMenuOpen] = useState(false);
+  const [noteListModal, setNoteListModal] = useState({ isOpen: false, notes: [] });
   const overlayRef = useRef(null);
   const containerRef = useRef(null);
   
@@ -886,12 +887,8 @@ export const PDFViewer = ({ file, isMobile, onAddAnnotation, annotations = [], c
                   const h = targetList.find(x => x.id === optionsMenu.targetId);
                   const text = selectedText || (h?.text || '');
                   const related = annotations.filter(a => a.page === pageNumber && a.text && (text ? a.text.includes(text) : true));
-                  if (!related.length) {
-                    alert('No hay notas relacionadas a este subrayado');
-                  } else {
-                    const message = related.map((a, idx) => `${idx + 1}. ${a.text}`).join('\n\n---\n\n');
-                    alert(message);
-                  }
+                  
+                  setNoteListModal({ isOpen: true, notes: related });
                   setOptionsMenu({ open: false, x: 0, y: 0, targetId: null });
                 }}
                 className="px-2 py-1 text-sm rounded hover:bg-foreground/5"
@@ -1005,6 +1002,63 @@ export const PDFViewer = ({ file, isMobile, onAddAnnotation, annotations = [], c
           </div>
         </div>
       )}
+
+      {noteListModal.isOpen && (
+        <div 
+          className="fixed inset-0 z-[110] flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm"
+          onClick={() => setNoteListModal({ isOpen: false, notes: [] })}
+        >
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.95 }}
+            onClick={(e) => e.stopPropagation()}
+            className="bg-background w-full max-w-md rounded-xl shadow-2xl border border-foreground/10 overflow-hidden flex flex-col max-h-[80vh]"
+          >
+            <div className="p-4 border-b border-foreground/10 flex justify-between items-center bg-foreground/5">
+              <h3 className="font-bold text-lg flex items-center gap-2">
+                <MessageSquarePlus size={20} />
+                Notas relacionadas
+              </h3>
+              <button 
+                onClick={() => setNoteListModal({ isOpen: false, notes: [] })}
+                className="p-1 hover:bg-foreground/10 rounded-full transition-colors"
+              >
+                <X size={20} />
+              </button>
+            </div>
+            
+            <div className="p-4 overflow-y-auto flex-1 space-y-3 custom-scrollbar">
+              {noteListModal.notes.length === 0 ? (
+                <div className="text-center py-8 text-foreground/50">
+                  <p>No hay notas vinculadas a este texto.</p>
+                </div>
+              ) : (
+                noteListModal.notes.map((note, idx) => (
+                  <div key={idx} className="bg-foreground/5 p-3 rounded-lg border border-foreground/5 hover:border-foreground/20 transition-colors">
+                    <div className="flex items-start gap-3">
+                      <span className="bg-foreground/10 text-xs font-bold px-2 py-1 rounded min-w-[1.5rem] text-center mt-0.5">
+                        {idx + 1}
+                      </span>
+                      <p className="text-sm whitespace-pre-wrap leading-relaxed">{note.text}</p>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+            
+            <div className="p-4 border-t border-foreground/10 bg-background flex justify-end">
+              <button 
+                onClick={() => setNoteListModal({ isOpen: false, notes: [] })}
+                className="px-4 py-2 bg-foreground text-background rounded-lg text-sm font-medium hover:opacity-90 transition-opacity"
+              >
+                Cerrar
+              </button>
+            </div>
+          </motion.div>
+        </div>
+      )}
+
       {/* Full Screen FAB */}
       {isFullScreen && (
         <div className="fixed bottom-6 right-6 z-[100] flex flex-col items-end gap-4">
