@@ -179,24 +179,23 @@ function AppContent() {
   }, [isUploading]);
 
   const handlePdfPageChange = (pageNum) => {
-      // Save local state if needed (optional)
-      // Save to Firestore with debounce
-      if (currentUser && currentDocId) {
-          if (savePageTimer.current) clearTimeout(savePageTimer.current);
-          
-          savePageTimer.current = setTimeout(() => {
-              const docRef = doc(db, `users/${currentUser.uid}/documents`, currentDocId);
-              updateDoc(docRef, { 
-                  lastPage: pageNum,
-                  lastOpened: serverTimestamp()
-              }).catch(e => console.error("Error saving page:", e));
-          }, 1000); // 1 second debounce
-      }
+    setCurrentPage(pageNum);
+
+    if (currentUser && currentDocId) {
+      if (savePageTimer.current) clearTimeout(savePageTimer.current);
       
-      // Also save to localStorage for offline resume
-      if (pdfFile?.name) {
-          localStorage.setItem(`lastPage:${pdfFile.name}`, pageNum);
-      }
+      savePageTimer.current = setTimeout(() => {
+        const docRef = doc(db, `users/${currentUser.uid}/documents`, currentDocId);
+        updateDoc(docRef, { 
+          lastPage: pageNum,
+          lastOpened: serverTimestamp()
+        }).catch(e => console.error("Error saving page:", e));
+      }, 1000);
+    }
+    
+    if (pdfFile?.name) {
+      localStorage.setItem(`lastPage:${pdfFile.name}`, pageNum);
+    }
   };
 
   const handleFileChange = (event) => {
@@ -304,19 +303,27 @@ function AppContent() {
   const handleCloudDocumentSelect = async (docData) => {
     setIsMenuOpen(false);
     
-    // Set current ID for tracking
-    setCurrentDocId(docData.id);
+    setCurrentDocId(docData.id || null);
 
-    // Set initial page from cloud data or local backup
-    let startPage = docData.lastPage || 1;
-    // Fallback to local if cloud page is missing/1 but local is ahead? 
-    // Usually cloud is source of truth, but if offline...
-    const localPage = localStorage.getItem(`lastPage:${docData.name}`);
-    if (localPage && parseInt(localPage) > startPage) {
-        // Maybe ask user? For now, trust cloud unless it's 1 (default) and local is > 1
-        // Actually, if we just opened from cloud, cloud wins.
-        // But if offline mode?
+    const localPageStr = localStorage.getItem(`lastPage:${docData.name}`);
+    const cloudPage = typeof docData.lastPage === 'number'
+      ? docData.lastPage
+      : parseInt(docData.lastPage || '0', 10);
+    const localPage = localPageStr ? parseInt(localPageStr, 10) : 0;
+
+    let startPage = 1;
+    if (cloudPage > 1 || localPage > 1) {
+      if (cloudPage > 1 && localPage > 1) {
+        startPage = Math.max(cloudPage, localPage);
+      } else if (cloudPage > 1) {
+        startPage = cloudPage;
+      } else {
+        startPage = localPage;
+      }
+    } else if (cloudPage === 1 || localPage === 1) {
+      startPage = 1;
     }
+
     setPdfInitialPage(startPage);
     
     // Update lastOpened in Firestore if logged in
