@@ -11,7 +11,7 @@ pdfjs.GlobalWorkerOptions.workerSrc = new URL(
   import.meta.url,
 ).toString();
 
-export const PDFViewer = ({ file, isMobile, onAddAnnotation, annotations = [], currentPage, initialPage = 1, onPageChange }) => {
+export const PDFViewer = ({ file, isMobile, onAddAnnotation, annotations = [], currentPage, initialPage = 1, onPageChange, onDeleteAnnotation }) => {
   const [numPages, setNumPages] = useState(null);
   const [pageNumber, setPageNumber] = useState(initialPage);
   const [scale, setScale] = useState(1.0);
@@ -37,6 +37,7 @@ export const PDFViewer = ({ file, isMobile, onAddAnnotation, annotations = [], c
   const [isFullScreen, setIsFullScreen] = useState(false);
   const [isFabMenuOpen, setIsFabMenuOpen] = useState(false);
   const [noteListModal, setNoteListModal] = useState({ isOpen: false, notes: [] });
+  const [deleteHighlightModal, setDeleteHighlightModal] = useState({ isOpen: false, targetId: null, message: '' });
   const overlayRef = useRef(null);
   const containerRef = useRef(null);
   
@@ -339,9 +340,11 @@ export const PDFViewer = ({ file, isMobile, onAddAnnotation, annotations = [], c
   const handleHighlightClick = (e, highlight, anchorRect) => {
     e.stopPropagation();
     if (activeTool === 'erase') {
-      if (window.confirm("¿Estás seguro de querer borrar el subrayado/anotación?")) {
-        deleteHighlight(highlight.id);
-      }
+      setDeleteHighlightModal({
+        isOpen: true,
+        targetId: highlight.id,
+        message: "¿Estás seguro de querer borrar el subrayado/anotación?"
+      });
       return;
     }
     const rect = e.currentTarget.getBoundingClientRect();
@@ -935,9 +938,11 @@ export const PDFViewer = ({ file, isMobile, onAddAnnotation, annotations = [], c
               </button>
               <button
                 onClick={() => {
-                  if (window.confirm("¿Eliminar este subrayado?")) {
-                    deleteHighlight(optionsMenu.targetId);
-                  }
+                  setDeleteHighlightModal({
+                    isOpen: true,
+                    targetId: optionsMenu.targetId,
+                    message: "¿Eliminar este subrayado?"
+                  });
                   setOptionsMenu({ open: false, x: 0, y: 0, targetId: null });
                 }}
                 className="px-2 py-1 text-sm rounded hover:bg-foreground/5 flex items-center gap-1 text-red-500"
@@ -1040,7 +1045,32 @@ export const PDFViewer = ({ file, isMobile, onAddAnnotation, annotations = [], c
                       <span className="bg-foreground/10 text-xs font-bold px-2 py-1 rounded min-w-[1.5rem] text-center mt-0.5">
                         {idx + 1}
                       </span>
-                      <p className="text-sm whitespace-pre-wrap leading-relaxed">{note.text}</p>
+                      <div className="flex-1 flex flex-col gap-2">
+                        <p className="text-sm whitespace-pre-wrap leading-relaxed">{note.text}</p>
+                        <div className="flex items-center justify-between text-xs text-foreground/50 mt-1">
+                          {note.page && (
+                            <span>Página {note.page}</span>
+                          )}
+                          <button
+                            onClick={() => {
+                              if (window.confirm('¿Borrar esta nota?')) {
+                                if (typeof note.id !== 'undefined' && note.id !== null && typeof onDeleteAnnotation === 'function') {
+                                  onDeleteAnnotation(note.id);
+                                }
+                                setNoteListModal(prev => ({
+                                  ...prev,
+                                  notes: prev.notes.filter(n => n.id !== note.id)
+                                }));
+                              }
+                            }}
+                            className="inline-flex items-center gap-1 text-red-500 hover:text-red-400 font-medium"
+                            title="Borrar nota"
+                          >
+                            <Trash2 size={14} />
+                            <span>Borrar</span>
+                          </button>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 ))
@@ -1053,6 +1083,55 @@ export const PDFViewer = ({ file, isMobile, onAddAnnotation, annotations = [], c
                 className="px-4 py-2 bg-foreground text-background rounded-lg text-sm font-medium hover:opacity-90 transition-opacity"
               >
                 Cerrar
+              </button>
+            </div>
+          </motion.div>
+        </div>
+      )}
+
+      {deleteHighlightModal.isOpen && (
+        <div 
+          className="fixed inset-0 z-[120] flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm"
+          onClick={() => setDeleteHighlightModal({ isOpen: false, targetId: null, message: '' })}
+        >
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95, y: 10 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.95, y: 10 }}
+            onClick={(e) => e.stopPropagation()}
+            className="bg-background w-full max-w-sm rounded-xl shadow-2xl border border-foreground/10 overflow-hidden"
+          >
+            <div className="p-4 border-b border-foreground/10 bg-foreground/5 flex items-center gap-3">
+              <div className="w-10 h-10 rounded-full bg-red-500/10 flex items-center justify-center text-red-500">
+                <Trash2 size={22} />
+              </div>
+              <div>
+                <h3 className="font-semibold text-base">Borrar subrayado</h3>
+                <p className="text-xs text-foreground/60">Esta acción no se puede deshacer.</p>
+              </div>
+            </div>
+            <div className="p-4">
+              <p className="text-sm text-foreground/80 whitespace-pre-wrap">
+                {deleteHighlightModal.message || '¿Quieres borrar este subrayado?'}
+              </p>
+            </div>
+            <div className="px-4 pb-4 pt-2 flex justify-end gap-3">
+              <button
+                onClick={() => setDeleteHighlightModal({ isOpen: false, targetId: null, message: '' })}
+                className="px-4 py-2 text-sm rounded-lg hover:bg-foreground/5"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={() => {
+                  if (deleteHighlightModal.targetId !== null) {
+                    deleteHighlight(deleteHighlightModal.targetId);
+                  }
+                  setDeleteHighlightModal({ isOpen: false, targetId: null, message: '' });
+                }}
+                className="px-4 py-2 text-sm rounded-lg bg-red-500 text-background hover:bg-red-600 font-medium"
+              >
+                Borrar
               </button>
             </div>
           </motion.div>

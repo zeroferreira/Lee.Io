@@ -137,6 +137,18 @@ function AppContent() {
     });
   };
 
+  const deleteAnnotation = (id) => {
+    if (!pdfFile) return;
+    const fileName = pdfFile.name;
+    setAnnotations(prev => {
+      const fileNotes = prev[fileName] || [];
+      return {
+        ...prev,
+        [fileName]: fileNotes.filter(note => note.id !== id)
+      };
+    });
+  };
+
   useEffect(() => {
     const root = window.document.documentElement;
     if (theme === 'dark') {
@@ -753,6 +765,7 @@ function AppContent() {
             isMobile={isMobile}
             onAddAnnotation={addAnnotation}
             annotations={annotations[pdfFile.name] || []}
+            onDeleteAnnotation={deleteAnnotation}
             currentPage={currentPage} // This is for external control if needed
             initialPage={pdfInitialPage}
             onPageChange={handlePdfPageChange}
