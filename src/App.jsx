@@ -45,7 +45,8 @@ function AppContent() {
   });
   
   const [deleteConfirmation, setDeleteConfirmation] = useState({ isOpen: false, doc: null });
-  const { documents: recentDocuments, loading: loadingDocuments, deleteDocument } = useDocuments();
+  const [documentsRefresh, setDocumentsRefresh] = useState(0);
+  const { documents: recentDocuments, loading: loadingDocuments, deleteDocument } = useDocuments(documentsRefresh);
   const [isMobile, setIsMobile] = useState(false);
   const [currentDocId, setCurrentDocId] = useState(null);
   const [pdfInitialPage, setPdfInitialPage] = useState(1);
@@ -218,7 +219,9 @@ function AppContent() {
       if (savedPage) setPdfInitialPage(parseInt(savedPage));
       
       // Save locally to IndexedDB for offline access
-      localFileStorage.saveFile(file, 'local');
+      localFileStorage.saveFile(file, 'local').then(() => {
+        setDocumentsRefresh(v => v + 1);
+      });
 
       if (currentUser) {
         // Check if exists to get lastPage from cloud
@@ -460,6 +463,7 @@ function AppContent() {
         
         // Save to local IndexedDB
         await localFileStorage.saveFile(file, 'drive', fileId);
+        setDocumentsRefresh(v => v + 1);
 
         // If it's a new import (shouldSaveToLibrary is true), save metadata to Firestore instantly
         // No need to upload the file to Storage anymore

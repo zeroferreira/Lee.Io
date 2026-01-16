@@ -4,7 +4,7 @@ import { db } from '../firebase/config';
 import { localFileStorage } from '../utils/localFileStorage';
 import { useAuth } from '../context/AuthContext';
 
-export const useDocuments = () => {
+export const useDocuments = (refreshToken = 0) => {
   const { currentUser } = useAuth();
   const [documents, setDocuments] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -44,7 +44,7 @@ export const useDocuments = () => {
     fetchLocalAndCloud();
 
     return () => unsubscribe();
-  }, [currentUser]);
+  }, [currentUser, refreshToken]);
 
   const mergeAndSetDocuments = (localDocs, cloudDocs) => {
      // Combine lists, preferring Cloud if duplicates exist (by name)
