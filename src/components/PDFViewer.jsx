@@ -95,6 +95,13 @@ export const PDFViewer = ({ file, isMobile, onAddAnnotation, annotations = [], c
     }
   }
 
+  // React to initialPage changes after mount (e.g. async fetch)
+  useEffect(() => {
+    if (initialPage && initialPage > 0 && numPages && initialPage <= numPages) {
+      setPageNumber(initialPage);
+    }
+  }, [initialPage, numPages]);
+
   const handleSaveNote = () => {
     if (noteText.trim()) {
       let geometry = null;
