@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo, useRef } from 'react';
 import { Document, Page, pdfjs } from 'react-pdf';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronLeft, ChevronRight, ZoomIn, ZoomOut, MessageSquarePlus, Highlighter, Eraser, Maximize, Minimize, MoreHorizontal, Square, Circle, Copy, Search, Expand, Shrink, Menu, X } from 'lucide-react';
+import { ChevronLeft, ChevronRight, ZoomIn, ZoomOut, MessageSquarePlus, Highlighter, Eraser, Maximize, Minimize, MoreHorizontal, Square, Circle, Copy, Search, Expand, Shrink, Menu, X, Trash2 } from 'lucide-react';
 import 'react-pdf/dist/Page/AnnotationLayer.css';
 import 'react-pdf/dist/Page/TextLayer.css';
 
@@ -335,13 +335,26 @@ export const PDFViewer = ({ file, isMobile, onAddAnnotation, annotations = [], c
     saveHighlights(next);
   };
 
-  const handleHighlightClick = (e, id) => {
+  const handleHighlightClick = (e, highlight, anchorRect) => {
+    e.stopPropagation();
     if (activeTool === 'erase') {
-      e.stopPropagation();
       if (window.confirm("¿Estás seguro de querer borrar el subrayado/anotación?")) {
-        deleteHighlight(id);
+        deleteHighlight(highlight.id);
       }
+      return;
     }
+    const rect = e.currentTarget.getBoundingClientRect();
+    const baseRect = anchorRect 
+      || (Array.isArray(highlight.rects) && highlight.rects.length > 0 ? highlight.rects[highlight.rects.length - 1] : highlight);
+    setOptionsMenu({
+      open: true,
+      x: baseRect.x,
+      y: baseRect.y,
+      screenX: rect.left + rect.width / 2,
+      screenY: rect.top,
+      targetId: highlight.id
+    });
+    setSelectedText(highlight.text || '');
   };
 
   const clearPageHighlights = () => {
@@ -721,7 +734,7 @@ export const PDFViewer = ({ file, isMobile, onAddAnnotation, annotations = [], c
                                height: `${Math.abs(r.h) * 100}%`,
                                background: h.color,
                              }}
-                             onClick={(e) => handleHighlightClick(e, h.id)}
+                             onClick={(e) => handleHighlightClick(e, h, r)}
                            />
                          )) : (
                            <div
@@ -733,27 +746,11 @@ export const PDFViewer = ({ file, isMobile, onAddAnnotation, annotations = [], c
                                height: `${Math.abs(h.h) * 100}%`,
                                background: h.color,
                              }}
-                             onClick={(e) => handleHighlightClick(e, h.id)}
+                             onClick={(e) => handleHighlightClick(e, h, h)}
                            />
                          )}
                          <button
-                           onClick={(e) => {
-                             if (activeTool === 'erase') {
-                               handleHighlightClick(e, h.id);
-                               return;
-                             }
-                             e.stopPropagation();
-                             const btnRect = e.currentTarget.getBoundingClientRect();
-                             setOptionsMenu({ 
-                               open: true, 
-                               x: lastRect.x, 
-                               y: lastRect.y, 
-                               screenX: btnRect.left + btnRect.width / 2,
-                               screenY: btnRect.top,
-                               targetId: h.id 
-                             });
-                             setSelectedText(h.text || '');
-                           }}
+                           onClick={(e) => handleHighlightClick(e, h, lastRect)}
                            className="absolute -translate-x-1/2 -translate-y-1/2 p-1 bg-background border border-foreground/20 rounded-full shadow hover:bg-foreground/5 z-20 pointer-events-auto"
                            style={{
                              left: `${(Math.min(lastRect.x, lastRect.x + lastRect.w) + Math.abs(lastRect.w)) * 100}%`,
@@ -883,6 +880,24 @@ export const PDFViewer = ({ file, isMobile, onAddAnnotation, annotations = [], c
               >
                 Idea
               </button>
+              <button
+                onClick={() => {
+                  const targetList = highlights[pageNumber] || [];
+                  const h = targetList.find(x => x.id === optionsMenu.targetId);
+                  const text = selectedText || (h?.text || '');
+                  const related = annotations.filter(a => a.page === pageNumber && a.text && (text ? a.text.includes(text) : true));
+                  if (!related.length) {
+                    alert('No hay notas relacionadas a este subrayado');
+                  } else {
+                    const message = related.map((a, idx) => `${idx + 1}. ${a.text}`).join('\n\n---\n\n');
+                    alert(message);
+                  }
+                  setOptionsMenu({ open: false, x: 0, y: 0, targetId: null });
+                }}
+                className="px-2 py-1 text-sm rounded hover:bg-foreground/5"
+              >
+                Ver notas
+              </button>
               <div className="flex items-center gap-1">
                 {['rgba(255, 235, 59, 0.35)','rgba(76, 175, 80, 0.35)','rgba(255, 105, 180, 0.35)','rgba(30, 144, 255, 0.35)'].map(c => (
                   <button
@@ -920,6 +935,18 @@ export const PDFViewer = ({ file, isMobile, onAddAnnotation, annotations = [], c
                 title="Copiar texto"
               >
                 <Copy size={14} />
+              </button>
+              <button
+                onClick={() => {
+                  if (window.confirm("¿Eliminar este subrayado?")) {
+                    deleteHighlight(optionsMenu.targetId);
+                  }
+                  setOptionsMenu({ open: false, x: 0, y: 0, targetId: null });
+                }}
+                className="px-2 py-1 text-sm rounded hover:bg-foreground/5 flex items-center gap-1 text-red-500"
+                title="Eliminar subrayado"
+              >
+                <Trash2 size={14} />
               </button>
               <button
                 onClick={() => {
