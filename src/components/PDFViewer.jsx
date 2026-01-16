@@ -38,8 +38,11 @@ export const PDFViewer = ({ file, isMobile, onAddAnnotation, annotations = [], c
   const [isFabMenuOpen, setIsFabMenuOpen] = useState(false);
   const [noteListModal, setNoteListModal] = useState({ isOpen: false, notes: [] });
   const [deleteHighlightModal, setDeleteHighlightModal] = useState({ isOpen: false, targetId: null, message: '' });
+  const [deleteNoteModal, setDeleteNoteModal] = useState({ isOpen: false, note: null });
+  const [toast, setToast] = useState({ open: false, message: '', variant: 'info' });
   const overlayRef = useRef(null);
   const containerRef = useRef(null);
+  const toastTimeoutRef = useRef(null);
   
   // Touch state
   const touchStart = useRef(null);
@@ -51,6 +54,14 @@ export const PDFViewer = ({ file, isMobile, onAddAnnotation, annotations = [], c
       setPageNumber(currentPage);
     }
   }, [currentPage]);
+
+  useEffect(() => {
+    return () => {
+      if (toastTimeoutRef.current) {
+        clearTimeout(toastTimeoutRef.current);
+      }
+    };
+  }, []);
 
   // Minimum swipe distance (in px) 
   const minSwipeDistance = 50; 
@@ -364,6 +375,16 @@ export const PDFViewer = ({ file, isMobile, onAddAnnotation, annotations = [], c
   const clearPageHighlights = () => {
     const next = { ...highlights, [pageNumber]: [] };
     saveHighlights(next);
+  };
+
+  const showToast = (message, variant = 'info') => {
+    if (toastTimeoutRef.current) {
+      clearTimeout(toastTimeoutRef.current);
+    }
+    setToast({ open: true, message, variant });
+    toastTimeoutRef.current = setTimeout(() => {
+      setToast(prev => ({ ...prev, open: false }));
+    }, 2000);
   };
 
   const pageVariants = {
@@ -689,7 +710,7 @@ export const PDFViewer = ({ file, isMobile, onAddAnnotation, annotations = [], c
                        : (activeTool !== 'none' ? 'crosshair' : 'text')
                    }}
                  >
-                   {annotations.filter(a => a.page === pageNumber && a.geometry).map(a => (
+                  {annotations.filter(a => a.page === pageNumber && a.geometry).map(a => (
                      <div
                         key={a.id}
                         className={`absolute border-2 ${a.geometry.type === 'circle' ? 'rounded-full' : 'rounded-sm'} border-blue-500 bg-blue-500/10 hover:bg-blue-500/20 cursor-pointer transition-colors`}
@@ -701,12 +722,7 @@ export const PDFViewer = ({ file, isMobile, onAddAnnotation, annotations = [], c
                         }}
                         onClick={(e) => {
                             e.stopPropagation();
-                            setNoteText(a.text);
-                            // Maybe open read-only modal or just reuse modal?
-                            // For now just alert or use existing logic if any
-                            // Let's use the modal but maybe we need a "View Note" mode?
-                            // Using alert for simplicity as requested "ver sus anotaciones"
-                            alert(a.text); 
+                            setNoteListModal({ isOpen: true, notes: [a] });
                         }}
                         title={a.text}
                      />
@@ -778,6 +794,23 @@ export const PDFViewer = ({ file, isMobile, onAddAnnotation, annotations = [], c
                        }}
                      />
                    )}
+                   {tempSelection && Array.isArray(tempSelection.rects) && tempSelection.rects.length > 0 && (
+                     <div className="absolute inset-0 pointer-events-none">
+                       {tempSelection.rects.map((r, idx) => (
+                         <div
+                           key={`temp-${idx}`}
+                           className="absolute rounded-sm"
+                           style={{
+                             left: `${Math.min(r.x, r.x + r.w) * 100}%`,
+                             top: `${Math.min(r.y, r.y + r.h) * 100}%`,
+                             width: `${Math.abs(r.w) * 100}%`,
+                             height: `${Math.abs(r.h) * 100}%`,
+                             background: tempSelection.color || 'rgba(255, 235, 59, 0.35)',
+                           }}
+                         />
+                       ))}
+                     </div>
+                   )}
                  </div>
               </div>
             </motion.div>
@@ -845,7 +878,7 @@ export const PDFViewer = ({ file, isMobile, onAddAnnotation, annotations = [], c
                 onClick={() => {
                   if (selectedText) {
                     navigator.clipboard.writeText(selectedText).then(() => {
-                      alert('Texto copiado al portapapeles');
+                      showToast('Texto copiado al portapapeles', 'success');
                     }).catch(err => {
                       console.error('Error al copiar:', err);
                     });
@@ -922,12 +955,12 @@ export const PDFViewer = ({ file, isMobile, onAddAnnotation, annotations = [], c
                     const text = selectedText || (h?.text || '');
                     if (text) {
                       navigator.clipboard.writeText(text).then(() => {
-                        alert('Texto copiado al portapapeles');
+                        showToast('Texto copiado al portapapeles', 'success');
                       }).catch(err => {
                         console.error('Error al copiar:', err);
                       });
                     } else {
-                      alert('No hay texto para copiar');
+                      showToast('No hay texto para copiar', 'error');
                     }
                     setOptionsMenu({ open: false, x: 0, y: 0, targetId: null });
                 }}
@@ -959,7 +992,7 @@ export const PDFViewer = ({ file, isMobile, onAddAnnotation, annotations = [], c
                     const q = encodeURIComponent(text);
                     window.open(`https://www.google.com/search?q=${q}`, '_blank');
                   } else {
-                    alert("No hay texto seleccionado para buscar.");
+                    showToast('No hay texto seleccionado para buscar.', 'error');
                   }
                   setOptionsMenu({ open: false, x: 0, y: 0, targetId: null });
                 }}
@@ -1053,15 +1086,7 @@ export const PDFViewer = ({ file, isMobile, onAddAnnotation, annotations = [], c
                           )}
                           <button
                             onClick={() => {
-                              if (window.confirm('¿Borrar esta nota?')) {
-                                if (typeof note.id !== 'undefined' && note.id !== null && typeof onDeleteAnnotation === 'function') {
-                                  onDeleteAnnotation(note.id);
-                                }
-                                setNoteListModal(prev => ({
-                                  ...prev,
-                                  notes: prev.notes.filter(n => n.id !== note.id)
-                                }));
-                              }
+                              setDeleteNoteModal({ isOpen: true, note });
                             }}
                             className="inline-flex items-center gap-1 text-red-500 hover:text-red-400 font-medium"
                             title="Borrar nota"
@@ -1135,6 +1160,77 @@ export const PDFViewer = ({ file, isMobile, onAddAnnotation, annotations = [], c
               </button>
             </div>
           </motion.div>
+        </div>
+      )}
+
+      {deleteNoteModal.isOpen && (
+        <div
+          className="fixed inset-0 z-[125] flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm"
+          onClick={() => setDeleteNoteModal({ isOpen: false, note: null })}
+        >
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95, y: 10 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.95, y: 10 }}
+            onClick={(e) => e.stopPropagation()}
+            className="bg-background w-full max-w-sm rounded-xl shadow-2xl border border-foreground/10 overflow-hidden"
+          >
+            <div className="p-4 border-b border-foreground/10 bg-foreground/5 flex items-center gap-3">
+              <div className="w-10 h-10 rounded-full bg-red-500/10 flex items-center justify-center text-red-500">
+                <Trash2 size={22} />
+              </div>
+              <div>
+                <h3 className="font-semibold text-base">Borrar nota</h3>
+                <p className="text-xs text-foreground/60">Esta acción no se puede deshacer.</p>
+              </div>
+            </div>
+            <div className="p-4">
+              <p className="text-sm text-foreground/80 whitespace-pre-wrap">
+                {deleteNoteModal.note?.text || '¿Quieres borrar esta nota?'}
+              </p>
+            </div>
+            <div className="px-4 pb-4 pt-2 flex justify-end gap-3">
+              <button
+                onClick={() => setDeleteNoteModal({ isOpen: false, note: null })}
+                className="px-4 py-2 text-sm rounded-lg hover:bg-foreground/5"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={() => {
+                  if (deleteNoteModal.note && typeof deleteNoteModal.note.id !== 'undefined' && deleteNoteModal.note.id !== null && typeof onDeleteAnnotation === 'function') {
+                    onDeleteAnnotation(deleteNoteModal.note.id);
+                  }
+                  if (deleteNoteModal.note) {
+                    setNoteListModal(prev => ({
+                      ...prev,
+                      notes: prev.notes.filter(n => n.id !== deleteNoteModal.note.id)
+                    }));
+                  }
+                  setDeleteNoteModal({ isOpen: false, note: null });
+                }}
+                className="px-4 py-2 text-sm rounded-lg bg-red-500 text-background hover:bg-red-600 font-medium"
+              >
+                Borrar
+              </button>
+            </div>
+          </motion.div>
+        </div>
+      )}
+
+      {toast.open && (
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[140] px-4">
+          <div
+            className={
+              toast.variant === 'success'
+                ? 'bg-emerald-500 text-white px-4 py-2 rounded-full shadow-lg text-sm flex items-center gap-2'
+                : toast.variant === 'error'
+                ? 'bg-red-500 text-white px-4 py-2 rounded-full shadow-lg text-sm flex items-center gap-2'
+                : 'bg-foreground text-background px-4 py-2 rounded-full shadow-lg text-sm flex items-center gap-2'
+            }
+          >
+            <span>{toast.message}</span>
+          </div>
         </div>
       )}
 
