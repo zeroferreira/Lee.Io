@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo, useRef } from 'react';
 import { Document, Page, pdfjs } from 'react-pdf';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronLeft, ChevronRight, ZoomIn, ZoomOut, MessageSquarePlus, Highlighter, Eraser, Maximize, Minimize, MoreHorizontal, Square, Circle, Copy, Search, Expand, Shrink, Menu, X, Trash2 } from 'lucide-react';
+import { ChevronLeft, ChevronRight, ZoomIn, ZoomOut, MessageSquarePlus, Highlighter, Eraser, Maximize, Minimize, MoreHorizontal, Square, Circle, Copy, Search, Expand, Shrink, Menu, X, Trash2, Globe2 } from 'lucide-react';
 import 'react-pdf/dist/Page/AnnotationLayer.css';
 import 'react-pdf/dist/Page/TextLayer.css';
 
@@ -40,6 +40,14 @@ export const PDFViewer = ({ file, isMobile, onAddAnnotation, annotations = [], c
   const [deleteHighlightModal, setDeleteHighlightModal] = useState({ isOpen: false, targetId: null, message: '' });
   const [deleteNoteModal, setDeleteNoteModal] = useState({ isOpen: false, note: null });
   const [toast, setToast] = useState({ open: false, message: '', variant: 'info' });
+  const [translatorModal, setTranslatorModal] = useState({
+    isOpen: false,
+    text: '',
+    activeLang: 'en',
+    loading: false,
+    translations: {},
+    error: ''
+  });
   const overlayRef = useRef(null);
   const containerRef = useRef(null);
   const toastTimeoutRef = useRef(null);
@@ -385,6 +393,50 @@ export const PDFViewer = ({ file, isMobile, onAddAnnotation, annotations = [], c
     toastTimeoutRef.current = setTimeout(() => {
       setToast(prev => ({ ...prev, open: false }));
     }, 2000);
+  };
+
+  const translateText = async (lang) => {
+    if (!translatorModal.text.trim()) {
+      showToast('No hay texto para traducir', 'error');
+      return;
+    }
+    if (translatorModal.translations[lang]) {
+      setTranslatorModal(prev => ({ ...prev, activeLang: lang, error: '' }));
+      return;
+    }
+    setTranslatorModal(prev => ({ ...prev, activeLang: lang, loading: true, error: '' }));
+    try {
+      const res = await fetch('https://libretranslate.de/translate', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          q: translatorModal.text,
+          source: lang,
+          target: 'es',
+          format: 'text'
+        })
+      });
+      if (!res.ok) {
+        throw new Error('Error al traducir');
+      }
+      const data = await res.json();
+      const translated = data.translatedText || '';
+      setTranslatorModal(prev => ({
+        ...prev,
+        loading: false,
+        translations: { ...prev.translations, [lang]: translated },
+        error: ''
+      }));
+    } catch (e) {
+      console.error(e);
+      setTranslatorModal(prev => ({
+        ...prev,
+        loading: false,
+        error: 'No se pudo traducir en este momento.'
+      }));
+    }
   };
 
   const pageVariants = {
@@ -845,6 +897,28 @@ export const PDFViewer = ({ file, isMobile, onAddAnnotation, annotations = [], c
               </button>
               <button
                 onClick={() => {
+                  if (!selectedText) {
+                    showToast('No hay texto para traducir', 'error');
+                  } else {
+                    setTranslatorModal({
+                      isOpen: true,
+                      text: selectedText,
+                      activeLang: 'en',
+                      loading: false,
+                      translations: {},
+                      error: ''
+                    });
+                  }
+                  setOptionsMenu({ open: false, x: 0, y: 0, targetId: null });
+                  setTempSelection(null);
+                }}
+                className="px-2 py-1 text-sm rounded hover:bg-foreground/5 flex items-center gap-1"
+                title="Traducir a español"
+              >
+                <Globe2 size={14} />
+              </button>
+              <button
+                onClick={() => {
                   if (tempSelection) {
                     const next = { ...highlights, [pageNumber]: [...(highlights[pageNumber] || []), tempSelection] };
                     saveHighlights(next);
@@ -1212,6 +1286,117 @@ export const PDFViewer = ({ file, isMobile, onAddAnnotation, annotations = [], c
                 className="px-4 py-2 text-sm rounded-lg bg-red-500 text-background hover:bg-red-600 font-medium"
               >
                 Borrar
+              </button>
+            </div>
+          </motion.div>
+        </div>
+      )}
+
+      {translatorModal.isOpen && (
+        <div
+          className="fixed inset-0 z-[130] flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm"
+          onClick={() =>
+            setTranslatorModal({
+              isOpen: false,
+              text: '',
+              activeLang: 'en',
+              loading: false,
+              translations: {},
+              error: ''
+            })
+          }
+        >
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95, y: 10 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.95, y: 10 }}
+            onClick={(e) => e.stopPropagation()}
+            className="bg-background w-full max-w-md rounded-xl shadow-2xl border border-foreground/10 overflow-hidden flex flex-col max-h-[80vh]"
+          >
+            <div className="p-4 border-b border-foreground/10 flex justify-between items-center bg-foreground/5">
+              <h3 className="font-bold text-lg flex items-center gap-2">
+                <Globe2 size={20} />
+                Traducir a español
+              </h3>
+              <button
+                onClick={() =>
+                  setTranslatorModal({
+                    isOpen: false,
+                    text: '',
+                    activeLang: 'en',
+                    loading: false,
+                    translations: {},
+                    error: ''
+                  })
+                }
+                className="p-1 hover:bg-foreground/10 rounded-full transition-colors"
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            <div className="p-4 border-b border-foreground/10">
+              <p className="text-xs text-foreground/60 mb-1">Texto seleccionado</p>
+              <div className="text-sm bg-foreground/5 rounded-lg px-3 py-2 whitespace-pre-wrap">
+                {translatorModal.text}
+              </div>
+            </div>
+
+            <div className="px-4 pt-3 flex gap-2 flex-wrap">
+              {[
+                { code: 'en', label: 'Inglés' },
+                { code: 'it', label: 'Italiano' },
+                { code: 'de', label: 'Alemán' },
+                { code: 'ru', label: 'Ruso' }
+              ].map((lang) => (
+                <button
+                  key={lang.code}
+                  onClick={() => translateText(lang.code)}
+                  className={`px-3 py-1.5 text-xs rounded-full border transition-colors ${
+                    translatorModal.activeLang === lang.code
+                      ? 'bg-foreground text-background border-foreground'
+                      : 'border-foreground/20 hover:bg-foreground/5'
+                  }`}
+                >
+                  {lang.label}
+                </button>
+              ))}
+            </div>
+
+            <div className="p-4 flex-1 overflow-y-auto">
+              {translatorModal.loading ? (
+                <div className="flex items-center justify-center py-8 text-sm text-foreground/60">
+                  Traduciendo...
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  <p className="text-xs text-foreground/60">Resultado en español</p>
+                  <div className="bg-foreground/5 rounded-lg px-3 py-2 min-h-[4rem] whitespace-pre-wrap text-sm">
+                    {translatorModal.translations[translatorModal.activeLang] ||
+                      (translatorModal.error || 'Elige un idioma para traducir.')}
+                  </div>
+                </div>
+              )}
+              {translatorModal.error && !translatorModal.loading && (
+                <p className="mt-2 text-xs text-red-500">{translatorModal.error}</p>
+              )}
+            </div>
+
+            <div className="p-4 border-t border-foreground/10 flex justify-end">
+              <button
+                onClick={() =>
+                  setTranslatorModal({
+                    isOpen: false,
+                    text: '',
+                    activeLang: 'en',
+                    loading: false,
+                    translations: {},
+                    error: ''
+                  })
+                }
+                className="px-4 py-2 bg-foreground text-background rounded-lg text-sm font-medium hover:opacity-90 transition-opacity"
+              >
+                Cerrar
               </button>
             </div>
           </motion.div>
