@@ -400,41 +400,49 @@ export const PDFViewer = ({ file, isMobile, onAddAnnotation, annotations = [], c
       showToast('No hay texto para traducir', 'error');
       return;
     }
+
+    const langPairMap = {
+      en: 'en|es',
+      it: 'it|es',
+      de: 'de|es',
+      ru: 'ru|es',
+    };
+    const langPair = langPairMap[lang] || 'en|es';
+
     if (translatorModal.translations[lang]) {
       setTranslatorModal(prev => ({ ...prev, activeLang: lang, error: '' }));
       return;
     }
+
     setTranslatorModal(prev => ({ ...prev, activeLang: lang, loading: true, error: '' }));
+
     try {
-      const res = await fetch('https://libretranslate.de/translate', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          q: translatorModal.text,
-          source: lang,
-          target: 'es',
-          format: 'text'
-        })
-      });
+      const url = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(
+        translatorModal.text,
+      )}&langpair=${encodeURIComponent(langPair)}`;
+
+      const res = await fetch(url);
       if (!res.ok) {
-        throw new Error('Error al traducir');
+        throw new Error(`HTTP ${res.status}`);
       }
       const data = await res.json();
-      const translated = data.translatedText || '';
+      const translated = data?.responseData?.translatedText || '';
+      if (!translated) {
+        throw new Error('Empty translation');
+      }
+
       setTranslatorModal(prev => ({
         ...prev,
         loading: false,
         translations: { ...prev.translations, [lang]: translated },
-        error: ''
+        error: '',
       }));
     } catch (e) {
       console.error(e);
       setTranslatorModal(prev => ({
         ...prev,
         loading: false,
-        error: 'No se pudo traducir en este momento.'
+        error: 'No se pudo traducir en este momento.',
       }));
     }
   };
