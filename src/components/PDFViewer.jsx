@@ -640,6 +640,12 @@ export const PDFViewer = ({ file, isMobile, onAddAnnotation, annotations = [], c
   };
 
   const getRangeTextWithSpacing = (range) => {
+    const ancestor =
+      range.commonAncestorContainer?.nodeType === Node.ELEMENT_NODE
+        ? range.commonAncestorContainer
+        : range.commonAncestorContainer?.parentElement;
+    if (!ancestor) return '';
+
     const safeIntersectsNode = (node) => {
       try {
         if (typeof range.intersectsNode === 'function') {
@@ -658,30 +664,39 @@ export const PDFViewer = ({ file, isMobile, onAddAnnotation, annotations = [], c
       }
     };
 
-    const ancestor =
-      range.commonAncestorContainer?.nodeType === Node.ELEMENT_NODE
-        ? range.commonAncestorContainer
-        : range.commonAncestorContainer?.parentElement;
-    if (!ancestor) return '';
-
-    const walker = document.createTreeWalker(ancestor, NodeFilter.SHOW_TEXT, {
-      acceptNode: (node) => {
-        if (!node?.nodeValue) return NodeFilter.FILTER_REJECT;
-        const v = node.nodeValue.replace(/\s+/g, ' ').trim();
-        if (!v) return NodeFilter.FILTER_REJECT;
-        return safeIntersectsNode(node) ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
-      }
-    });
+    const walker = document.createTreeWalker(ancestor, NodeFilter.SHOW_TEXT);
 
     const segments = [];
     while (walker.nextNode()) {
       const node = walker.currentNode;
+      if (!node || !node.nodeValue) continue;
+      if (!safeIntersectsNode(node)) continue;
+
+      const value = node.nodeValue;
+      let start = 0;
+      let end = value.length;
+
+      if (node === range.startContainer && node === range.endContainer) {
+        start = range.startOffset;
+        end = range.endOffset;
+      } else if (node === range.startContainer) {
+        start = range.startOffset;
+      } else if (node === range.endContainer) {
+        end = range.endOffset;
+      }
+
+      if (end <= start) continue;
+
+      const slice = value.slice(start, end);
+      const normalizedSlice = slice.replace(/\s+/g, ' ').trim();
+      if (!normalizedSlice) continue;
+
       const parent = node.parentElement;
       if (!parent || typeof parent.getBoundingClientRect !== 'function') continue;
       const rect = parent.getBoundingClientRect();
       if (!rect || rect.width <= 0 || rect.height <= 0) continue;
       segments.push({
-        text: node.nodeValue,
+        text: normalizedSlice,
         rect
       });
     }
