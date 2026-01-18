@@ -83,6 +83,23 @@ const generateSpanishIPA = (text) => {
     .trim();
 };
 
+const LANGUAGE_LABELS_ES = {
+  en: 'inglés',
+  es: 'español',
+  it: 'italiano',
+  de: 'alemán',
+  ru: 'ruso',
+  fr: 'francés',
+  pt: 'portugués'
+};
+
+const getSourceLanguageLabel = (sourceLang, detectedSourceLang) => {
+  const code = sourceLang === 'auto' ? (detectedSourceLang || '') : (sourceLang || '');
+  if (!code) return 'el idioma original';
+  const normalized = String(code).toLowerCase();
+  return LANGUAGE_LABELS_ES[normalized] || `el idioma ${normalized}`;
+};
+
 export const PDFViewer = ({ file, isMobile, onAddAnnotation, annotations = [], currentPage, initialPage = 1, onPageChange, onDeleteAnnotation }) => {
   const [numPages, setNumPages] = useState(null);
   const [pageNumber, setPageNumber] = useState(initialPage);
@@ -1581,7 +1598,10 @@ export const PDFViewer = ({ file, isMobile, onAddAnnotation, annotations = [], c
                     {translatorModal.phoneticsIPA && (
                       <div className="space-y-1">
                         <p className="text-xs text-foreground/60">
-                          Pronunciación IPA aproximada (lectura en español)
+                          {`Pronunciación IPA en ${getSourceLanguageLabel(
+                            translatorModal.sourceLang,
+                            translatorModal.detectedSourceLang
+                          )}`}
                         </p>
                         <div className="bg-foreground/5 rounded-lg px-3 py-2 min-h-[2.5rem] whitespace-pre-wrap text-xs font-mono">
                           {translatorModal.phoneticsIPA}
@@ -1591,7 +1611,7 @@ export const PDFViewer = ({ file, isMobile, onAddAnnotation, annotations = [], c
                     {translatorModal.phonetics && (
                       <div className="space-y-1">
                         <p className="text-xs text-foreground/60">
-                          Pronunciación aproximada castellanizada
+                          Pronunciación castellinaza de la palabra
                         </p>
                         <div className="bg-foreground/5 rounded-lg px-3 py-2 min-h-[2.5rem] whitespace-pre-wrap text-xs font-mono">
                           {translatorModal.phonetics}
