@@ -83,6 +83,65 @@ const generateSpanishIPA = (text) => {
     .trim();
 };
 
+const fetchEnglishIPA = async (text) => {
+  const word = text.trim().split(/\s+/)[0].toLowerCase();
+  if (!word) return '';
+  try {
+    const response = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${encodeURIComponent(word)}`);
+    if (!response.ok) return '';
+    const data = await response.json();
+    const entry = Array.isArray(data) ? data[0] : data;
+    if (!entry) return '';
+    const fromPhonetics = Array.isArray(entry.phonetics)
+      ? (entry.phonetics.find((p) => p && typeof p.text === 'string' && p.text.trim()) || entry.phonetics[0])
+      : null;
+    const ipaText = (fromPhonetics && fromPhonetics.text) || entry.phonetic || '';
+    return typeof ipaText === 'string' ? ipaText : '';
+  } catch (error) {
+    console.error(error);
+    return '';
+  }
+};
+
+const castellanizeEnglishIPA = (ipaText) => {
+  if (!ipaText) return '';
+  let result = ipaText.toString();
+  result = result.replace(/[\/\[\]]/g, '');
+  result = result.replace(/[ˈˌ]/g, '');
+  result = result.replace(/aɪ/g, 'ai');
+  result = result.replace(/ɔɪ/g, 'oi');
+  result = result.replace(/aʊ/g, 'au');
+  result = result.replace(/oʊ/g, 'ou');
+  result = result.replace(/eɪ/g, 'ei');
+  result = result.replace(/ɪə/g, 'ia');
+  result = result.replace(/eə/g, 'ea');
+  result = result.replace(/ʊə/g, 'ua');
+  result = result.replace(/əl\b/g, 'ol');
+  result = result.replace(/iː/g, 'i');
+  result = result.replace(/ɪ/g, 'i');
+  result = result.replace(/uː/g, 'u');
+  result = result.replace(/ʊ/g, 'u');
+  result = result.replace(/e/g, 'e');
+  result = result.replace(/æ/g, 'a');
+  result = result.replace(/ʌ/g, 'a');
+  result = result.replace(/ɑː/g, 'a');
+  result = result.replace(/ɒ/g, 'o');
+  result = result.replace(/ɔː/g, 'o');
+  result = result.replace(/ə/g, 'e');
+  result = result.replace(/θ/g, 'z');
+  result = result.replace(/ð/g, 'd');
+  result = result.replace(/ŋ/g, 'ng');
+  result = result.replace(/ʃ/g, 'sh');
+  result = result.replace(/ʒ/g, 'y');
+  result = result.replace(/tʃ/g, 'ch');
+  result = result.replace(/dʒ/g, 'y');
+  result = result.replace(/ɡ/g, 'g');
+  result = result.replace(/ɹ/g, 'r');
+  result = result.replace(/ʔ/g, '');
+  result = result.replace(/\s+/g, ' ');
+  return result.trim();
+};
+
 const LANGUAGE_LABELS_ES = {
   en: 'inglés',
   es: 'español',
@@ -562,12 +621,22 @@ export const PDFViewer = ({ file, isMobile, onAddAnnotation, annotations = [], c
       const translated = result.translatedText;
       const detected = source === 'auto' ? (result.detectedSourceLang || '') : '';
       const shouldShowSpanishPhonetics = target === 'es';
-      
-      // Always use the source text for pronunciation guides when translating to Spanish
-      // This shows how to pronounce the original word
       const baseTextForPronunciation = cleanSourceText;
-      const phonetic = shouldShowSpanishPhonetics ? generateSpanishPhonetics(baseTextForPronunciation) : '';
-      const ipa = shouldShowSpanishPhonetics ? generateSpanishIPA(baseTextForPronunciation) : '';
+      let phonetic = '';
+      let ipa = '';
+      if (shouldShowSpanishPhonetics) {
+        const langForPronunciation = (source === 'auto' ? detected : source || '').toLowerCase();
+        if (langForPronunciation === 'en') {
+          const englishIPA = await fetchEnglishIPA(baseTextForPronunciation);
+          ipa = englishIPA || '';
+          phonetic = englishIPA
+            ? castellanizeEnglishIPA(englishIPA)
+            : generateSpanishPhonetics(baseTextForPronunciation);
+        } else {
+          phonetic = generateSpanishPhonetics(baseTextForPronunciation);
+          ipa = generateSpanishIPA(baseTextForPronunciation);
+        }
+      }
 
       setTranslatorModal(prev => ({
         ...prev,
