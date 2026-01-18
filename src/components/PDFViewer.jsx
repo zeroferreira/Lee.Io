@@ -47,6 +47,7 @@ const generateSpanishPhonetics = (text) => {
 const generateSpanishIPA = (text) => {
   if (!text) return '';
   const normalized = text
+    .replace(/\s+/g, ' ')
     .normalize('NFD')
     .replace(/[\u0300-\u036f]/g, '')
     .toLowerCase();
@@ -75,19 +76,11 @@ const generateSpanishIPA = (text) => {
     result = result.replace(/r/g, 'ɾ');
     return result;
   };
-  const base = normalized
+  return normalized
     .split(/\s+/)
     .map(transformWord)
     .join(' ')
     .trim();
-  if (!base) return '';
-  return base
-    .split(/\s+/)
-    .map(word => {
-      if (!word || word.length < 2) return word;
-      return `ˈ${word}`;
-    })
-    .join(' ');
 };
 
 export const PDFViewer = ({ file, isMobile, onAddAnnotation, annotations = [], currentPage, initialPage = 1, onPageChange, onDeleteAnnotation }) => {
@@ -512,7 +505,7 @@ export const PDFViewer = ({ file, isMobile, onAddAnnotation, annotations = [], c
 
     setTranslatorModal(prev => ({ ...prev, activeLang: lang, loading: true, error: '' }));
 
-    const textToTranslate = translatorModal.text;
+    const textToTranslate = translatorModal.text.replace(/\s+/g, ' ').trim();
 
     const normalizeForCompare = (value) =>
       value
