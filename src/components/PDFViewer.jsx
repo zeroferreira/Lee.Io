@@ -1567,11 +1567,39 @@ export const PDFViewer = ({ file, isMobile, onAddAnnotation, annotations = [], c
               </button>
             </div>
 
-            <div className="p-4 border-b border-foreground/10">
-              <p className="text-xs text-foreground/60 mb-1">Texto seleccionado</p>
-              <div className="text-sm bg-foreground/5 rounded-lg px-3 py-2 whitespace-pre-wrap">
-                {translatorModal.text}
+            <div className="p-4 border-b border-foreground/10 space-y-2">
+              <div>
+                <p className="text-xs text-foreground/60 mb-1">Texto seleccionado</p>
+                <div className="text-sm bg-foreground/5 rounded-lg px-3 py-2 whitespace-pre-wrap">
+                  {translatorModal.text}
+                </div>
               </div>
+              {translatorModal.translatedText &&
+                translatorModal.targetLang === 'es' &&
+                (translatorModal.phoneticsIPA || translatorModal.phonetics) && (
+                  <div className="grid gap-2 md:grid-cols-2">
+                    {translatorModal.phoneticsIPA && (
+                      <div className="space-y-1">
+                        <p className="text-xs text-foreground/60">
+                          Pronunciación IPA aproximada (lectura en español)
+                        </p>
+                        <div className="bg-foreground/5 rounded-lg px-3 py-2 min-h-[2.5rem] whitespace-pre-wrap text-xs font-mono">
+                          {translatorModal.phoneticsIPA}
+                        </div>
+                      </div>
+                    )}
+                    {translatorModal.phonetics && (
+                      <div className="space-y-1">
+                        <p className="text-xs text-foreground/60">
+                          Pronunciación aproximada castellanizada
+                        </p>
+                        <div className="bg-foreground/5 rounded-lg px-3 py-2 min-h-[2.5rem] whitespace-pre-wrap text-xs font-mono">
+                          {translatorModal.phonetics}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
             </div>
 
             <div className="px-4 pt-3 flex flex-col gap-3">
@@ -1629,34 +1657,12 @@ export const PDFViewer = ({ file, isMobile, onAddAnnotation, annotations = [], c
                   Traduciendo...
                 </div>
               ) : (
-                <div className="space-y-3">
-                  <div className="space-y-2">
-                    <p className="text-xs text-foreground/60">Resultado</p>
-                    <div className="bg-foreground/5 rounded-lg px-3 py-2 min-h-[4rem] whitespace-pre-wrap text-sm">
-                      {translatorModal.translatedText ||
-                        (translatorModal.error || 'Selecciona idiomas y pulsa “Traducir”.')}
-                    </div>
+                <div className="space-y-2">
+                  <p className="text-xs text-foreground/60">Resultado</p>
+                  <div className="bg-foreground/5 rounded-lg px-3 py-2 min-h-[4rem] whitespace-pre-wrap text-sm">
+                    {translatorModal.translatedText ||
+                      (translatorModal.error || 'Selecciona idiomas y pulsa “Traducir”.')}
                   </div>
-                  {translatorModal.translatedText &&
-                    translatorModal.targetLang === 'es' &&
-                    translatorModal.phoneticsIPA && (
-                      <div className="space-y-1">
-                        <p className="text-xs text-foreground/60">Fonética IPA aproximada</p>
-                        <div className="bg-foreground/5 rounded-lg px-3 py-2 min-h-[3rem] whitespace-pre-wrap text-xs font-mono">
-                          {translatorModal.phoneticsIPA}
-                        </div>
-                      </div>
-                    )}
-                  {translatorModal.translatedText &&
-                    translatorModal.targetLang === 'es' &&
-                    translatorModal.phonetics && (
-                      <div className="space-y-1">
-                        <p className="text-xs text-foreground/60">Fonética aproximada castellanizada</p>
-                        <div className="bg-foreground/5 rounded-lg px-3 py-2 min-h-[3rem] whitespace-pre-wrap text-xs font-mono">
-                          {translatorModal.phonetics}
-                        </div>
-                      </div>
-                    )}
                 </div>
               )}
               {translatorModal.error && !translatorModal.loading && (
