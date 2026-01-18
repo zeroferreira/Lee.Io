@@ -531,6 +531,10 @@ export const PDFViewer = ({ file, isMobile, onAddAnnotation, annotations = [], c
         throw new Error(`HTTP ${res.status}`);
       }
       const data = await res.json();
+      if (typeof data?.responseStatus === 'number' && data.responseStatus !== 200) {
+        const details = data?.responseDetails || 'API error';
+        throw new Error(`API ${data.responseStatus}: ${details}`);
+      }
       const translated = data?.responseData?.translatedText || '';
       if (!translated.trim()) {
         throw new Error('Empty translation');
@@ -550,8 +554,13 @@ export const PDFViewer = ({ file, isMobile, onAddAnnotation, annotations = [], c
         translated = await requestTranslation(langPair);
       } catch (primaryError) {
         console.error(primaryError);
-        if (langPair !== 'auto|es') {
-          translated = await requestTranslation('auto|es');
+        if (langPair !== 'en|es') {
+          try {
+            translated = await requestTranslation('en|es');
+          } catch (fallbackError) {
+            console.error(fallbackError);
+            throw primaryError;
+          }
         } else {
           throw primaryError;
         }
