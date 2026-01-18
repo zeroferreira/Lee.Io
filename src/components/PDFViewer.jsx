@@ -115,7 +115,7 @@ export const PDFViewer = ({ file, isMobile, onAddAnnotation, annotations = [], c
   const [translatorModal, setTranslatorModal] = useState({
     isOpen: false,
     text: '',
-    activeLang: 'en',
+    activeLang: null,
     loading: false,
     translations: {},
     phonetics: {},
@@ -479,9 +479,9 @@ export const PDFViewer = ({ file, isMobile, onAddAnnotation, annotations = [], c
       en: 'en',
       it: 'it',
       de: 'de',
-      ru: 'ru',
+      ru: 'ru'
     };
-    const preferredSource = sourceLangMap[lang] || 'auto';
+    const sourceLang = sourceLangMap[lang] || 'en';
 
     if (translatorModal.translations[lang]) {
       const existingTranslation = translatorModal.translations[lang];
@@ -506,42 +506,29 @@ export const PDFViewer = ({ file, isMobile, onAddAnnotation, annotations = [], c
     setTranslatorModal(prev => ({ ...prev, activeLang: lang, loading: true, error: '' }));
 
     const textToTranslate = translatorModal.text.replace(/\s+/g, ' ').trim();
-    const requestTranslation = async (source) => {
-      const res = await fetch('https://libretranslate.com/translate', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          q: textToTranslate,
-          source,
-          target: 'es',
-          format: 'text',
-        }),
-      });
+    // Use a generic email to increase quota and enable machine translation backup
+    const url = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(textToTranslate)}&langpair=${sourceLang}|es&de=freetranslation@lee.io&mt=1`;
+
+    try {
+      const res = await fetch(url);
       if (!res.ok) {
         throw new Error(`HTTP ${res.status}`);
       }
       const data = await res.json();
-      const translated = data?.translatedText || '';
-      if (!translated.trim()) {
-        throw new Error('Empty translation');
+      
+      if (data.responseStatus !== 200 && data.responseStatus !== '200') {
+         // MyMemory might return 200 OK status but a non-200 responseStatus in JSON
+         throw new Error(data.responseDetails || `API Error ${data.responseStatus}`);
       }
-      return translated;
-    };
 
-    try {
-      let translated;
-
-      try {
-        translated = await requestTranslation(preferredSource);
-      } catch (primaryError) {
-        console.error(primaryError);
-        if (preferredSource !== 'auto') {
-          translated = await requestTranslation('auto');
-        } else {
-          throw primaryError;
-        }
+      const raw = data?.responseData?.translatedText || '';
+      const translated = raw
+        .replace(/&#39;/g, "'")
+        .replace(/&quot;/g, '"')
+        .trim();
+        
+      if (!translated) {
+        throw new Error('Traducción vacía');
       }
 
       const phonetic = generateSpanishPhonetics(translated);
@@ -553,14 +540,14 @@ export const PDFViewer = ({ file, isMobile, onAddAnnotation, annotations = [], c
         translations: { ...prev.translations, [lang]: translated },
         phonetics: { ...prev.phonetics, [lang]: phonetic },
         phoneticsIPA: { ...prev.phoneticsIPA, [lang]: ipa },
-        error: '',
+        error: ''
       }));
     } catch (e) {
       console.error(e);
       setTranslatorModal(prev => ({
         ...prev,
         loading: false,
-        error: 'No se pudo traducir en este momento.',
+        error: `Error: ${e.message || 'No se pudo conectar con el servicio'}`
       }));
     }
   };
@@ -1029,10 +1016,11 @@ export const PDFViewer = ({ file, isMobile, onAddAnnotation, annotations = [], c
                     setTranslatorModal({
                       isOpen: true,
                       text: selectedText,
-                      activeLang: 'en',
+                      activeLang: null,
                       loading: false,
                       translations: {},
                       phonetics: {},
+                      phoneticsIPA: {},
                       error: ''
                     });
                   }
@@ -1426,10 +1414,11 @@ export const PDFViewer = ({ file, isMobile, onAddAnnotation, annotations = [], c
             setTranslatorModal({
               isOpen: false,
               text: '',
-              activeLang: 'en',
+              activeLang: null,
               loading: false,
               translations: {},
               phonetics: {},
+              phoneticsIPA: {},
               error: ''
             })
           }
@@ -1451,7 +1440,7 @@ export const PDFViewer = ({ file, isMobile, onAddAnnotation, annotations = [], c
                   setTranslatorModal({
                     isOpen: false,
                     text: '',
-                    activeLang: 'en',
+                    activeLang: null,
                     loading: false,
                     translations: {},
                     phonetics: {},
@@ -1538,7 +1527,7 @@ export const PDFViewer = ({ file, isMobile, onAddAnnotation, annotations = [], c
                   setTranslatorModal({
                     isOpen: false,
                     text: '',
-                    activeLang: 'en',
+                    activeLang: null,
                     loading: false,
                     translations: {},
                     phonetics: {},
