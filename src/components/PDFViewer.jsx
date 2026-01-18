@@ -115,11 +115,13 @@ export const PDFViewer = ({ file, isMobile, onAddAnnotation, annotations = [], c
   const [translatorModal, setTranslatorModal] = useState({
     isOpen: false,
     text: '',
-    activeLang: null,
+    sourceLang: 'auto',
+    targetLang: 'es',
+    detectedSourceLang: '',
     loading: false,
-    translations: {},
-    phonetics: {},
-    phoneticsIPA: {},
+    translatedText: '',
+    phonetics: '',
+    phoneticsIPA: '',
     error: ''
   });
   const overlayRef = useRef(null);
@@ -469,77 +471,90 @@ export const PDFViewer = ({ file, isMobile, onAddAnnotation, annotations = [], c
     }, 2000);
   };
 
-  const translateText = async (lang) => {
+  const translateViaGoogle = async ({ q, source, target }) => {
+    const sl = source || 'auto';
+    const tl = target || 'es';
+    const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=${encodeURIComponent(sl)}&tl=${encodeURIComponent(tl)}&dt=t&q=${encodeURIComponent(q)}`;
+    const res = await fetch(url);
+    if (!res.ok) {
+      throw new Error(`HTTP ${res.status}`);
+    }
+    const data = await res.json();
+    const translated = Array.isArray(data?.[0])
+      ? data[0].map(part => (Array.isArray(part) ? (part[0] || '') : '')).join('')
+      : '';
+    const detectedSourceLang = typeof data?.[2] === 'string' ? data[2] : '';
+    if (!translated.trim()) {
+      throw new Error('Traducción vacía');
+    }
+    return { translatedText: translated.trim(), detectedSourceLang };
+  };
+
+  const translateViaMyMemory = async ({ q, source, target }) => {
+    const sl = source || 'en';
+    const tl = target || 'es';
+    const url = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(q)}&langpair=${encodeURIComponent(sl)}|${encodeURIComponent(tl)}&de=freetranslation@lee.io&mt=1`;
+    const res = await fetch(url);
+    if (!res.ok) {
+      throw new Error(`HTTP ${res.status}`);
+    }
+    const data = await res.json();
+    if (data?.responseStatus !== 200 && data?.responseStatus !== '200') {
+      throw new Error(data?.responseDetails || `API Error ${data?.responseStatus}`);
+    }
+    const raw = data?.responseData?.translatedText || '';
+    const translated = String(raw)
+      .replace(/&#39;/g, "'")
+      .replace(/&quot;/g, '"')
+      .trim();
+    if (!translated) {
+      throw new Error('Traducción vacía');
+    }
+    return { translatedText: translated, detectedSourceLang: '' };
+  };
+
+  const translateText = async () => {
     if (!translatorModal.text.trim()) {
       showToast('No hay texto para traducir', 'error');
       return;
     }
 
-    const sourceLangMap = {
-      en: 'en',
-      it: 'it',
-      de: 'de',
-      ru: 'ru'
-    };
-    const sourceLang = sourceLangMap[lang] || 'en';
-
-    if (translatorModal.translations[lang]) {
-      const existingTranslation = translatorModal.translations[lang];
-      const existingPhonetic = translatorModal.phonetics?.[lang];
-      const existingIPA = translatorModal.phoneticsIPA?.[lang];
-      if (existingTranslation && (!existingPhonetic || !existingIPA)) {
-        const phonetic = existingPhonetic || generateSpanishPhonetics(existingTranslation);
-        const ipa = existingIPA || generateSpanishIPA(existingTranslation);
-        setTranslatorModal(prev => ({
-          ...prev,
-          activeLang: lang,
-          phonetics: { ...prev.phonetics, [lang]: phonetic },
-          phoneticsIPA: { ...prev.phoneticsIPA, [lang]: ipa },
-          error: ''
-        }));
-      } else {
-        setTranslatorModal(prev => ({ ...prev, activeLang: lang, error: '' }));
-      }
+    const source = translatorModal.sourceLang || 'auto';
+    const target = translatorModal.targetLang || 'es';
+    if (source !== 'auto' && source === target) {
+      setTranslatorModal(prev => ({ ...prev, error: 'El idioma de origen y destino no pueden ser iguales.' }));
       return;
     }
 
-    setTranslatorModal(prev => ({ ...prev, activeLang: lang, loading: true, error: '' }));
+    setTranslatorModal(prev => ({ ...prev, loading: true, error: '' }));
 
     const textToTranslate = translatorModal.text.replace(/\s+/g, ' ').trim();
-    // Use a generic email to increase quota and enable machine translation backup
-    const url = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(textToTranslate)}&langpair=${sourceLang}|es&de=freetranslation@lee.io&mt=1`;
 
     try {
-      const res = await fetch(url);
-      if (!res.ok) {
-        throw new Error(`HTTP ${res.status}`);
-      }
-      const data = await res.json();
-      
-      if (data.responseStatus !== 200 && data.responseStatus !== '200') {
-         // MyMemory might return 200 OK status but a non-200 responseStatus in JSON
-         throw new Error(data.responseDetails || `API Error ${data.responseStatus}`);
-      }
-
-      const raw = data?.responseData?.translatedText || '';
-      const translated = raw
-        .replace(/&#39;/g, "'")
-        .replace(/&quot;/g, '"')
-        .trim();
-        
-      if (!translated) {
-        throw new Error('Traducción vacía');
+      let result;
+      try {
+        result = await translateViaGoogle({ q: textToTranslate, source, target });
+      } catch (primaryError) {
+        if (source !== 'auto') {
+          result = await translateViaMyMemory({ q: textToTranslate, source, target });
+        } else {
+          throw primaryError;
+        }
       }
 
-      const phonetic = generateSpanishPhonetics(translated);
-      const ipa = generateSpanishIPA(translated);
+      const translated = result.translatedText;
+      const detected = source === 'auto' ? (result.detectedSourceLang || '') : '';
+      const shouldShowSpanishPhonetics = target === 'es';
+      const phonetic = shouldShowSpanishPhonetics ? generateSpanishPhonetics(translated) : '';
+      const ipa = shouldShowSpanishPhonetics ? generateSpanishIPA(translated) : '';
 
       setTranslatorModal(prev => ({
         ...prev,
         loading: false,
-        translations: { ...prev.translations, [lang]: translated },
-        phonetics: { ...prev.phonetics, [lang]: phonetic },
-        phoneticsIPA: { ...prev.phoneticsIPA, [lang]: ipa },
+        translatedText: translated,
+        detectedSourceLang: detected,
+        phonetics: phonetic,
+        phoneticsIPA: ipa,
         error: ''
       }));
     } catch (e) {
@@ -547,7 +562,7 @@ export const PDFViewer = ({ file, isMobile, onAddAnnotation, annotations = [], c
       setTranslatorModal(prev => ({
         ...prev,
         loading: false,
-        error: `Error: ${e.message || 'No se pudo conectar con el servicio'}`
+        error: `Error: ${e?.message || 'No se pudo traducir en este momento.'}`
       }));
     }
   };
@@ -624,6 +639,83 @@ export const PDFViewer = ({ file, isMobile, onAddAnnotation, annotations = [], c
     }
   };
 
+  const getRangeTextWithSpacing = (range) => {
+    const safeIntersectsNode = (node) => {
+      try {
+        if (typeof range.intersectsNode === 'function') {
+          return range.intersectsNode(node);
+        }
+      } catch {}
+      try {
+        const nodeRange = document.createRange();
+        nodeRange.selectNodeContents(node);
+        return (
+          range.compareBoundaryPoints(Range.END_TO_START, nodeRange) < 0 &&
+          range.compareBoundaryPoints(Range.START_TO_END, nodeRange) > 0
+        );
+      } catch {
+        return false;
+      }
+    };
+
+    const ancestor =
+      range.commonAncestorContainer?.nodeType === Node.ELEMENT_NODE
+        ? range.commonAncestorContainer
+        : range.commonAncestorContainer?.parentElement;
+    if (!ancestor) return '';
+
+    const walker = document.createTreeWalker(ancestor, NodeFilter.SHOW_TEXT, {
+      acceptNode: (node) => {
+        if (!node?.nodeValue) return NodeFilter.FILTER_REJECT;
+        const v = node.nodeValue.replace(/\s+/g, ' ').trim();
+        if (!v) return NodeFilter.FILTER_REJECT;
+        return safeIntersectsNode(node) ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
+      }
+    });
+
+    const segments = [];
+    while (walker.nextNode()) {
+      const node = walker.currentNode;
+      const parent = node.parentElement;
+      if (!parent || typeof parent.getBoundingClientRect !== 'function') continue;
+      const rect = parent.getBoundingClientRect();
+      if (!rect || rect.width <= 0 || rect.height <= 0) continue;
+      segments.push({
+        text: node.nodeValue,
+        rect
+      });
+    }
+
+    if (segments.length === 0) {
+      return range.toString();
+    }
+
+    segments.sort((a, b) => (a.rect.top - b.rect.top) || (a.rect.left - b.rect.left));
+
+    const lineThreshold = 6;
+    const spaceThreshold = 3;
+    let out = '';
+    let prev = null;
+
+    for (const seg of segments) {
+      const t = seg.text.replace(/\s+/g, ' ').trim();
+      if (!t) continue;
+      if (!prev) {
+        out = t;
+        prev = seg;
+        continue;
+      }
+      const sameLine = Math.abs(seg.rect.top - prev.rect.top) <= lineThreshold;
+      const gap = seg.rect.left - prev.rect.right;
+      const needsSpace = (!sameLine) || gap > spaceThreshold;
+      out += (needsSpace ? ' ' : '') + t;
+      prev = seg;
+    }
+
+    const camelFix = out.replace(/([a-záéíóúüñ])([A-ZÁÉÍÓÚÜÑ])/g, '$1 $2');
+    return camelFix.replace(/\s+/g, ' ').trim();
+  };
+
   const handleTextSelection = () => {
     if (activeTool !== 'none') return;
     
@@ -631,9 +723,8 @@ export const PDFViewer = ({ file, isMobile, onAddAnnotation, annotations = [], c
     setTimeout(() => {
         const sel = window.getSelection();
         if (!sel || sel.isCollapsed) return;
-        const text = sel.toString();
         
-        if (text && sel.rangeCount > 0) {
+        if (sel.rangeCount > 0) {
           const range = sel.getRangeAt(0);
           const overlay = overlayRef.current;
           if (!overlay) return;
@@ -652,7 +743,8 @@ export const PDFViewer = ({ file, isMobile, onAddAnnotation, annotations = [], c
             };
           }).filter(r => r.w > 0 && r.h > 0);
 
-          if (rects.length > 0) {
+          const text = getRangeTextWithSpacing(range);
+          if (text && rects.length > 0) {
             const id = Date.now();
             const hx = { id, rects, color: 'rgba(255, 235, 59, 0.35)', text };
             
@@ -1016,11 +1108,13 @@ export const PDFViewer = ({ file, isMobile, onAddAnnotation, annotations = [], c
                     setTranslatorModal({
                       isOpen: true,
                       text: selectedText,
-                      activeLang: null,
+                      sourceLang: 'auto',
+                      targetLang: 'es',
+                      detectedSourceLang: '',
                       loading: false,
-                      translations: {},
-                      phonetics: {},
-                      phoneticsIPA: {},
+                      translatedText: '',
+                      phonetics: '',
+                      phoneticsIPA: '',
                       error: ''
                     });
                   }
@@ -1028,7 +1122,7 @@ export const PDFViewer = ({ file, isMobile, onAddAnnotation, annotations = [], c
                   setTempSelection(null);
                 }}
                 className="px-2 py-1 text-sm rounded hover:bg-foreground/5 flex items-center gap-1"
-                title="Traducir a español"
+                title="Traducir"
               >
                 <Globe2 size={14} />
               </button>
@@ -1414,11 +1508,13 @@ export const PDFViewer = ({ file, isMobile, onAddAnnotation, annotations = [], c
             setTranslatorModal({
               isOpen: false,
               text: '',
-              activeLang: null,
+              sourceLang: 'auto',
+              targetLang: 'es',
+              detectedSourceLang: '',
               loading: false,
-              translations: {},
-              phonetics: {},
-              phoneticsIPA: {},
+              translatedText: '',
+              phonetics: '',
+              phoneticsIPA: '',
               error: ''
             })
           }
@@ -1433,18 +1529,20 @@ export const PDFViewer = ({ file, isMobile, onAddAnnotation, annotations = [], c
             <div className="p-4 border-b border-foreground/10 flex justify-between items-center bg-foreground/5">
               <h3 className="font-bold text-lg flex items-center gap-2">
                 <Globe2 size={20} />
-                Traducir a español
+                Traductor
               </h3>
               <button
                 onClick={() =>
                   setTranslatorModal({
                     isOpen: false,
                     text: '',
-                    activeLang: null,
+                    sourceLang: 'auto',
+                    targetLang: 'es',
+                    detectedSourceLang: '',
                     loading: false,
-                    translations: {},
-                    phonetics: {},
-                    phoneticsIPA: {},
+                    translatedText: '',
+                    phonetics: '',
+                    phoneticsIPA: '',
                     error: ''
                   })
                 }
@@ -1461,25 +1559,53 @@ export const PDFViewer = ({ file, isMobile, onAddAnnotation, annotations = [], c
               </div>
             </div>
 
-            <div className="px-4 pt-3 flex gap-2 flex-wrap">
-              {[
-                { code: 'en', label: 'Inglés' },
-                { code: 'it', label: 'Italiano' },
-                { code: 'de', label: 'Alemán' },
-                { code: 'ru', label: 'Ruso' }
-              ].map((lang) => (
+            <div className="px-4 pt-3 flex flex-col gap-3">
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1">
+                  <p className="text-xs text-foreground/60">Idioma de entrada</p>
+                  <select
+                    value={translatorModal.sourceLang}
+                    onChange={(e) => setTranslatorModal(prev => ({ ...prev, sourceLang: e.target.value, detectedSourceLang: '' }))}
+                    className="w-full text-sm border border-foreground/20 rounded-lg px-3 py-2 bg-background"
+                  >
+                    <option value="auto">Detectar (auto)</option>
+                    <option value="en">Inglés</option>
+                    <option value="es">Español</option>
+                    <option value="it">Italiano</option>
+                    <option value="de">Alemán</option>
+                    <option value="ru">Ruso</option>
+                  </select>
+                </div>
+                <div className="space-y-1">
+                  <p className="text-xs text-foreground/60">Idioma de salida</p>
+                  <select
+                    value={translatorModal.targetLang}
+                    onChange={(e) => setTranslatorModal(prev => ({ ...prev, targetLang: e.target.value }))}
+                    className="w-full text-sm border border-foreground/20 rounded-lg px-3 py-2 bg-background"
+                  >
+                    <option value="es">Español</option>
+                    <option value="en">Inglés</option>
+                    <option value="it">Italiano</option>
+                    <option value="de">Alemán</option>
+                    <option value="ru">Ruso</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between gap-3">
+                <div className="text-xs text-foreground/60">
+                  {translatorModal.sourceLang === 'auto' && translatorModal.detectedSourceLang
+                    ? `Detectado: ${translatorModal.detectedSourceLang}`
+                    : ''}
+                </div>
                 <button
-                  key={lang.code}
-                  onClick={() => translateText(lang.code)}
-                  className={`px-3 py-1.5 text-xs rounded-full border transition-colors ${
-                    translatorModal.activeLang === lang.code
-                      ? 'bg-foreground text-background border-foreground'
-                      : 'border-foreground/20 hover:bg-foreground/5'
-                  }`}
+                  onClick={translateText}
+                  disabled={translatorModal.loading}
+                  className="px-4 py-2 bg-foreground text-background rounded-lg text-sm font-medium hover:opacity-90 transition-opacity disabled:opacity-60"
                 >
-                  {lang.label}
+                  Traducir
                 </button>
-              ))}
+              </div>
             </div>
 
             <div className="p-4 flex-1 overflow-y-auto">
@@ -1490,27 +1616,29 @@ export const PDFViewer = ({ file, isMobile, onAddAnnotation, annotations = [], c
               ) : (
                 <div className="space-y-3">
                   <div className="space-y-2">
-                    <p className="text-xs text-foreground/60">Resultado en español</p>
+                    <p className="text-xs text-foreground/60">Resultado</p>
                     <div className="bg-foreground/5 rounded-lg px-3 py-2 min-h-[4rem] whitespace-pre-wrap text-sm">
-                      {translatorModal.translations[translatorModal.activeLang] ||
-                        (translatorModal.error || 'Elige un idioma para traducir.')}
+                      {translatorModal.translatedText ||
+                        (translatorModal.error || 'Selecciona idiomas y pulsa “Traducir”.')}
                     </div>
                   </div>
-                  {translatorModal.translations[translatorModal.activeLang] &&
-                    translatorModal.phoneticsIPA[translatorModal.activeLang] && (
+                  {translatorModal.translatedText &&
+                    translatorModal.targetLang === 'es' &&
+                    translatorModal.phoneticsIPA && (
                       <div className="space-y-1">
                         <p className="text-xs text-foreground/60">Fonética IPA aproximada</p>
                         <div className="bg-foreground/5 rounded-lg px-3 py-2 min-h-[3rem] whitespace-pre-wrap text-xs font-mono">
-                          {translatorModal.phoneticsIPA[translatorModal.activeLang]}
+                          {translatorModal.phoneticsIPA}
                         </div>
                       </div>
                     )}
-                  {translatorModal.translations[translatorModal.activeLang] &&
-                    translatorModal.phonetics[translatorModal.activeLang] && (
+                  {translatorModal.translatedText &&
+                    translatorModal.targetLang === 'es' &&
+                    translatorModal.phonetics && (
                       <div className="space-y-1">
                         <p className="text-xs text-foreground/60">Fonética aproximada castellanizada</p>
                         <div className="bg-foreground/5 rounded-lg px-3 py-2 min-h-[3rem] whitespace-pre-wrap text-xs font-mono">
-                          {translatorModal.phonetics[translatorModal.activeLang]}
+                          {translatorModal.phonetics}
                         </div>
                       </div>
                     )}
@@ -1527,11 +1655,13 @@ export const PDFViewer = ({ file, isMobile, onAddAnnotation, annotations = [], c
                   setTranslatorModal({
                     isOpen: false,
                     text: '',
-                    activeLang: null,
+                    sourceLang: 'auto',
+                    targetLang: 'es',
+                    detectedSourceLang: '',
                     loading: false,
-                    translations: {},
-                    phonetics: {},
-                    phoneticsIPA: {},
+                    translatedText: '',
+                    phonetics: '',
+                    phoneticsIPA: '',
                     error: ''
                   })
                 }
