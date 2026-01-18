@@ -475,13 +475,13 @@ export const PDFViewer = ({ file, isMobile, onAddAnnotation, annotations = [], c
       return;
     }
 
-    const langPairMap = {
-      en: 'en|es',
-      it: 'it|es',
-      de: 'de|es',
-      ru: 'ru|es',
+    const sourceLangMap = {
+      en: 'en',
+      it: 'it',
+      de: 'de',
+      ru: 'ru',
     };
-    const langPair = langPairMap[lang] || 'en|es';
+    const preferredSource = sourceLangMap[lang] || 'auto';
 
     if (translatorModal.translations[lang]) {
       const existingTranslation = translatorModal.translations[lang];
@@ -506,36 +506,26 @@ export const PDFViewer = ({ file, isMobile, onAddAnnotation, annotations = [], c
     setTranslatorModal(prev => ({ ...prev, activeLang: lang, loading: true, error: '' }));
 
     const textToTranslate = translatorModal.text.replace(/\s+/g, ' ').trim();
-
-    const normalizeForCompare = (value) =>
-      value
-        .toLowerCase()
-        .normalize('NFD')
-        .replace(/[\u0300-\u036f]/g, '')
-        .replace(/[^a-zñ0-9]+/g, '');
-
-    const requestTranslation = async (langpairToUse) => {
-      const url = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(
-        textToTranslate,
-      )}&langpair=${encodeURIComponent(langpairToUse)}`;
-
-      const res = await fetch(url);
+    const requestTranslation = async (source) => {
+      const res = await fetch('https://libretranslate.com/translate', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          q: textToTranslate,
+          source,
+          target: 'es',
+          format: 'text',
+        }),
+      });
       if (!res.ok) {
         throw new Error(`HTTP ${res.status}`);
       }
       const data = await res.json();
-      if (typeof data?.responseStatus === 'number' && data.responseStatus !== 200) {
-        const details = data?.responseDetails || 'API error';
-        throw new Error(`API ${data.responseStatus}: ${details}`);
-      }
-      const translated = data?.responseData?.translatedText || '';
+      const translated = data?.translatedText || '';
       if (!translated.trim()) {
         throw new Error('Empty translation');
-      }
-      const originalNorm = normalizeForCompare(textToTranslate || '');
-      const translatedNorm = normalizeForCompare(translated || '');
-      if (originalNorm && originalNorm === translatedNorm) {
-        throw new Error('Unchanged translation');
       }
       return translated;
     };
@@ -544,16 +534,11 @@ export const PDFViewer = ({ file, isMobile, onAddAnnotation, annotations = [], c
       let translated;
 
       try {
-        translated = await requestTranslation(langPair);
+        translated = await requestTranslation(preferredSource);
       } catch (primaryError) {
         console.error(primaryError);
-        if (langPair !== 'en|es') {
-          try {
-            translated = await requestTranslation('en|es');
-          } catch (fallbackError) {
-            console.error(fallbackError);
-            throw primaryError;
-          }
+        if (preferredSource !== 'auto') {
+          translated = await requestTranslation('auto');
         } else {
           throw primaryError;
         }
