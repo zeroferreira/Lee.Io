@@ -249,6 +249,11 @@ export const PDFViewer = ({ file, isMobile, onAddAnnotation, annotations = [], c
     }
   };
 
+  const handleContainerTouchEnd = () => {
+    onTouchEnd();
+    handleTextSelection();
+  };
+
   function changePage(offset) {
     const newPage = pageNumber + offset;
     setDirection(offset);
@@ -1006,7 +1011,7 @@ export const PDFViewer = ({ file, isMobile, onAddAnnotation, annotations = [], c
         ref={containerRef}
         onTouchStart={onTouchStart}
         onTouchMove={onTouchMove}
-        onTouchEnd={onTouchEnd}
+        onTouchEnd={handleContainerTouchEnd}
         onMouseUp={handleTextSelection}
         className={`w-full flex justify-center bg-gray-100 dark:bg-gray-900 overflow-auto relative flex-1 ${isMobile ? '' : 'border border-foreground/10 shadow-lg rounded-lg'}`}
         style={{ perspective: '1500px' }}
