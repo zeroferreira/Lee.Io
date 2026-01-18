@@ -11,6 +11,77 @@ pdfjs.GlobalWorkerOptions.workerSrc = new URL(
   import.meta.url,
 ).toString();
 
+const generateSpanishPhonetics = (text) => {
+  if (!text) return '';
+  const markEnye = (value) =>
+    value
+      .replace(/ñ/g, 'ny')
+      .replace(/Ñ/g, 'ny');
+  const normalized = markEnye(text)
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase();
+  const transformWord = (word) => {
+    let result = word;
+    result = result.replace(/qu([ei])/g, 'k$1');
+    result = result.replace(/gu([ei])/g, 'g$1');
+    result = result.replace(/ll/g, 'y');
+    result = result.replace(/ch/g, 'ch');
+    result = result.replace(/ce/g, 'se');
+    result = result.replace(/ci/g, 'si');
+    result = result.replace(/ge/g, 'je');
+    result = result.replace(/gi/g, 'ji');
+    result = result.replace(/z/g, 's');
+    result = result.replace(/c([aou])/g, 'k$1');
+    result = result.replace(/v/g, 'b');
+    result = result.replace(/h/g, '');
+    return result;
+  };
+  return normalized
+    .split(/\s+/)
+    .map(transformWord)
+    .join(' ')
+    .trim();
+};
+
+const generateSpanishIPA = (text) => {
+  if (!text) return '';
+  const normalized = text
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase();
+  const transformWord = (word) => {
+    let result = word;
+    result = result.replace(/gue/g, 'ge');
+    result = result.replace(/gui/g, 'gi');
+    result = result.replace(/que/g, 'ke');
+    result = result.replace(/qui/g, 'ki');
+    result = result.replace(/qu/g, 'k');
+    result = result.replace(/ll/g, 'ʝ');
+    result = result.replace(/ch/g, 'tʃ');
+    result = result.replace(/ñ/g, 'ɲ');
+    result = result.replace(/ce/g, 'se');
+    result = result.replace(/ci/g, 'si');
+    result = result.replace(/ge/g, 'xe');
+    result = result.replace(/gi/g, 'xi');
+    result = result.replace(/j/g, 'x');
+    result = result.replace(/z/g, 's');
+    result = result.replace(/c([aou])/g, 'k$1');
+    result = result.replace(/v/g, 'b');
+    result = result.replace(/h/g, '');
+    result = result.replace(/y$/g, 'i');
+    result = result.replace(/y/g, 'ʝ');
+    result = result.replace(/rr/g, 'r');
+    result = result.replace(/r/g, 'ɾ');
+    return result;
+  };
+  return normalized
+    .split(/\s+/)
+    .map(transformWord)
+    .join(' ')
+    .trim();
+};
+
 export const PDFViewer = ({ file, isMobile, onAddAnnotation, annotations = [], currentPage, initialPage = 1, onPageChange, onDeleteAnnotation }) => {
   const [numPages, setNumPages] = useState(null);
   const [pageNumber, setPageNumber] = useState(initialPage);
@@ -46,6 +117,8 @@ export const PDFViewer = ({ file, isMobile, onAddAnnotation, annotations = [], c
     activeLang: 'en',
     loading: false,
     translations: {},
+    phonetics: {},
+    phoneticsIPA: {},
     error: ''
   });
   const overlayRef = useRef(null);
@@ -410,16 +483,33 @@ export const PDFViewer = ({ file, isMobile, onAddAnnotation, annotations = [], c
     const langPair = langPairMap[lang] || 'en|es';
 
     if (translatorModal.translations[lang]) {
-      setTranslatorModal(prev => ({ ...prev, activeLang: lang, error: '' }));
+      const existingTranslation = translatorModal.translations[lang];
+      const existingPhonetic = translatorModal.phonetics?.[lang];
+      const existingIPA = translatorModal.phoneticsIPA?.[lang];
+      if (existingTranslation && (!existingPhonetic || !existingIPA)) {
+        const phonetic = existingPhonetic || generateSpanishPhonetics(existingTranslation);
+        const ipa = existingIPA || generateSpanishIPA(existingTranslation);
+        setTranslatorModal(prev => ({
+          ...prev,
+          activeLang: lang,
+          phonetics: { ...prev.phonetics, [lang]: phonetic },
+          phoneticsIPA: { ...prev.phoneticsIPA, [lang]: ipa },
+          error: ''
+        }));
+      } else {
+        setTranslatorModal(prev => ({ ...prev, activeLang: lang, error: '' }));
+      }
       return;
     }
 
     setTranslatorModal(prev => ({ ...prev, activeLang: lang, loading: true, error: '' }));
 
-    try {
+    const textToTranslate = translatorModal.text;
+
+    const requestTranslation = async (langpairToUse) => {
       const url = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(
-        translatorModal.text,
-      )}&langpair=${encodeURIComponent(langPair)}`;
+        textToTranslate,
+      )}&langpair=${encodeURIComponent(langpairToUse)}`;
 
       const res = await fetch(url);
       if (!res.ok) {
@@ -427,14 +517,35 @@ export const PDFViewer = ({ file, isMobile, onAddAnnotation, annotations = [], c
       }
       const data = await res.json();
       const translated = data?.responseData?.translatedText || '';
-      if (!translated) {
+      if (!translated.trim()) {
         throw new Error('Empty translation');
       }
+      return translated;
+    };
+
+    try {
+      let translated;
+
+      try {
+        translated = await requestTranslation(langPair);
+      } catch (primaryError) {
+        console.error(primaryError);
+        if (langPair !== 'auto|es') {
+          translated = await requestTranslation('auto|es');
+        } else {
+          throw primaryError;
+        }
+      }
+
+      const phonetic = generateSpanishPhonetics(translated);
+      const ipa = generateSpanishIPA(translated);
 
       setTranslatorModal(prev => ({
         ...prev,
         loading: false,
         translations: { ...prev.translations, [lang]: translated },
+        phonetics: { ...prev.phonetics, [lang]: phonetic },
+        phoneticsIPA: { ...prev.phoneticsIPA, [lang]: ipa },
         error: '',
       }));
     } catch (e) {
@@ -914,6 +1025,7 @@ export const PDFViewer = ({ file, isMobile, onAddAnnotation, annotations = [], c
                       activeLang: 'en',
                       loading: false,
                       translations: {},
+                      phonetics: {},
                       error: ''
                     });
                   }
@@ -1310,6 +1422,7 @@ export const PDFViewer = ({ file, isMobile, onAddAnnotation, annotations = [], c
               activeLang: 'en',
               loading: false,
               translations: {},
+              phonetics: {},
               error: ''
             })
           }
@@ -1334,6 +1447,8 @@ export const PDFViewer = ({ file, isMobile, onAddAnnotation, annotations = [], c
                     activeLang: 'en',
                     loading: false,
                     translations: {},
+                    phonetics: {},
+                    phoneticsIPA: {},
                     error: ''
                   })
                 }
@@ -1377,12 +1492,32 @@ export const PDFViewer = ({ file, isMobile, onAddAnnotation, annotations = [], c
                   Traduciendo...
                 </div>
               ) : (
-                <div className="space-y-2">
-                  <p className="text-xs text-foreground/60">Resultado en español</p>
-                  <div className="bg-foreground/5 rounded-lg px-3 py-2 min-h-[4rem] whitespace-pre-wrap text-sm">
-                    {translatorModal.translations[translatorModal.activeLang] ||
-                      (translatorModal.error || 'Elige un idioma para traducir.')}
+                <div className="space-y-3">
+                  <div className="space-y-2">
+                    <p className="text-xs text-foreground/60">Resultado en español</p>
+                    <div className="bg-foreground/5 rounded-lg px-3 py-2 min-h-[4rem] whitespace-pre-wrap text-sm">
+                      {translatorModal.translations[translatorModal.activeLang] ||
+                        (translatorModal.error || 'Elige un idioma para traducir.')}
+                    </div>
                   </div>
+                  {translatorModal.translations[translatorModal.activeLang] &&
+                    translatorModal.phoneticsIPA[translatorModal.activeLang] && (
+                      <div className="space-y-1">
+                        <p className="text-xs text-foreground/60">Fonética IPA aproximada</p>
+                        <div className="bg-foreground/5 rounded-lg px-3 py-2 min-h-[3rem] whitespace-pre-wrap text-xs font-mono">
+                          {translatorModal.phoneticsIPA[translatorModal.activeLang]}
+                        </div>
+                      </div>
+                    )}
+                  {translatorModal.translations[translatorModal.activeLang] &&
+                    translatorModal.phonetics[translatorModal.activeLang] && (
+                      <div className="space-y-1">
+                        <p className="text-xs text-foreground/60">Fonética aproximada castellanizada</p>
+                        <div className="bg-foreground/5 rounded-lg px-3 py-2 min-h-[3rem] whitespace-pre-wrap text-xs font-mono">
+                          {translatorModal.phonetics[translatorModal.activeLang]}
+                        </div>
+                      </div>
+                    )}
                 </div>
               )}
               {translatorModal.error && !translatorModal.loading && (
@@ -1399,6 +1534,8 @@ export const PDFViewer = ({ file, isMobile, onAddAnnotation, annotations = [], c
                     activeLang: 'en',
                     loading: false,
                     translations: {},
+                    phonetics: {},
+                    phoneticsIPA: {},
                     error: ''
                   })
                 }
