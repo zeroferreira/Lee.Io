@@ -75,11 +75,19 @@ const generateSpanishIPA = (text) => {
     result = result.replace(/r/g, 'ɾ');
     return result;
   };
-  return normalized
+  const base = normalized
     .split(/\s+/)
     .map(transformWord)
     .join(' ')
     .trim();
+  if (!base) return '';
+  return base
+    .split(/\s+/)
+    .map(word => {
+      if (!word || word.length < 2) return word;
+      return `ˈ${word}`;
+    })
+    .join(' ');
 };
 
 export const PDFViewer = ({ file, isMobile, onAddAnnotation, annotations = [], currentPage, initialPage = 1, onPageChange, onDeleteAnnotation }) => {
@@ -506,6 +514,13 @@ export const PDFViewer = ({ file, isMobile, onAddAnnotation, annotations = [], c
 
     const textToTranslate = translatorModal.text;
 
+    const normalizeForCompare = (value) =>
+      value
+        .toLowerCase()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .replace(/[^a-zñ0-9]+/g, '');
+
     const requestTranslation = async (langpairToUse) => {
       const url = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(
         textToTranslate,
@@ -519,6 +534,11 @@ export const PDFViewer = ({ file, isMobile, onAddAnnotation, annotations = [], c
       const translated = data?.responseData?.translatedText || '';
       if (!translated.trim()) {
         throw new Error('Empty translation');
+      }
+      const originalNorm = normalizeForCompare(textToTranslate || '');
+      const translatedNorm = normalizeForCompare(translated || '');
+      if (originalNorm && originalNorm === translatedNorm) {
+        throw new Error('Unchanged translation');
       }
       return translated;
     };
