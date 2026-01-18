@@ -336,6 +336,17 @@ export const PDFViewer = ({ file, isMobile, onAddAnnotation, annotations = [], c
     return () => window.removeEventListener('resize', updateSize);
   }, []);
 
+  useEffect(() => {
+    if (!isMobile) return;
+    const handleSelectionChange = () => {
+      handleTextSelection();
+    };
+    document.addEventListener('selectionchange', handleSelectionChange);
+    return () => {
+      document.removeEventListener('selectionchange', handleSelectionChange);
+    };
+  }, [isMobile, activeTool]);
+
   // Load persisted highlights per file
   useEffect(() => {
     if (!file?.name) return;
