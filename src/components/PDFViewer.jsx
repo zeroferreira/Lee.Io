@@ -545,15 +545,15 @@ export const PDFViewer = ({ file, isMobile, onAddAnnotation, annotations = [], c
 
     setTranslatorModal(prev => ({ ...prev, loading: true, error: '' }));
 
-    const textToTranslate = translatorModal.text.replace(/\s+/g, ' ').trim();
+    const cleanSourceText = translatorModal.text.replace(/\s+/g, ' ').trim();
 
     try {
       let result;
       try {
-        result = await translateViaGoogle({ q: textToTranslate, source, target });
+        result = await translateViaGoogle({ q: cleanSourceText, source, target });
       } catch (primaryError) {
         if (source !== 'auto') {
-          result = await translateViaMyMemory({ q: textToTranslate, source, target });
+          result = await translateViaMyMemory({ q: cleanSourceText, source, target });
         } else {
           throw primaryError;
         }
@@ -562,8 +562,12 @@ export const PDFViewer = ({ file, isMobile, onAddAnnotation, annotations = [], c
       const translated = result.translatedText;
       const detected = source === 'auto' ? (result.detectedSourceLang || '') : '';
       const shouldShowSpanishPhonetics = target === 'es';
-      const phonetic = shouldShowSpanishPhonetics ? generateSpanishPhonetics(translated) : '';
-      const ipa = shouldShowSpanishPhonetics ? generateSpanishIPA(translated) : '';
+      
+      // Always use the source text for pronunciation guides when translating to Spanish
+      // This shows how to pronounce the original word
+      const baseTextForPronunciation = cleanSourceText;
+      const phonetic = shouldShowSpanishPhonetics ? generateSpanishPhonetics(baseTextForPronunciation) : '';
+      const ipa = shouldShowSpanishPhonetics ? generateSpanishIPA(baseTextForPronunciation) : '';
 
       setTranslatorModal(prev => ({
         ...prev,
