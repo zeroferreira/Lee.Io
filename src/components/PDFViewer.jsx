@@ -1024,11 +1024,11 @@ export const PDFViewer = ({ file, isMobile, onAddAnnotation, annotations = [], c
         onTouchMove={onTouchMove}
         onTouchEnd={handleContainerTouchEnd}
         onMouseUp={handleTextSelection}
-        onContextMenu={(e) => e.preventDefault()}
+        onContextMenu={(e) => isMobile && e.preventDefault()}
         className={`w-full flex justify-center bg-gray-100 dark:bg-gray-900 overflow-auto relative flex-1 ${isMobile ? '' : 'border border-foreground/10 shadow-lg rounded-lg'}`}
         style={{ 
           perspective: '1500px',
-          WebkitTouchCallout: 'none',
+          WebkitTouchCallout: isMobile ? 'none' : 'default',
         }}
       >
         <Document
