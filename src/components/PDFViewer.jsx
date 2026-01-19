@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useRef } from 'react';
+import { useState, useEffect, useLayoutEffect, useMemo, useRef } from 'react';
 import { Document, Page, pdfjs } from 'react-pdf';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronLeft, ChevronRight, ZoomIn, ZoomOut, MessageSquarePlus, Highlighter, Eraser, Maximize, Minimize, MoreHorizontal, Square, Circle, Copy, Search, Expand, Shrink, Menu, X, Trash2, Globe2 } from 'lucide-react';
@@ -207,6 +207,32 @@ export const PDFViewer = ({ file, isMobile, onAddAnnotation, annotations = [], c
   // Touch state
   const touchStart = useRef(null);
   const touchEnd = useRef(null);
+  const menuRef = useRef(null);
+
+  // Adjust menu position to keep it on screen
+  useLayoutEffect(() => {
+    if (optionsMenu.open && menuRef.current) {
+      const menu = menuRef.current;
+      const rect = menu.getBoundingClientRect();
+      const winW = window.innerWidth;
+      const padding = 10;
+      
+      let newLeft = optionsMenu.screenX;
+      
+      // Horizontal clamping (center based)
+      const halfWidth = rect.width / 2;
+      
+      if (newLeft - halfWidth < padding) {
+        newLeft = halfWidth + padding;
+      } else if (newLeft + halfWidth > winW - padding) {
+        newLeft = winW - halfWidth - padding;
+      }
+      
+      if (newLeft !== optionsMenu.screenX) {
+        menu.style.left = `${newLeft}px`;
+      }
+    }
+  }, [optionsMenu.open, optionsMenu.screenX]);
 
   // Sync with external page control
   useEffect(() => {
@@ -1202,6 +1228,7 @@ export const PDFViewer = ({ file, isMobile, onAddAnnotation, annotations = [], c
 
       {optionsMenu.open && (
         <div
+          ref={menuRef}
           className="fixed z-[100] bg-background border border-foreground/20 rounded-lg shadow-xl flex items-center gap-2 p-2 transform -translate-x-1/2 -translate-y-full mt-[-10px]"
           style={{
             left: optionsMenu.screenX,
