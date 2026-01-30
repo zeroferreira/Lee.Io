@@ -208,6 +208,12 @@ export const PDFViewer = ({ file, isMobile, onAddAnnotation, annotations = [], c
   const touchStart = useRef(null);
   const touchEnd = useRef(null);
   const menuRef = useRef(null);
+  const [windowWidth, setWindowWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 0);
+
+  const resolvedFitMode = useMemo(() => {
+    if (fitMode !== 'auto') return fitMode;
+    return windowWidth >= 1024 ? 'height' : 'width';
+  }, [fitMode, windowWidth]);
 
   // Adjust menu position to keep it on screen
   useLayoutEffect(() => {
@@ -346,15 +352,7 @@ export const PDFViewer = ({ file, isMobile, onAddAnnotation, annotations = [], c
         setContainerWidth(el.clientWidth);
         setContainerHeight(el.clientHeight);
       }
-      // Decide default fit mode by breakpoint
-      const w = window.innerWidth;
-      if (fitMode === 'auto') {
-        if (w >= 1024) {
-          setFitMode('height'); // desktop/laptop fit height
-        } else {
-          setFitMode('width'); // mobile/tablet fit width
-        }
-      }
+      setWindowWidth(window.innerWidth);
     };
 
     window.addEventListener('resize', updateSize);
@@ -943,11 +941,23 @@ export const PDFViewer = ({ file, isMobile, onAddAnnotation, annotations = [], c
         </button>
         </div>
         <div className="w-px h-6 bg-foreground/10 mx-2" />
-        <button onClick={() => setScale(s => Math.max(0.5, s - 0.1))} className="p-1 hover:bg-foreground/5 rounded">
+        <button 
+          onClick={() => {
+            setFitMode('manual');
+            setScale(s => Math.max(0.5, s - 0.1));
+          }} 
+          className="p-1 hover:bg-foreground/5 rounded"
+        >
           <ZoomOut size={20} />
         </button>
         <span className="text-sm w-12 text-center">{Math.round(scale * 100)}%</span>
-        <button onClick={() => setScale(s => Math.min(2, s + 0.1))} className="p-1 hover:bg-foreground/5 rounded">
+        <button 
+          onClick={() => {
+            setFitMode('manual');
+            setScale(s => Math.min(2, s + 0.1));
+          }} 
+          className="p-1 hover:bg-foreground/5 rounded"
+        >
           <ZoomIn size={20} />
         </button>
         <div className="w-px h-6 bg-foreground/10 mx-2" />
@@ -969,14 +979,14 @@ export const PDFViewer = ({ file, isMobile, onAddAnnotation, annotations = [], c
         {/* Fit controls */}
         <button 
           onClick={() => setFitMode('width')} 
-          className={`p-1 rounded ${fitMode === 'width' ? 'bg-foreground text-background' : 'hover:bg-foreground/5'}`}
+          className={`p-1 rounded ${resolvedFitMode === 'width' ? 'bg-foreground text-background' : 'hover:bg-foreground/5'}`}
           title="Ajustar al ancho"
         >
           <Maximize size={18} />
         </button>
         <button 
           onClick={() => setFitMode('height')} 
-          className={`p-1 rounded ${fitMode === 'height' ? 'bg-foreground text-background' : 'hover:bg-foreground/5'}`}
+          className={`p-1 rounded ${resolvedFitMode === 'height' ? 'bg-foreground text-background' : 'hover:bg-foreground/5'}`}
           title="Ajustar al alto"
         >
           <Minimize size={18} />
@@ -1078,9 +1088,9 @@ export const PDFViewer = ({ file, isMobile, onAddAnnotation, annotations = [], c
               <div className="relative shadow-2xl">
                 <Page 
                   pageNumber={pageNumber} 
-                  scale={fitMode === 'width' ? undefined : scale} 
-                  width={fitMode === 'width' ? containerWidth || undefined : undefined}
-                  height={fitMode === 'height' ? containerHeight || undefined : undefined}
+                  scale={resolvedFitMode === 'width' ? undefined : scale} 
+                  width={resolvedFitMode === 'width' ? containerWidth || undefined : undefined}
+                  height={resolvedFitMode === 'height' ? containerHeight || undefined : undefined}
                   className=""
                   renderTextLayer={true}
                   renderAnnotationLayer={true}
