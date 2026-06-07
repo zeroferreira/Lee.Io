@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { X, LogOut, Cloud, Smartphone, User, Shield, Check, ChevronDown, ChevronUp, HardDrive, BookOpen } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { db } from '../firebase/config';
-import { collection, getDocs, query } from 'firebase/firestore';
+import { collection, getDocs, query, doc, getDoc, setDoc } from 'firebase/firestore';
 
 export const ProfileScreen = ({ isOpen, onClose, annotations = {}, documents = [], onDocumentSelect }) => {
   const { currentUser, loginWithGoogle, logout } = useAuth();
@@ -72,6 +72,103 @@ export const ProfileScreen = ({ isOpen, onClose, annotations = {}, documents = [
       onClose();
     } catch (error) {
       console.error(error);
+    }
+  };
+
+  const [diagOpen, setDiagOpen] = useState(false);
+  const [diagInfo, setDiagInfo] = useState({
+    loading: false,
+    uid: '',
+    localKeys: [],
+    cloudKeys: [],
+    error: null
+  });
+
+  const loadDiagInfo = async () => {
+    if (!currentUser) return;
+    setDiagInfo(prev => ({ ...prev, loading: true, error: null }));
+    try {
+      const localDataStr = localStorage.getItem('annotations');
+      const localAnns = localDataStr ? JSON.parse(localDataStr) : {};
+      const localKeys = Object.entries(localAnns)
+        .filter(([_, notes]) => notes && notes.length > 0)
+        .map(([name, notes]) => `${name} (${notes.length} notas)`);
+
+      const docRef = doc(db, "users", currentUser.uid);
+      const docSnap = await getDoc(docRef);
+      
+      let cloudKeys = [];
+      if (docSnap.exists()) {
+        const data = docSnap.data();
+        if (data.annotations) {
+          cloudKeys = Object.entries(data.annotations)
+            .filter(([_, notes]) => notes && notes.length > 0)
+            .map(([name, notes]) => `${name} (${notes.length} notas)`);
+        } else {
+          cloudKeys = ["Sin anotaciones guardadas en la nube."];
+        }
+      } else {
+        cloudKeys = ["No hay registro en la nube aún."];
+      }
+
+      setDiagInfo({
+        loading: false,
+        uid: currentUser.uid,
+        localKeys,
+        cloudKeys,
+        error: null
+      });
+    } catch (err) {
+      console.error("Error cargando diagnóstico:", err);
+      setDiagInfo(prev => ({
+        ...prev,
+        loading: false,
+        error: err.message
+      }));
+    }
+  };
+
+  useEffect(() => {
+    if (diagOpen && currentUser) {
+      loadDiagInfo();
+    }
+  }, [diagOpen, currentUser]);
+
+  const handleForceUpload = async () => {
+    if (!currentUser) return;
+    try {
+      const localDataStr = localStorage.getItem('annotations');
+      const localAnns = localDataStr ? JSON.parse(localDataStr) : {};
+      
+      const docRef = doc(db, "users", currentUser.uid);
+      await setDoc(docRef, { annotations: localAnns }, { merge: true });
+      alert("Anotaciones locales subidas con éxito a la nube.");
+      loadDiagInfo();
+    } catch (err) {
+      alert(`Error al subir anotaciones: ${err.message}`);
+    }
+  };
+
+  const handleForceDownload = async () => {
+    if (!currentUser) return;
+    try {
+      const docRef = doc(db, "users", currentUser.uid);
+      const docSnap = await getDoc(docRef);
+      if (docSnap.exists()) {
+        const data = docSnap.data();
+        if (data.annotations) {
+          localStorage.setItem('annotations', JSON.stringify(data.annotations));
+          alert("Anotaciones descargadas de la nube y guardadas localmente. Por favor recarga la página.");
+          window.location.reload();
+        } else {
+          alert("No hay anotaciones guardadas en la nube para este usuario.");
+        }
+      } else {
+        alert("No hay datos guardados en la nube.");
+      }
+      loadDiagInfo();
+    } catch (err) {
+      alert(`Error al descargar anotaciones: ${err.message}`);
     }
   };
 
@@ -184,6 +281,78 @@ export const ProfileScreen = ({ isOpen, onClose, annotations = {}, documents = [
                     <p className="text-sm text-foreground/60">Tus notas están seguras en la nube.</p>
                   </div>
                 </div>
+              </div>
+
+              {/* Panel de Diagnóstico de Sincronización */}
+              <div className="bg-foreground/5 rounded-2xl p-6 text-left space-y-4">
+                <button
+                  onClick={() => setDiagOpen(!diagOpen)}
+                  className="flex items-center justify-between w-full text-sm font-medium opacity-80 hover:opacity-100 transition-opacity"
+                >
+                  <span className="flex items-center gap-2">
+                    <Shield size={16} />
+                    Panel de Diagnóstico y Sincronización
+                  </span>
+                  <span>{diagOpen ? 'Ocultar' : 'Mostrar'}</span>
+                </button>
+
+                {diagOpen && (
+                  <div className="pt-2 border-t border-foreground/10 space-y-4 text-xs">
+                    <div className="space-y-1">
+                      <p className="font-semibold opacity-75">ID de Usuario (UID):</p>
+                      <p className="font-mono bg-background p-2 rounded border border-foreground/10 select-all overflow-x-auto text-[10px]">
+                        {currentUser.uid}
+                      </p>
+                    </div>
+
+                    <div className="space-y-1">
+                      <p className="font-semibold opacity-75">Anotaciones Locales en este equipo:</p>
+                      {diagInfo.loading ? (
+                        <p className="opacity-50">Cargando...</p>
+                      ) : diagInfo.localKeys.length === 0 ? (
+                        <p className="opacity-50 italic">Ninguna anotación local encontrada en este navegador.</p>
+                      ) : (
+                        <ul className="list-disc list-inside bg-background p-2 rounded border border-foreground/10 space-y-1">
+                          {diagInfo.localKeys.map((k, i) => <li key={i} className="truncate">{k}</li>)}
+                        </ul>
+                      )}
+                    </div>
+
+                    <div className="space-y-1">
+                      <p className="font-semibold opacity-75">Anotaciones en la Nube (Firestore):</p>
+                      {diagInfo.loading ? (
+                        <p className="opacity-50">Cargando...</p>
+                      ) : diagInfo.error ? (
+                        <p className="text-red-500 font-medium">Error: {diagInfo.error}</p>
+                      ) : diagInfo.cloudKeys.length === 0 ? (
+                        <p className="opacity-50 italic">Ninguna anotación encontrada en la nube.</p>
+                      ) : (
+                        <ul className="list-disc list-inside bg-background p-2 rounded border border-foreground/10 space-y-1">
+                          {diagInfo.cloudKeys.map((k, i) => <li key={i} className="truncate">{k}</li>)}
+                        </ul>
+                      )}
+                    </div>
+
+                    <div className="flex flex-col sm:flex-row gap-2 pt-2">
+                      <button
+                        onClick={handleForceUpload}
+                        disabled={diagInfo.loading}
+                        className="flex-1 py-2 px-3 bg-foreground text-background hover:opacity-90 rounded-lg font-medium transition-all text-[11px] text-center"
+                        title="Sube todas las notas locales de este navegador a la nube"
+                      >
+                        Forzar Subida a Nube
+                      </button>
+                      <button
+                        onClick={handleForceDownload}
+                        disabled={diagInfo.loading}
+                        className="flex-1 py-2 px-3 border border-foreground/15 hover:bg-foreground/5 rounded-lg font-medium transition-all text-[11px] text-center text-foreground"
+                        title="Descarga todas las notas de la nube y reemplaza las locales de este navegador"
+                      >
+                        Forzar Descarga de Nube
+                      </button>
+                    </div>
+                  </div>
+                )}
               </div>
 
               <button
