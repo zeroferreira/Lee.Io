@@ -61,9 +61,12 @@ function AppContent() {
   
   const fileInputRef = useRef(null);
 
+  const [cloudLoaded, setCloudLoaded] = useState(false);
+
   useEffect(() => {
     // Load user annotations from Firestore if logged in
     let unsubscribe = () => {};
+    setCloudLoaded(false);
 
     const loadUserAnnotations = async () => {
       if (currentUser) {
@@ -74,8 +77,6 @@ function AppContent() {
             if (docSnap.exists()) {
                 const data = docSnap.data();
                 if (data.annotations) {
-                    // We merge with local state to avoid overwriting optimistic updates if any
-                    // But here we prioritize the cloud source as the truth for sync
                     setAnnotations(prev => {
                         const next = { ...prev, ...data.annotations };
                         // Compare if actually changed to avoid unnecessary re-renders
@@ -86,7 +87,13 @@ function AppContent() {
                     });
                 }
             }
+            setCloudLoaded(true);
+        }, (error) => {
+            console.error("Error loading user annotations from Firestore:", error);
+            setCloudLoaded(true);
         });
+      } else {
+        setCloudLoaded(true);
       }
     };
     loadUserAnnotations();
@@ -104,8 +111,8 @@ function AppContent() {
 
   useEffect(() => {
     localStorage.setItem('annotations', JSON.stringify(annotations));
-    // Save to Firestore if logged in
-    if (currentUser) {
+    // Save to Firestore if logged in AND cloud data has been loaded
+    if (currentUser && cloudLoaded) {
       const saveToFirestore = async () => {
         try {
           await setDoc(doc(db, "users", currentUser.uid), {
@@ -117,7 +124,7 @@ function AppContent() {
       };
       saveToFirestore();
     }
-  }, [annotations, currentUser]);
+  }, [annotations, currentUser, cloudLoaded]);
 
   useEffect(() => {
     const syncLocalFilesToCloud = async () => {
