@@ -24,7 +24,7 @@ const findAnnotationsForFile = (annotationsMap, fileName) => {
   return matchedKey ? annotationsMap[matchedKey] : [];
 };
 
-export const Sidebar = ({ isOpen, onClose, theme, toggleTheme, annotations = {}, currentFileName, onOpenProfile, onAnnotationClick, onCloudDocumentSelect, documents = [], loadingDocs = false }) => {
+export const Sidebar = ({ isOpen, onClose, theme, toggleTheme, annotations = {}, currentFileName, onOpenProfile, onAnnotationClick, onCloudDocumentSelect, onOpenDocumentFromDriveByName, documents = [], loadingDocs = false }) => {
   const [view, setView] = useState('menu'); // 'menu' | 'annotations'
   const { currentUser, loginWithGoogle, logout } = useAuth();
   const [selectedFileForAnns, setSelectedFileForAnns] = useState(null);
@@ -279,6 +279,19 @@ export const Sidebar = ({ isOpen, onClose, theme, toggleTheme, annotations = {},
                           >
                             <BookOpen size={14} />
                             <span>Abrir este documento</span>
+                          </button>
+                        );
+                      } else if (!matchedDoc && onOpenDocumentFromDriveByName && selectedFileForAnns !== currentFileName) {
+                        return (
+                          <button
+                            onClick={() => {
+                              onOpenDocumentFromDriveByName(selectedFileForAnns);
+                              onClose();
+                            }}
+                            className="mb-4 w-full flex items-center justify-center gap-2 py-2 px-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-medium transition-all shadow-sm"
+                          >
+                            <HardDrive size={14} />
+                            <span>Descargar de Drive</span>
                           </button>
                         );
                       }

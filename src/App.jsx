@@ -721,6 +721,66 @@ function AppContent() {
       }
   };
 
+  const openDocumentFromDriveByName = async (fileName) => {
+      let token = accessToken || localStorage.getItem('googleAccessToken');
+      
+      if (token) {
+        try {
+          const check = await fetch('https://www.googleapis.com/drive/v3/about?fields=user', {
+            headers: { 'Authorization': `Bearer ${token}` }
+          });
+          if (!check.ok) {
+            token = null;
+            localStorage.removeItem('googleAccessToken');
+          }
+        } catch (e) {
+          token = null;
+        }
+      }
+
+      if (!token && currentUser) {
+         try {
+           await loginWithGoogle();
+           token = localStorage.getItem('googleAccessToken');
+         } catch (e) {
+           console.error("Error refreshing token:", e);
+           setNotification("No se pudo conectar con Drive. Intenta iniciar sesión nuevamente.");
+           return;
+         }
+      }
+
+      if (!token) {
+         setNotification("No se pudo verificar la sesión de Drive.");
+         return;
+      }
+
+      setNotification(`Buscando "${fileName}" en Google Drive...`);
+      try {
+        const escapedName = fileName.replace(/'/g, "\\'");
+        const response = await fetch(`https://www.googleapis.com/drive/v3/files?q=name='${escapedName}' and mimeType='application/pdf'&fields=files(id,name,size)&pageSize=1`, {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+        
+        if (!response.ok) {
+          throw new Error(`Error de Drive API: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        if (data.files && data.files.length > 0) {
+          const fileId = data.files[0].id;
+          const name = data.files[0].name;
+          await downloadFileFromDrive(fileId, name, token, true);
+        } else {
+          setNotification(`No se encontró el archivo "${fileName}" en tu Google Drive.`);
+        }
+      } catch (error) {
+        console.error("Error al buscar en Drive:", error);
+        setNotification(`Error al buscar en Drive: ${error.message}`);
+      }
+  };
+
   const handleHomeClick = () => {
     setPdfFile(null);
     setCurrentPage(1);
@@ -852,6 +912,7 @@ function AppContent() {
                }}
                onAnnotationClick={handleAnnotationClick}
                onCloudDocumentSelect={handleCloudDocumentSelect}
+               onOpenDocumentFromDriveByName={openDocumentFromDriveByName}
                documents={recentDocuments}
                loadingDocs={loadingDocuments}
              />
