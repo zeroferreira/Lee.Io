@@ -1247,13 +1247,15 @@ function AppContent() {
                     </AnimatePresence>
 
                     {/* Floating Action Button for adding another file */}
-                    <button
-                       onClick={handleAddClick}
-                       className="fixed bottom-8 right-8 p-4 bg-foreground text-background rounded-full shadow-lg hover:opacity-90 transition-all z-30"
-                       title="Abrir otro PDF"
-                     >
-                       <Plus size={24} />
-                     </button>
+                    {!isMobile && (
+                      <button
+                         onClick={handleAddClick}
+                         className="fixed bottom-8 right-8 p-4 bg-foreground text-background rounded-full shadow-lg hover:opacity-90 transition-all z-30"
+                         title="Abrir otro PDF"
+                       >
+                         <Plus size={24} />
+                       </button>
+                    )}
                  </div>
                )}
 

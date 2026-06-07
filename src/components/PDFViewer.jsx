@@ -1154,19 +1154,19 @@ Puedes hacerme preguntas específicas sobre el texto, pedirme resúmenes de secc
                 <Menu size={18} />
               </button>
             )}
-            <div className="w-8 h-8 rounded-lg bg-red-500 flex items-center justify-center shrink-0 shadow-md">
+            <div className="hidden sm:flex w-8 h-8 rounded-lg bg-red-500 items-center justify-center shrink-0 shadow-md">
               <span className="text-white text-[10px] font-black tracking-wider">PDF</span>
             </div>
             <div className="min-w-0">
               <div className="flex items-center gap-2">
-                <span className="font-semibold text-sm truncate text-foreground/90">{file?.name || 'Documento sin título.pdf'}</span>
-                <span className="text-[9px] bg-foreground/10 px-1.5 py-0.5 rounded font-mono font-medium text-foreground/60">LECTOR PRO</span>
+                <span className="font-semibold text-sm truncate text-foreground/90 max-w-[120px] sm:max-w-[200px] md:max-w-none block" title={file?.name}>{file?.name || 'Documento sin título.pdf'}</span>
+                <span className="hidden sm:inline-block text-[9px] bg-foreground/10 px-1.5 py-0.5 rounded font-mono font-medium text-foreground/60">LECTOR PRO</span>
               </div>
             </div>
           </div>
 
-          <div className="flex items-center gap-2 shrink-0">
-            <button className="hidden sm:flex items-center gap-1.5 bg-foreground/5 hover:bg-foreground/10 border border-foreground/10 text-foreground px-3 py-1.5 rounded-full text-xs font-medium transition-all">
+          <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+            <button className="hidden md:flex items-center gap-1.5 bg-foreground/5 hover:bg-foreground/10 border border-foreground/10 text-foreground px-3 py-1.5 rounded-full text-xs font-medium transition-all">
               <BookOpen size={13} />
               <span>Documentos</span>
             </button>
@@ -1175,7 +1175,7 @@ Puedes hacerme preguntas específicas sobre el texto, pedirme resúmenes de secc
               <button 
                 onClick={handleCloudSaveClick}
                 disabled={localSyncing}
-                className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-medium transition-all border ${
+                className={`flex items-center justify-center rounded-full text-xs font-medium transition-all border p-2 sm:px-3.5 sm:py-1.5 ${
                   currentUser 
                     ? 'bg-emerald-600 hover:bg-emerald-700 border-emerald-500 text-white shadow shadow-emerald-500/10' 
                     : 'bg-background hover:bg-foreground/5 border-foreground/10 text-foreground'
@@ -1187,17 +1187,17 @@ Puedes hacerme preguntas específicas sobre el texto, pedirme resúmenes de secc
                 ) : (
                   <Cloud size={13} className={currentUser ? 'text-white animate-pulse' : 'text-foreground/60'} />
                 )}
-                <span>{currentUser ? 'Nube Sinc' : 'Salvar en Nube'}</span>
+                <span className="hidden sm:inline ml-1.5">{currentUser ? 'Nube Sinc' : 'Salvar en Nube'}</span>
               </button>
             )}
             
             <div className="relative">
               <button 
                 onClick={() => setShowShareMenu(!showShareMenu)}
-                className="flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white px-3.5 py-1.5 rounded-full text-xs font-medium transition-all shadow-sm"
+                className="flex items-center justify-center bg-blue-600 hover:bg-blue-700 text-white p-2 sm:px-3.5 sm:py-1.5 rounded-full text-xs font-medium transition-all shadow-sm"
               >
                 <Share2 size={13} />
-                <span>Compartir</span>
+                <span className="hidden sm:inline ml-1.5">Compartir</span>
               </button>
               {showShareMenu && (
                 <div className="absolute right-0 mt-2 w-48 bg-background border border-foreground/10 rounded-xl shadow-2xl p-1 z-40">
@@ -1209,22 +1209,22 @@ Puedes hacerme preguntas específicas sobre el texto, pedirme resúmenes de secc
 
             <button 
               onClick={() => setShowGemini(!showGemini)}
-              className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all border ${
+              className={`flex items-center justify-center rounded-full text-xs font-semibold transition-all border p-2 sm:px-3.5 sm:py-1.5 ${
                 showGemini 
                   ? 'bg-purple-600 hover:bg-purple-700 border-purple-500 text-white shadow shadow-purple-500/20' 
                   : 'bg-background hover:bg-foreground/5 border-foreground/10 text-foreground'
               }`}
             >
               <Sparkles size={13} className={showGemini ? 'animate-pulse' : 'text-purple-500'} />
-              <span>Gemini</span>
+              <span className="hidden sm:inline ml-1.5">Gemini</span>
             </button>
           </div>
         </div>
       )}
 
       {!isFullScreen && (
-      <div className="flex items-center justify-between gap-3 px-4 py-2 border-b border-foreground/10 bg-background/20 backdrop-blur-sm z-20 w-full flex-none">
-        <div className="flex items-center gap-1">
+      <div className="flex items-center justify-between gap-3 px-4 py-2 border-b border-foreground/10 bg-background/20 backdrop-blur-sm z-20 w-full flex-none overflow-x-auto whitespace-nowrap scrollbar-none flex-nowrap">
+        <div className="flex items-center gap-1 shrink-0">
           <button 
             onClick={() => setShowThumbnails(!showThumbnails)}
             className={`p-1.5 rounded-lg transition-colors ${showThumbnails ? 'bg-foreground/10 text-foreground' : 'hover:bg-foreground/5 text-foreground/60'}`}
@@ -1254,7 +1254,7 @@ Puedes hacerme preguntas específicas sobre el texto, pedirme resúmenes de secc
           </button>
         </div>
 
-        <div className="flex items-center gap-1.5">
+        <div className="flex items-center gap-1.5 shrink-0">
           <button 
             onClick={() => {
               setFitMode('manual');
@@ -1293,7 +1293,7 @@ Puedes hacerme preguntas específicas sobre el texto, pedirme resúmenes de secc
           </select>
         </div>
 
-        <div className="flex items-center gap-1.5">
+        <div className="flex items-center gap-1.5 shrink-0">
           <button 
             onClick={() => setActiveTool(activeTool === 'highlight' ? 'none' : 'highlight')} 
             className={`p-1.5 rounded-lg transition-colors ${activeTool === 'highlight' ? 'bg-yellow-500/20 text-yellow-600 dark:text-yellow-400' : 'hover:bg-foreground/5 text-foreground/75'}`}
@@ -1357,7 +1357,8 @@ Puedes hacerme preguntas específicas sobre el texto, pedirme resúmenes de secc
           </button>
         </div>
       </div>
-      )}
+      )
+}
 
       <Document
         file={file}
@@ -2370,21 +2371,21 @@ Puedes hacerme preguntas específicas sobre el texto, pedirme resúmenes de secc
 
       {/* Full Screen FAB */}
       {isFullScreen && (
-        <div className="fixed bottom-6 right-6 z-[100] flex flex-col items-end gap-4">
+        <div className={`fixed z-[100] flex flex-col items-end gap-3 ${isMobile ? 'bottom-4 left-4 right-4' : 'bottom-6 right-6'}`}>
             <AnimatePresence>
                 {isFabMenuOpen && (
                     <motion.div
-                        initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                        initial={{ opacity: 0, scale: 0.95, y: 20 }}
                         animate={{ opacity: 1, scale: 1, y: 0 }}
-                        exit={{ opacity: 0, scale: 0.9, y: 20 }}
-                        className="bg-background border border-foreground/10 rounded-2xl shadow-2xl p-4 mb-2 flex flex-col gap-4 min-w-[250px]"
+                        exit={{ opacity: 0, scale: 0.95, y: 20 }}
+                        className={`bg-background/95 backdrop-blur-md border border-foreground/10 rounded-2xl shadow-2xl p-4 flex flex-col gap-4 ${isMobile ? 'w-full mb-1' : 'min-w-[250px] mb-2'}`}
                     >
                          {/* Header with Exit */}
                          <div className="flex items-center justify-between border-b border-foreground/10 pb-2">
                             <span className="font-medium text-sm">Controles</span>
                             <button 
                                 onClick={() => setIsFullScreen(false)}
-                                className="p-1 hover:bg-foreground/5 rounded text-xs flex items-center gap-1 text-red-500 font-medium"
+                                className="p-2 hover:bg-foreground/5 rounded-lg text-xs flex items-center gap-1.5 text-red-500 font-medium"
                             >
                                 <Shrink size={14} />
                                 <span>Salir</span>
@@ -2393,31 +2394,31 @@ Puedes hacerme preguntas específicas sobre el texto, pedirme resúmenes de secc
 
                          {/* Page Navigation */}
                          <div className="flex items-center justify-between gap-2">
-                            <button disabled={pageNumber <= 1} onClick={() => changePage(-1)} className="p-2 hover:bg-foreground/5 rounded-full disabled:opacity-50"><ChevronLeft size={20}/></button>
+                            <button disabled={pageNumber <= 1} onClick={() => changePage(-1)} className="p-2.5 hover:bg-foreground/5 rounded-full disabled:opacity-50"><ChevronLeft size={20}/></button>
                             <span className="text-sm font-medium">{pageNumber} / {numPages || '--'}</span>
-                            <button disabled={pageNumber >= numPages} onClick={() => changePage(1)} className="p-2 hover:bg-foreground/5 rounded-full disabled:opacity-50"><ChevronRight size={20}/></button>
+                            <button disabled={pageNumber >= numPages} onClick={() => changePage(1)} className="p-2.5 hover:bg-foreground/5 rounded-full disabled:opacity-50"><ChevronRight size={20}/></button>
                          </div>
                          
                          {/* Zoom */}
-                         <div className="flex items-center justify-between gap-2 bg-foreground/5 rounded-lg p-1">
-                            <button onClick={() => setScale(s => Math.max(0.5, s - 0.1))} className="p-1 hover:bg-background rounded"><ZoomOut size={16}/></button>
+                         <div className="flex items-center justify-between gap-2 bg-foreground/5 rounded-lg p-1.5">
+                            <button onClick={() => setScale(s => Math.max(0.5, s - 0.1))} className="p-1.5 hover:bg-background rounded"><ZoomOut size={16}/></button>
                             <span className="text-xs w-8 text-center">{Math.round(scale * 100)}%</span>
-                            <button onClick={() => setScale(s => Math.min(2, s + 0.1))} className="p-1 hover:bg-background rounded"><ZoomIn size={16}/></button>
+                            <button onClick={() => setScale(s => Math.min(2, s + 0.1))} className="p-1.5 hover:bg-background rounded"><ZoomIn size={16}/></button>
                          </div>
 
                          {/* Tools Grid */}
                          <div className="grid grid-cols-4 gap-2">
-                            <button onClick={() => setActiveTool(activeTool === 'highlight' ? 'none' : 'highlight')} className={`p-2 rounded flex items-center justify-center ${activeTool === 'highlight' ? 'bg-foreground text-background' : 'hover:bg-foreground/5'}`} title="Subrayar"><Highlighter size={18}/></button>
-                            <button onClick={() => setActiveTool(activeTool === 'erase' ? 'none' : 'erase')} className={`p-2 rounded flex items-center justify-center ${activeTool === 'erase' ? 'bg-foreground text-background' : 'hover:bg-foreground/5'}`} title="Borrador"><Eraser size={18}/></button>
-                            <button onClick={() => setActiveTool(activeTool.startsWith('note') ? 'none' : 'note_rect')} className={`p-2 rounded flex items-center justify-center ${activeTool.startsWith('note') ? 'bg-foreground text-background' : 'hover:bg-foreground/5'}`} title="Nota"><MessageSquarePlus size={18}/></button>
-                            <button onClick={clearPageHighlights} className="p-2 hover:bg-foreground/5 rounded flex items-center justify-center text-red-500" title="Limpiar todo"><X size={18}/></button>
+                            <button onClick={() => setActiveTool(activeTool === 'highlight' ? 'none' : 'highlight')} className={`p-3 rounded-xl flex items-center justify-center ${activeTool === 'highlight' ? 'bg-foreground text-background' : 'hover:bg-foreground/5'}`} title="Subrayar"><Highlighter size={18}/></button>
+                            <button onClick={() => setActiveTool(activeTool === 'erase' ? 'none' : 'erase')} className={`p-3 rounded-xl flex items-center justify-center ${activeTool === 'erase' ? 'bg-foreground text-background' : 'hover:bg-foreground/5'}`} title="Borrador"><Eraser size={18}/></button>
+                            <button onClick={() => setActiveTool(activeTool.startsWith('note') ? 'none' : 'note_rect')} className={`p-3 rounded-xl flex items-center justify-center ${activeTool.startsWith('note') ? 'bg-foreground text-background' : 'hover:bg-foreground/5'}`} title="Nota"><MessageSquarePlus size={18}/></button>
+                            <button onClick={clearPageHighlights} className="p-3 hover:bg-foreground/5 rounded-xl flex items-center justify-center text-red-500" title="Limpiar todo"><X size={18}/></button>
                          </div>
                          
                          {/* Additional Note Tools */}
                          {activeTool.startsWith('note') && (
                             <div className="flex items-center gap-2 justify-center bg-foreground/5 p-1 rounded-lg">
-                                <button onClick={() => setActiveTool('note_rect')} className={`p-1 rounded ${activeTool === 'note_rect' ? 'bg-background shadow' : ''}`}><Square size={14}/></button>
-                                <button onClick={() => setActiveTool('note_circle')} className={`p-1 rounded ${activeTool === 'note_circle' ? 'bg-background shadow' : ''}`}><Circle size={14}/></button>
+                                <button onClick={() => setActiveTool('note_rect')} className={`p-1.5 rounded-md ${activeTool === 'note_rect' ? 'bg-background shadow' : ''}`}><Square size={14}/></button>
+                                <button onClick={() => setActiveTool('note_circle')} className={`p-1.5 rounded-md ${activeTool === 'note_circle' ? 'bg-background shadow' : ''}`}><Circle size={14}/></button>
                             </div>
                          )}
 
@@ -2426,7 +2427,7 @@ Puedes hacerme preguntas específicas sobre el texto, pedirme resúmenes de secc
                              <select
                                 value={animationMode}
                                 onChange={e => { setAnimationMode(e.target.value); localStorage.setItem('animationMode', e.target.value); }}
-                                className="text-xs border border-foreground/20 rounded px-2 py-1 bg-background flex-1"
+                                className="text-sm border border-foreground/20 rounded-lg px-3 py-2 bg-background flex-1 outline-none"
                               >
                                 <option value="slide">Deslizar</option>
                                 <option value="flip">Volteo 3D</option>
@@ -2439,7 +2440,7 @@ Puedes hacerme preguntas específicas sobre el texto, pedirme resúmenes de secc
             
             <button
                 onClick={() => setIsFabMenuOpen(!isFabMenuOpen)}
-                className="w-14 h-14 rounded-full bg-foreground text-background shadow-xl flex items-center justify-center hover:scale-105 transition-transform active:scale-95"
+                className="w-14 h-14 rounded-full bg-foreground text-background shadow-xl flex items-center justify-center hover:scale-105 transition-transform active:scale-95 shrink-0"
             >
                 {isFabMenuOpen ? <X size={24} /> : <Menu size={24} />}
             </button>
