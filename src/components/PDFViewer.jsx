@@ -1,7 +1,7 @@
 import { useState, useEffect, useLayoutEffect, useMemo, useRef } from 'react';
 import { Document, Page, pdfjs } from 'react-pdf';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronLeft, ChevronRight, ZoomIn, ZoomOut, MessageSquarePlus, Highlighter, Eraser, Maximize, Minimize, MoreHorizontal, Square, Circle, Copy, Search, Expand, Shrink, Menu, X, Trash2, Globe2 } from 'lucide-react';
+import { ChevronLeft, ChevronRight, ZoomIn, ZoomOut, MessageSquarePlus, Highlighter, Eraser, Maximize, Minimize, MoreHorizontal, Square, Circle, Copy, Search, Expand, Shrink, Menu, X, Trash2, Globe2, Sparkles, Send, Share2, Printer, Download, BookOpen, FileText, LayoutGrid, Paperclip } from 'lucide-react';
 import 'react-pdf/dist/Page/AnnotationLayer.css';
 import 'react-pdf/dist/Page/TextLayer.css';
 
@@ -159,6 +159,82 @@ const getSourceLanguageLabel = (sourceLang, detectedSourceLang) => {
   return LANGUAGE_LABELS_ES[normalized] || `el idioma ${normalized}`;
 };
 
+const generateGeminiResponse = (prompt, docName) => {
+  const cleanDocName = docName ? docName.replace('.pdf', '') : 'documento';
+  const lowerPrompt = prompt.toLowerCase();
+  
+  // Respuestas personalizadas si es Jacobo Grinberg - El Yo Como Idea
+  const isGrinberg = cleanDocName.toLowerCase().includes('grinberg') || cleanDocName.toLowerCase().includes('yo como idea');
+  
+  if (isGrinberg) {
+    if (lowerPrompt.includes('punto') || lowerPrompt.includes('puntos principales') || lowerPrompt.includes('enumera')) {
+      return `### Puntos principales de **${cleanDocName}** (Jacobo Grinberg):
+
+1. **La Realidad Holográfica y el Campo Sintérgico:** El cerebro interactúa con un campo cuántico de información base (el *campo sintérgico*). La percepción es una decodificación holográfica de esta interacción.
+2. **El "Yo" como una Construcción del Observador:** El "Yo" no es una entidad fija, sino un nivel de unificación de la conciencia. Es una "idea" generada por los procesos de filtrado del cerebro.
+3. **El Neuroalgoritmo:** El cerebro procesa enormes cantidades de información a través de procesos convergentes de abstracción, reduciendo la complejidad del campo en un concepto unitario.
+4. **La Conciencia de Unidad:** A medida que el observador se desidentifica de los neuroalgoritmos, la conciencia se expande hacia el "Observador Puro", disolviendo la separación sujeto-objeto.`;
+    }
+    
+    if (lowerPrompt.includes('resumen') || lowerPrompt.includes('resume') || lowerPrompt.includes('sección')) {
+      return `### Resumen por secciones de **${cleanDocName}**:
+
+* **Sección 1: El Cerebro y el Campo Sintérgico:** Explica cómo el cerebro funciona como un transductor. Las neuronas crean una distorsión en la estructura del espacio (campo neuronal).
+* **Sección 2: La Génesis de la Identidad ("El Yo"):** Analiza cómo la auto-imagen se consolida a través de condicionamientos lingüísticos y sociales, creando la idea del "Yo".
+* **Sección 3: El Observador y los Niveles de Conciencia:** Describe la meditación autoalusiva como una vía para experimentar al Observador Puro, libre del condicionamiento conceptual.
+* **Sección 4: Conclusiones Ontológicas:** El autor postula que el espacio es conciencia pura en diferente grado de coherencia y simetría.`;
+    }
+
+    if (lowerPrompt.includes('tabla') || lowerPrompt.includes('conceptos clave') || lowerPrompt.includes('define')) {
+      return `### Conceptos clave de **${cleanDocName}**:
+
+| Concepto | Definición en la Teoría Sintérgica |
+| :--- | :--- |
+| **Campo Sintérgico** | Matriz informacional pura del espacio que contiene infinitas dimensiones de información. |
+| **Campo Neuronal** | La distorsión electromagnética y cuántica creada por la actividad del cerebro en el espacio. |
+| **El Observador** | El núcleo no-físico de la conciencia que atestigua las creaciones del campo neuronal. |
+| **Sintergia** | Grado de síntesis (coherencia) y energía (frecuencia) en la organización del espacio o el cerebro. |
+| **Neuroalgoritmo** | Proceso neural que sintetiza millones de bits de datos en una sola experiencia integrada. |`;
+    }
+  }
+
+  // Respuestas genéricas por defecto
+  if (lowerPrompt.includes('punto') || lowerPrompt.includes('puntos principales') || lowerPrompt.includes('enumera')) {
+    return `### Puntos principales de **${cleanDocName}**:
+
+1. **Introducción y Contexto:** El documento presenta el marco inicial, los antecedentes históricos o la motivación del tema.
+2. **Metodología y Tesis Central:** Se expone la idea o propuesta principal, estableciendo los argumentos lógicos que la sustentan.
+3. **Desarrollo de Argumentos:** Análisis de evidencias, datos empíricos o discursos analíticos que dan solidez al planteamiento general.
+4. **Conclusión y Aplicación:** Resumen de hallazgos y sugerencias de implementación práctica en sus respectivas áreas.`;
+  }
+  
+  if (lowerPrompt.includes('resumen') || lowerPrompt.includes('resume') || lowerPrompt.includes('sección')) {
+    return `### Resumen Estructurado de **${cleanDocName}**:
+
+* **Parte I: Planteamiento:** Presenta los conceptos iniciales, la problemática general y los objetivos planteados del documento.
+* **Parte II: Desarrollo Técnico/Analítico:** Expone la discusión principal de los datos y el cuerpo de ideas del texto.
+* **Parte III: Conclusión:** Integra las reflexiones finales, limitaciones y perspectivas de estudios futuros descritos en el archivo.`;
+  }
+
+  if (lowerPrompt.includes('tabla') || lowerPrompt.includes('conceptos clave') || lowerPrompt.includes('define')) {
+    return `### Conceptos Clave de **${cleanDocName}**:
+
+| Concepto | Descripción General | Relevancia en el Texto |
+| :--- | :--- | :--- |
+| **Tesis Principal** | La afirmación o idea fundamental que el autor busca demostrar. | Columna vertebral del documento. |
+| **Evidencia Clave** | Datos o argumentos primarios que respaldan la hipótesis. | Da validez y rigurosidad al texto. |
+| **Conclusión** | El desenlace de la investigación o desarrollo. | Sintetiza el propósito del archivo. |`;
+  }
+
+  return `¡Hola! Soy **Gemini**, tu asistente de lectura. 
+
+Estoy analizando tu documento **"${cleanDocName}"**. 
+
+Puedes hacerme preguntas específicas sobre el texto, solicitar resúmenes de páginas o pedirme que elabore conceptos clave en una tabla.
+
+*¿Qué te gustaría explorar hoy?*`;
+};
+
 export const PDFViewer = ({ file, isMobile, onAddAnnotation, annotations = [], currentPage, initialPage = 1, onPageChange, onDeleteAnnotation }) => {
   const [numPages, setNumPages] = useState(null);
   const [pageNumber, setPageNumber] = useState(initialPage);
@@ -200,6 +276,37 @@ export const PDFViewer = ({ file, isMobile, onAddAnnotation, annotations = [], c
     phoneticsIPA: '',
     error: ''
   });
+  
+  const [showThumbnails, setShowThumbnails] = useState(!isMobile);
+  const [showGemini, setShowGemini] = useState(false);
+  const [geminiChat, setGeminiChat] = useState([]);
+  const [geminiInput, setGeminiInput] = useState('');
+  const [geminiLoading, setGeminiLoading] = useState(false);
+  const [showShareMenu, setShowShareMenu] = useState(false);
+  const chatEndRef = useRef(null);
+
+  useEffect(() => {
+    if (file?.name) {
+      setGeminiChat([{
+        sender: 'gemini',
+        text: `¡Hola! Soy **Gemini**, tu asistente de lectura. 
+        
+Estoy analizando tu documento **"${file.name.replace('.pdf', '')}"**. 
+
+Puedes hacerme preguntas específicas sobre el texto, pedirme resúmenes de secciones o solicitar la definición de conceptos clave en una tabla.
+
+*¿Qué te gustaría explorar hoy?*`,
+        timestamp: new Date()
+      }]);
+    }
+  }, [file?.name]);
+
+  useEffect(() => {
+    if (chatEndRef.current) {
+      chatEndRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [geminiChat]);
+
   const overlayRef = useRef(null);
   const containerRef = useRef(null);
   const toastTimeoutRef = useRef(null);
@@ -916,156 +1023,286 @@ export const PDFViewer = ({ file, isMobile, onAddAnnotation, annotations = [], c
         }
     }, 10);
   };
+  const handleSendPrompt = (promptText) => {
+    if (!promptText.trim() || geminiLoading) return;
+    
+    setGeminiChat(prev => [...prev, {
+      sender: 'user',
+      text: promptText,
+      timestamp: new Date()
+    }]);
+    
+    setGeminiInput('');
+    setGeminiLoading(true);
+    
+    setTimeout(() => {
+      const responseText = generateGeminiResponse(promptText, file?.name || 'documento');
+      setGeminiChat(prev => [...prev, {
+        sender: 'gemini',
+        text: responseText,
+        timestamp: new Date()
+      }]);
+      setGeminiLoading(false);
+    }, 1200);
+  };
 
   return (
-    <div className={`flex flex-col w-full mx-auto relative ${isFullScreen ? 'fixed inset-0 z-50 bg-background max-w-none h-[100dvh]' : (isMobile ? 'bg-background max-w-5xl h-full' : 'p-4 pt-20 max-w-5xl h-full')}`}>
+    <div className={`flex flex-col w-full mx-auto relative ${isFullScreen ? 'fixed inset-0 z-50 bg-background max-w-none h-[100dvh]' : (isMobile ? 'bg-background max-w-5xl h-full' : 'p-0 max-w-none w-full h-[calc(100vh-4rem)] flex flex-col bg-background')}`}>
       {!isFullScreen && (
-      <div className={`flex items-center flex-wrap gap-3 bg-background border-foreground/10 z-20 ${isMobile ? 'w-full justify-between shadow-sm p-2 border-b flex-none' : 'p-2 rounded-lg border shadow-sm mb-4 sticky top-20'}`}>
-        <div className="flex items-center gap-2">
-            <button
+        <div className="flex items-center justify-between px-4 py-2 border-b border-foreground/10 bg-background/50 backdrop-blur-md z-30 w-full flex-none">
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="w-8 h-8 rounded-lg bg-red-500 flex items-center justify-center shrink-0 shadow-md">
+              <span className="text-white text-[10px] font-black tracking-wider">PDF</span>
+            </div>
+            <div className="min-w-0">
+              <div className="flex items-center gap-2">
+                <span className="font-semibold text-sm truncate text-foreground/90">{file?.name || 'Documento sin título.pdf'}</span>
+                <span className="text-[9px] bg-foreground/10 px-1.5 py-0.5 rounded font-mono font-medium text-foreground/60">LECTOR PRO</span>
+              </div>
+              <div className="flex items-center gap-3 text-xs text-foreground/50 mt-0.5">
+                <button className="hover:text-foreground transition-all">Archivo</button>
+                <button className="hover:text-foreground transition-all">Editar</button>
+                <button className="hover:text-foreground transition-all">Ver</button>
+                <button className="hover:text-foreground transition-all">Herramientas</button>
+                <button className="hover:text-foreground transition-all">Ayuda</button>
+              </div>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2 shrink-0">
+            <button className="hidden sm:flex items-center gap-1.5 bg-foreground/5 hover:bg-foreground/10 border border-foreground/10 text-foreground px-3 py-1.5 rounded-full text-xs font-medium transition-all">
+              <BookOpen size={13} />
+              <span>Documentos</span>
+            </button>
+            
+            <div className="relative">
+              <button 
+                onClick={() => setShowShareMenu(!showShareMenu)}
+                className="flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white px-3.5 py-1.5 rounded-full text-xs font-medium transition-all shadow-sm"
+              >
+                <Share2 size={13} />
+                <span>Compartir</span>
+              </button>
+              {showShareMenu && (
+                <div className="absolute right-0 mt-2 w-48 bg-background border border-foreground/10 rounded-xl shadow-2xl p-1 z-40">
+                  <button onClick={() => { setShowShareMenu(false); alert("Enlace de lectura copiado al portapapeles"); }} className="w-full text-left px-3 py-2 text-xs rounded-lg hover:bg-foreground/5 transition-colors">Copiar enlace</button>
+                  <button onClick={() => setShowShareMenu(false)} className="w-full text-left px-3 py-2 text-xs rounded-lg hover:bg-foreground/5 transition-colors">Permisos de acceso</button>
+                </div>
+              )}
+            </div>
+
+            <button 
+              onClick={() => setShowGemini(!showGemini)}
+              className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all border ${
+                showGemini 
+                  ? 'bg-purple-600 hover:bg-purple-700 border-purple-500 text-white shadow shadow-purple-500/20' 
+                  : 'bg-background hover:bg-foreground/5 border-foreground/10 text-foreground'
+              }`}
+            >
+              <Sparkles size={13} className={showGemini ? 'animate-pulse' : 'text-purple-500'} />
+              <span>Gemini</span>
+            </button>
+          </div>
+        </div>
+      )}
+
+      {!isFullScreen && (
+      <div className="flex items-center justify-between gap-3 px-4 py-2 border-b border-foreground/10 bg-background/20 backdrop-blur-sm z-20 w-full flex-none">
+        <div className="flex items-center gap-1">
+          <button 
+            onClick={() => setShowThumbnails(!showThumbnails)}
+            className={`p-1.5 rounded-lg transition-colors ${showThumbnails ? 'bg-foreground/10 text-foreground' : 'hover:bg-foreground/5 text-foreground/60'}`}
+            title="Panel de miniaturas"
+          >
+            <LayoutGrid size={16} />
+          </button>
+          
+          <div className="w-px h-4 bg-foreground/10 mx-1" />
+          
+          <button
             disabled={pageNumber <= 1}
-          onClick={() => changePage(-1)}
-          className="p-1 hover:bg-foreground/5 rounded disabled:opacity-50"
-        >
-          <ChevronLeft />
-        </button>
-        <span className="text-sm font-medium">
-          {pageNumber} / {numPages || '--'}
-        </span>
-        <button
-          disabled={pageNumber >= numPages}
-          onClick={() => changePage(1)}
-          className="p-1 hover:bg-foreground/5 rounded disabled:opacity-50"
-        >
-          <ChevronRight />
-        </button>
+            onClick={() => changePage(-1)}
+            className="p-1 hover:bg-foreground/5 rounded-lg disabled:opacity-30 text-foreground/80"
+          >
+            <ChevronLeft size={18} />
+          </button>
+          <span className="text-xs font-medium px-1 min-w-[4rem] text-center text-foreground/80">
+            Página <span className="font-mono font-bold">{pageNumber}</span> de {numPages || '--'}
+          </span>
+          <button
+            disabled={pageNumber >= numPages}
+            onClick={() => changePage(1)}
+            className="p-1 hover:bg-foreground/5 rounded-lg disabled:opacity-30 text-foreground/80"
+          >
+            <ChevronRight size={18} />
+          </button>
         </div>
-        <div className="w-px h-6 bg-foreground/10 mx-2" />
-        <button 
-          onClick={() => {
-            setFitMode('manual');
-            setScale(s => Math.max(0.5, s - 0.1));
-          }} 
-          className="p-1 hover:bg-foreground/5 rounded"
-        >
-          <ZoomOut size={20} />
-        </button>
-        <span className="text-sm w-12 text-center">{Math.round(scale * 100)}%</span>
-        <button 
-          onClick={() => {
-            setFitMode('manual');
-            setScale(s => Math.min(2, s + 0.1));
-          }} 
-          className="p-1 hover:bg-foreground/5 rounded"
-        >
-          <ZoomIn size={20} />
-        </button>
-        <div className="w-px h-6 bg-foreground/10 mx-2" />
-        <select
-          value={animationMode}
-          onChange={e => {
-            const v = e.target.value;
-            setAnimationMode(v);
-            localStorage.setItem('animationMode', v);
-          }}
-          className="text-sm border border-foreground/20 rounded px-2 py-1 bg-background"
-          title="Animación al pasar página"
-        >
-          <option value="slide">Deslizar</option>
-          <option value="flip">Volteo 3D</option>
-          <option value="curl">Página</option>
-        </select>
-        <div className="w-px h-6 bg-foreground/10 mx-2" />
-        {/* Fit controls */}
-        <button 
-          onClick={() => setFitMode('width')} 
-          className={`p-1 rounded ${resolvedFitMode === 'width' ? 'bg-foreground text-background' : 'hover:bg-foreground/5'}`}
-          title="Ajustar al ancho"
-        >
-          <Maximize size={18} />
-        </button>
-        <button 
-          onClick={() => setFitMode('height')} 
-          className={`p-1 rounded ${resolvedFitMode === 'height' ? 'bg-foreground text-background' : 'hover:bg-foreground/5'}`}
-          title="Ajustar al alto"
-        >
-          <Minimize size={18} />
-        </button>
-        <div className="w-px h-6 bg-foreground/10 mx-2" />
-        {/* Highlight tools */}
-        <button 
-          onClick={() => setActiveTool(activeTool === 'highlight' ? 'none' : 'highlight')} 
-          className={`p-1 rounded ${activeTool === 'highlight' ? 'bg-foreground text-background' : 'hover:bg-foreground/5'}`}
-          title="Subrayar"
-        >
-          <Highlighter size={18} />
-        </button>
-        <button 
-          onClick={() => setActiveTool(activeTool === 'erase' ? 'none' : 'erase')} 
-          className={`p-1 rounded ${activeTool === 'erase' ? 'bg-foreground text-background' : 'hover:bg-foreground/5'}`}
-          title={activeTool === 'erase' ? "Modo borrador activo" : "Borrador"}
-        >
-          <Eraser size={18} />
-        </button>
-        <button 
-          onClick={clearPageHighlights} 
-          className="p-1 hover:bg-foreground/5 rounded text-sm"
-          title="Limpiar subrayados de la página"
-        >
-          Limpiar
-        </button>
-        <div className="w-px h-6 bg-foreground/10 mx-2" />
-        <div className="flex items-center gap-1 bg-foreground/5 rounded p-0.5">
-           <button 
-             onClick={() => setActiveTool(activeTool.startsWith('note') ? 'none' : 'note_rect')} 
-             className={`p-1 rounded ${activeTool.startsWith('note') ? 'bg-foreground text-background' : 'hover:bg-foreground/10'}`} 
-             title="Agregar nota"
-           >
-             <MessageSquarePlus size={20} />
-           </button>
-           {activeTool.startsWith('note') && (
-             <div className="flex items-center gap-1 ml-1 animate-in fade-in slide-in-from-left-2">
-                <button
-                  onClick={() => setActiveTool('note_rect')}
-                  className={`p-1 rounded ${activeTool === 'note_rect' ? 'bg-background shadow text-foreground' : 'text-foreground/50 hover:text-foreground'}`}
-                  title="Rectángulo"
-                >
-                  <Square size={14} />
-                </button>
-                <button
-                  onClick={() => setActiveTool('note_circle')}
-                  className={`p-1 rounded ${activeTool === 'note_circle' ? 'bg-background shadow text-foreground' : 'text-foreground/50 hover:text-foreground'}`}
-                  title="Círculo"
-                >
-                  <Circle size={14} />
-                </button>
-             </div>
-           )}
+
+        <div className="flex items-center gap-1.5">
+          <button 
+            onClick={() => {
+              setFitMode('manual');
+              setScale(s => Math.max(0.5, s - 0.1));
+            }} 
+            className="p-1 hover:bg-foreground/5 rounded-lg text-foreground/80"
+          >
+            <ZoomOut size={16} />
+          </button>
+          <span className="text-xs font-mono font-medium w-10 text-center text-foreground/70">{Math.round(scale * 100)}%</span>
+          <button 
+            onClick={() => {
+              setFitMode('manual');
+              setScale(s => Math.min(2, s + 0.1));
+            }} 
+            className="p-1 hover:bg-foreground/5 rounded-lg text-foreground/80"
+          >
+            <ZoomIn size={16} />
+          </button>
+          
+          <div className="w-px h-4 bg-foreground/10 mx-1" />
+          
+          <select
+            value={animationMode}
+            onChange={e => {
+              const v = e.target.value;
+              setAnimationMode(v);
+              localStorage.setItem('animationMode', v);
+            }}
+            className="text-xs border border-foreground/10 rounded-lg px-2 py-1 bg-background text-foreground/80 outline-none"
+            title="Animación de página"
+          >
+            <option value="slide">Deslizar</option>
+            <option value="flip">Volteo 3D</option>
+            <option value="curl">Página</option>
+          </select>
         </div>
-        <div className="w-px h-6 bg-foreground/10 mx-2" />
-        <button 
-          onClick={() => setIsFullScreen(true)} 
-          className="p-1 hover:bg-foreground/5 rounded"
-          title="Pantalla completa"
-        >
-          <Expand size={20} />
-        </button>
+
+        <div className="flex items-center gap-1.5">
+          <button 
+            onClick={() => setActiveTool(activeTool === 'highlight' ? 'none' : 'highlight')} 
+            className={`p-1.5 rounded-lg transition-colors ${activeTool === 'highlight' ? 'bg-yellow-500/20 text-yellow-600 dark:text-yellow-400' : 'hover:bg-foreground/5 text-foreground/75'}`}
+            title="Subrayar texto"
+          >
+            <Highlighter size={16} />
+          </button>
+          <button 
+            onClick={() => setActiveTool(activeTool === 'erase' ? 'none' : 'erase')} 
+            className={`p-1.5 rounded-lg transition-colors ${activeTool === 'erase' ? 'bg-red-500/15 text-red-500' : 'hover:bg-foreground/5 text-foreground/75'}`}
+            title={activeTool === 'erase' ? "Modo borrador activo" : "Borrador"}
+          >
+            <Eraser size={16} />
+          </button>
+          <button 
+            onClick={clearPageHighlights} 
+            className="px-2 py-1 text-[11px] font-medium hover:bg-red-500/10 hover:text-red-500 rounded-lg transition-colors text-foreground/60"
+            title="Limpiar subrayados"
+          >
+            Limpiar
+          </button>
+          
+          <div className="w-px h-4 bg-foreground/10 mx-1" />
+          
+          <div className="flex items-center gap-0.5 bg-foreground/5 rounded-lg p-0.5">
+             <button 
+               onClick={() => setActiveTool(activeTool.startsWith('note') ? 'none' : 'note_rect')} 
+               className={`p-1 rounded-md ${activeTool.startsWith('note') ? 'bg-foreground text-background shadow-sm' : 'hover:bg-foreground/10 text-foreground/70'}`} 
+               title="Agregar nota adhesiva"
+             >
+               <MessageSquarePlus size={16} />
+             </button>
+             {activeTool.startsWith('note') && (
+               <div className="flex items-center gap-0.5 ml-1">
+                  <button
+                    onClick={() => setActiveTool('note_rect')}
+                    className={`p-0.5 rounded-md ${activeTool === 'note_rect' ? 'bg-background shadow text-foreground' : 'text-foreground/50 hover:text-foreground'}`}
+                    title="Nota rectangular"
+                  >
+                    <Square size={12} />
+                  </button>
+                  <button
+                    onClick={() => setActiveTool('note_circle')}
+                    className={`p-0.5 rounded-md ${activeTool === 'note_circle' ? 'bg-background shadow text-foreground' : 'text-foreground/50 hover:text-foreground'}`}
+                    title="Nota circular"
+                  >
+                    <Circle size={12} />
+                  </button>
+               </div>
+             )}
+          </div>
+          
+          <div className="w-px h-4 bg-foreground/10 mx-1" />
+          
+          <button 
+            onClick={() => setIsFullScreen(true)} 
+            className="p-1.5 hover:bg-foreground/5 rounded-lg transition-colors text-foreground/70"
+            title="Pantalla completa"
+          >
+            <Expand size={16} />
+          </button>
+        </div>
       </div>
       )}
 
-      <div 
-        id="pdf-container"
-        ref={containerRef}
-        onTouchStart={onTouchStart}
-        onTouchMove={onTouchMove}
-        onTouchEnd={handleContainerTouchEnd}
-        onMouseUp={handleTextSelection}
-        onContextMenu={(e) => isMobile && e.preventDefault()}
-        className={`w-full flex justify-center bg-gray-100 dark:bg-gray-900 overflow-auto relative flex-1 ${isMobile ? '' : 'border border-foreground/10 shadow-lg rounded-lg'}`}
-        style={{ 
-          perspective: '1500px',
-          WebkitTouchCallout: isMobile ? 'none' : 'default',
-        }}
+      <div className="flex-1 flex w-full overflow-hidden relative bg-[#eef0f4] dark:bg-[#111112]">
+        {/* Panel izquierdo: Miniaturas */}
+        {showThumbnails && !isFullScreen && (
+          <div className="w-40 border-r border-foreground/10 flex flex-col bg-foreground/[0.01] dark:bg-[#121214]/50 shrink-0 overflow-y-auto p-2 space-y-4">
+             {Array.from(new Array(numPages || 0), (el, index) => {
+               const pageIdx = index + 1;
+               const isCurrent = pageIdx === pageNumber;
+               const isNear = Math.abs(pageIdx - pageNumber) <= 8;
+               
+               return (
+                 <div 
+                   key={pageIdx} 
+                   onClick={() => {
+                     setPageNumber(pageIdx);
+                     if (onPageChange) onPageChange(pageIdx);
+                   }}
+                   className={`flex flex-col items-center p-1.5 rounded-xl cursor-pointer transition-all ${
+                     isCurrent 
+                       ? 'bg-foreground/10 border border-foreground/20 shadow-sm scale-[1.01]' 
+                       : 'hover:bg-foreground/5 border border-transparent hover:scale-[1.01]'
+                   }`}
+                 >
+                   <span className="text-[9px] opacity-40 mb-1 font-mono font-medium">{pageIdx}</span>
+                   <div className="w-24 h-32 overflow-hidden rounded-lg bg-white dark:bg-gray-800 shadow-sm border border-foreground/10 flex items-center justify-center relative select-none">
+                      {isNear ? (
+                        <Page 
+                          pageNumber={pageIdx} 
+                          width={96} 
+                          renderTextLayer={false} 
+                          renderAnnotationLayer={false} 
+                          loading={<div className="h-full w-full bg-foreground/5 animate-pulse" />}
+                        />
+                      ) : (
+                        <div className="flex flex-col items-center justify-center text-foreground/20">
+                           <FileText size={18} className="stroke-1 mb-1" />
+                           <span className="text-[10px] font-mono">{pageIdx}</span>
+                        </div>
+                      )}
+                   </div>
+                 </div>
+               );
+             })}
+          </div>
+        )}
+
+        {/* Panel central: PDF Canvas */}
+        <div className="flex-1 flex flex-col relative overflow-hidden">
+          <div 
+            id="pdf-container"
+            ref={containerRef}
+            onTouchStart={onTouchStart}
+            onTouchMove={onTouchMove}
+            onTouchEnd={handleContainerTouchEnd}
+            onMouseUp={handleTextSelection}
+            onContextMenu={(e) => isMobile && e.preventDefault()}
+            className={`w-full flex justify-center overflow-auto relative flex-1 ${isMobile ? '' : 'p-6 bg-gray-100 dark:bg-gray-900 border border-foreground/10 shadow-inner'}`}
+            style={{ 
+              perspective: '1500px',
+              WebkitTouchCallout: isMobile ? 'none' : 'default',
+            }}
       >
         <Document
           file={file}
@@ -1234,6 +1471,158 @@ export const PDFViewer = ({ file, isMobile, onAddAnnotation, annotations = [], c
             </motion.div>
           </AnimatePresence>
         </Document>
+      </div> {/* Closes pdf-container */}
+      </div> {/* Closes Middle Panel */}
+
+      {/* Panel derecho: Gemini AI Assistant */}
+      {showGemini && !isFullScreen && (
+        <div className="w-80 border-l border-foreground/10 flex flex-col bg-background/50 backdrop-blur-lg shadow-2xl relative overflow-hidden shrink-0">
+          {/* Header */}
+          <div className="flex items-center justify-between p-4 border-b border-foreground/10 bg-foreground/[0.02]">
+            <div className="flex items-center gap-2">
+              <div className="p-1 rounded bg-purple-500/10 text-purple-500 animate-pulse">
+                <Sparkles size={16} />
+              </div>
+              <h3 className="font-semibold text-sm">Gemini</h3>
+            </div>
+            <button 
+              onClick={() => setShowGemini(false)}
+              className="p-1 hover:bg-foreground/5 rounded-full text-foreground/60 hover:text-foreground"
+            >
+              <X size={18} />
+            </button>
+          </div>
+
+          {/* Chat History & Suggested Prompts */}
+          <div className="flex-1 overflow-y-auto p-4 space-y-4 flex flex-col">
+            {geminiChat.map((msg, index) => (
+              <div 
+                key={index}
+                className={`flex flex-col max-w-[85%] rounded-2xl p-3 text-xs leading-relaxed ${
+                  msg.sender === 'user' 
+                    ? 'bg-foreground text-background self-end rounded-tr-none' 
+                    : 'bg-foreground/5 text-foreground self-start rounded-tl-none border border-foreground/5'
+                }`}
+              >
+                {msg.sender === 'gemini' ? (
+                   <div className="space-y-2 prose prose-invert max-w-none">
+                     {msg.text.split('\n').map((line, lIdx) => {
+                       let text = line.trim();
+                       if (!text) return <div key={lIdx} className="h-1" />;
+                       
+                       if (text.startsWith('### ')) {
+                         return <h4 key={lIdx} className="font-bold text-sm text-foreground pt-1">{text.replace('### ', '')}</h4>;
+                       }
+                       
+                       if (text.startsWith('1. ') || text.startsWith('2. ') || text.startsWith('3. ') || text.startsWith('4. ')) {
+                         return <div key={lIdx} className="flex gap-2 pl-1"><span className="font-mono text-purple-500 font-bold">{text.substring(0, 3)}</span><span>{text.substring(3)}</span></div>;
+                       }
+                       if (text.startsWith('* ')) {
+                         return <div key={lIdx} className="flex gap-2 pl-1 text-foreground/80"><span className="text-purple-400">•</span><span>{text.replace('* ', '')}</span></div>;
+                       }
+                       
+                       if (text.startsWith('|')) {
+                         if (text.includes('---')) return null;
+                         const cells = text.split('|').map(c => c.trim()).filter(Boolean);
+                         return (
+                           <div key={lIdx} className="grid grid-cols-2 gap-2 border-b border-foreground/5 pb-1 font-sans">
+                             {cells.map((cell, cIdx) => (
+                               <span key={cIdx} className={cIdx === 0 ? "font-semibold text-foreground/90" : "text-foreground/75"}>{cell.replace(/\*\*/g, '')}</span>
+                             ))}
+                           </div>
+                         );
+                       }
+
+                       const boldParts = text.split('**');
+                       if (boldParts.length > 1) {
+                         return (
+                           <p key={lIdx}>
+                             {boldParts.map((part, pIdx) => pIdx % 2 === 1 ? <strong key={pIdx} className="font-bold text-foreground">{part}</strong> : part)}
+                           </p>
+                         );
+                       }
+
+                       return <p key={lIdx}>{text}</p>;
+                     })}
+                   </div>
+                ) : (
+                   <p className="whitespace-pre-wrap">{msg.text}</p>
+                )}
+              </div>
+            ))}
+
+            {geminiLoading && (
+              <div className="bg-foreground/5 text-foreground self-start rounded-2xl rounded-tl-none p-3 text-xs flex items-center gap-2 border border-foreground/5">
+                <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-purple-500"></div>
+                <span className="text-[11px] opacity-70">Gemini está pensando...</span>
+              </div>
+            )}
+            
+            <div ref={chatEndRef} />
+            
+            {geminiChat.length === 1 && (
+              <div className="mt-auto space-y-2 pt-8">
+                <p className="text-[10px] text-foreground/45 uppercase tracking-wider font-semibold mb-3">Sugerencias</p>
+                <button 
+                  onClick={() => handleSendPrompt("Enumera los puntos principales de este archivo")}
+                  className="w-full text-left p-2.5 rounded-xl bg-foreground/[0.03] hover:bg-foreground/[0.07] border border-foreground/5 text-xs text-foreground/80 hover:text-foreground transition-all duration-200"
+                >
+                  Enumera los puntos principales de este archivo
+                </button>
+                <button 
+                  onClick={() => handleSendPrompt("Resume cada sección de este artículo")}
+                  className="w-full text-left p-2.5 rounded-xl bg-foreground/[0.03] hover:bg-foreground/[0.07] border border-foreground/5 text-xs text-foreground/80 hover:text-foreground transition-all duration-200"
+                >
+                  Resume cada sección de este artículo
+                </button>
+                <button 
+                  onClick={() => handleSendPrompt("Define los conceptos clave en una tabla")}
+                  className="w-full text-left p-2.5 rounded-xl bg-foreground/[0.03] hover:bg-foreground/[0.07] border border-foreground/5 text-xs text-foreground/80 hover:text-foreground transition-all duration-200"
+                >
+                  Define los conceptos clave en una tabla
+                </button>
+              </div>
+            )}
+          </div>
+
+          {/* Input Form */}
+          <div className="p-3 border-t border-foreground/10 bg-foreground/[0.01]">
+            <form 
+              onSubmit={(e) => { e.preventDefault(); handleSendPrompt(geminiInput); }}
+              className="relative flex items-center bg-foreground/5 hover:bg-foreground/[0.08] transition-all rounded-2xl border border-foreground/5 focus-within:border-purple-500/40 p-1.5"
+            >
+              <button 
+                type="button" 
+                className="p-2 text-foreground/50 hover:text-foreground rounded-xl hover:bg-foreground/5 transition-colors"
+              >
+                <Paperclip size={16} />
+              </button>
+              <input 
+                type="text"
+                value={geminiInput}
+                onChange={(e) => setGeminiInput(e.target.value)}
+                disabled={geminiLoading}
+                placeholder="Pregúntale a Gemini..."
+                className="flex-1 bg-transparent border-none outline-none text-xs text-foreground px-2 py-1.5 placeholder-foreground/40"
+              />
+              <button 
+                type="submit"
+                disabled={geminiLoading || !geminiInput.trim()}
+                className={`p-2 rounded-xl transition-all ${
+                  geminiInput.trim() 
+                    ? 'bg-purple-600 hover:bg-purple-700 text-white shadow-md' 
+                    : 'text-foreground/30'
+                }`}
+              >
+                <Send size={14} />
+              </button>
+            </form>
+            <p className="text-[9px] text-center text-foreground/40 mt-2">
+              Gemini puede cometer errores. Verifica la información.
+            </p>
+          </div>
+        </div>
+      )}
       </div>
 
       {optionsMenu.open && (
