@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Leé-Io Reader - Paper Curl</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,600;1,400&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#000000",
+                        "reader-bg": "#ffffff",
+                        "page-offwhite": "#fcfcfc"
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"],
+                        "serif": ["Crimson Pro", "serif"]
+                    }
+                },
+            },
+        }
+    </script>
+<style type="text/tailwindcss">
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f0f0;
+        }
+        .ios-status-bar {
+            height: 44px;
+        }
+        .serif-content {
+            font-family: 'Crimson Pro', serif;
+        }.page-container {
+            perspective: 1500px;
+        }
+        .page-under {
+            background-color: #ffffff;
+        }
+        .page-curled {
+            background-color: #ffffff;transform: rotateY(-10deg) rotateX(5deg) translateX(-5%) translateY(-2%);
+            clip-path: polygon(0% 0%, 100% 0%, 100% 60%, 60% 100%, 0% 100%);
+            box-shadow: 15px 15px 30px rgba(0,0,0,0.1);
+        }
+        .page-fold {
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            width: 40%;
+            height: 40%;
+            background: linear-gradient(135deg, #ffffff 0%, #f0f0f0 45%, #d1d1d1 50%, rgba(0,0,0,0.1) 55%, transparent 100%);
+            transform-origin: bottom right;
+            transform: rotate(-10deg);
+            box-shadow: -10px -10px 20px rgba(0,0,0,0.15);
+            clip-path: polygon(0% 100%, 100% 0%, 100% 100%);
+        }
+        .curl-shadow {
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            width: 50%;
+            height: 50%;
+            background: radial-gradient(circle at 100% 100%, rgba(0,0,0,0.08) 0%, transparent 70%);
+            pointer-events: none;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-[#f5f5f5] font-display text-black antialiased">
+<div class="relative flex min-h-screen w-full flex-col max-w-[430px] mx-auto overflow-hidden bg-white shadow-2xl">
+<div class="ios-status-bar flex items-center justify-between px-6 pt-2 z-50">
+<span class="text-black text-sm font-semibold">9:41</span>
+<div class="flex gap-1.5 items-center">
+<span class="material-symbols-outlined text-black text-[18px]">signal_cellular_4_bar</span>
+<span class="material-symbols-outlined text-black text-[18px]">wifi</span>
+<span class="material-symbols-outlined text-black text-[18px]">battery_full</span>
+</div>
+</div>
+<div class="flex items-center bg-white p-4 pb-2 justify-between z-50">
+<div class="text-black flex size-12 shrink-0 items-center justify-start">
+<span class="material-symbols-outlined cursor-pointer">arrow_back_ios</span>
+</div>
+<h2 class="text-black text-xs uppercase tracking-[0.2em] font-bold flex-1 text-center">Leé-Io</h2>
+<div class="flex w-12 items-center justify-end">
+<button class="flex cursor-pointer items-center justify-center h-12 bg-transparent text-black">
+<span class="material-symbols-outlined">more_horiz</span>
+</button>
+</div>
+</div>
+<div class="relative flex-1 page-container overflow-hidden">
+<div class="absolute inset-0 page-under px-8 pt-8 z-10">
+<h1 class="serif-content text-black/40 text-3xl font-bold mb-8 leading-tight">The Future of Interaction</h1>
+<div class="serif-content space-y-6 text-[20px] leading-relaxed text-black/30">
+<p>
+                        In the landscape of digital interfaces, the metaphor of the page remains one of our strongest links to the physical world. Haptic feedback and visual cues bridge this gap...
+                    </p>
+<p>
+                        When we talk about immersion, we talk about the removal of friction between the reader and the narrative. The animation of a turning page is more than a flourish...
+                    </p>
+</div>
+</div>
+<div class="absolute inset-0 page-curled z-20 px-8 pt-8 border-r border-black/5">
+<h1 class="serif-content text-black text-3xl font-bold mb-8 leading-tight">The Architecture of Digital Knowledge</h1>
+<div class="serif-content space-y-6 text-[20px] leading-relaxed text-black/90">
+<p>
+                        The future of digital reading is not just about the text itself, but how we interact with it. Knowledge management systems allow us to bridge the gap between passive consumption and active learning.
+                    </p>
+<p>
+                        By highlighting key passages, we create a second brain. Minimalist design focuses on the essentials, stripping away distractions to let the content breathe. In this reader, every element is purposeful.
+                    </p>
+<p>
+                        As we move towards a more connected ecosystem, the portability of our thoughts becomes paramount. Local-first software provides speed and privacy, while cloud synchronization ensures that our curated library is accessible from any device.
+                    </p>
+</div>
+<div class="absolute top-0 right-8 z-30">
+<div class="w-6 h-9 bg-black flex items-end justify-center pb-1 shadow-sm" style="clip-path: polygon(0% 0%, 100% 0%, 100% 100%, 50% 85%, 0% 100%);">
+<span class="material-symbols-outlined text-white text-[12px]">bookmark</span>
+</div>
+</div>
+</div>
+<div class="curl-shadow z-20"></div>
+<div class="page-fold z-30"></div>
+</div>
+<div class="fixed bottom-10 left-0 right-0 z-[60] px-6 max-w-[430px] mx-auto">
+<div class="flex items-center justify-around bg-black text-white rounded-2xl p-3 shadow-2xl border border-white/10">
+<button class="p-2 hover:bg-white/10 rounded-lg">
+<span class="material-symbols-outlined">format_size</span>
+</button>
+<div class="h-6 w-px bg-white/20"></div>
+<button class="p-2 hover:bg-white/10 rounded-lg">
+<span class="material-symbols-outlined">edit</span>
+</button>
+<button class="p-2 hover:bg-white/10 rounded-lg">
+<span class="material-symbols-outlined">sticky_note_2</span>
+</button>
+<button class="p-2 hover:bg-white/10 rounded-lg">
+<span class="material-symbols-outlined">share</span>
+</button>
+<div class="h-6 w-px bg-white/20"></div>
+<button class="p-2 hover:bg-white/10 rounded-lg">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1">bookmark</span>
+</button>
+</div>
+</div>
+<div class="h-8 flex justify-center items-end pb-2 bg-white z-[60]">
+<div class="w-32 h-1 bg-black/10 rounded-full"></div>
+</div>
+</div>
+
+</body></html>

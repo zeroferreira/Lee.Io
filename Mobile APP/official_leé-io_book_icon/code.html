@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Leé-Io App Icon Showcase</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,typography"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet"/>
+<script>
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              primary: "#000000",
+              "background-light": "#F2F2F7",
+              "background-dark": "#1C1C1E",
+            },
+            fontFamily: {
+              display: ["Inter", "sans-serif"],
+            },
+            borderRadius: {
+              DEFAULT: "1.25rem",
+              "ios": "22%",
+            },
+          },
+        },
+      };
+    </script>
+<style>
+        .ios-icon-mask {
+            mask-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 22C0 7.86237 0 0.793557 4.39678 0.396777C8.79356 0 15.8624 0 30 0H70C84.1376 0 91.2064 0 95.6032 0.396777C100 0.793557 100 7.86237 100 22V78C100 92.1376 100 99.2064 95.6032 99.6032C91.2064 100 84.1376 100 70 100H30C15.8624 100 8.79356 100 4.39678 99.6032C0 99.2064 0 92.1376 0 78V22Z' fill='black'/%3E%3C/svg%3E");
+            mask-size: contain;
+            mask-repeat: no-repeat;
+            -webkit-mask-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 22C0 7.86237 0 0.793557 4.39678 0.396777C8.79356 0 15.8624 0 30 0H70C84.1376 0 91.2064 0 95.6032 0.396777C100 0.793557 100 7.86237 100 22V78C100 92.1376 100 99.2064 95.6032 99.6032C91.2064 100 84.1376 100 70 100H30C15.8624 100 8.79356 100 4.39678 99.6032C0 99.2064 0 92.1376 0 78V22Z' fill='black'/%3E%3C/svg%3E");
+            -webkit-mask-size: contain;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .blur-bg {
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+        }
+        .dock-container {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        .dark .dock-container {
+            background: rgba(255, 255, 255, 0.1);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark text-gray-900 dark:text-gray-100 min-h-screen transition-colors duration-300">
+<div class="max-w-md mx-auto min-h-screen flex flex-col items-center justify-between p-6 relative overflow-hidden">
+<header class="w-full flex justify-between items-center mb-8">
+<div class="flex items-center gap-2">
+<span class="text-xl font-bold tracking-tight">Leé-Io</span>
+<span class="px-2 py-0.5 text-[10px] uppercase font-bold tracking-widest bg-primary text-white rounded">Design System</span>
+</div>
+<button class="p-2 rounded-full bg-white dark:bg-gray-800 shadow-sm flex items-center justify-center" onclick="document.documentElement.classList.toggle('dark')">
+<span class="material-icons-round text-lg">dark_mode</span>
+</button>
+</header>
+<div class="w-full space-y-12 flex-grow flex flex-col justify-center">
+<section class="flex flex-col items-center text-center">
+<h3 class="text-xs font-semibold uppercase tracking-widest text-gray-400 dark:text-gray-500 mb-6">Variant 1: Minimalist Light</h3>
+<div class="relative group">
+<div class="w-32 h-32 bg-white ios-icon-mask shadow-2xl flex items-center justify-center transition-transform active:scale-95 duration-200">
+<img alt="Leé-Io Book Icon" class="w-16 h-16 object-contain" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCPrdkerMMCBOL_2L4ZAJg7E59RvS9NCkLMKMy5olrxQ8Q-fAOXqtz9nWfLbr3Spa3YjGjyJD7XH-atNQDjzYQTpi1EBf5XXH9Fs9-RrfDiY_PeTwm0mpPfN7uELG4BuOCEUcfyBbPeWXi59pSKuVYk36e87GrZJAGR9nMad5jSJfqsjTSU58feQxP3vAqGX0ilLSzMTTbH3XEWelKsX584YZnpQd14isjsUv_7azbein7g_RIpLjTbtKZpDwvBavnKxElxNNaJqFk_"/>
+</div>
+</div>
+<p class="mt-4 text-sm font-medium text-gray-600 dark:text-gray-400">Black on White</p>
+</section>
+<div class="h-px w-full bg-gray-200 dark:bg-gray-800"></div>
+<section class="flex flex-col items-center text-center">
+<h3 class="text-xs font-semibold uppercase tracking-widest text-gray-400 dark:text-gray-500 mb-6">Variant 2: Minimalist Dark</h3>
+<div class="relative group">
+<div class="w-32 h-32 bg-black ios-icon-mask shadow-2xl flex items-center justify-center transition-transform active:scale-95 duration-200">
+<img alt="Leé-Io Book Icon" class="w-16 h-16 object-contain invert" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBLnJzNQbGVL2T7uSonMMNLC1eOGchE_SSrl1qmhKfALNI_MuaeihA0UyoxhwAomxxRaHbLLgbR6TZ0tKfN3_Cm3LIxzCoMs8_Ui0mA3DnE3VS0gXnPugwX-ueNZrFKXXd2oejd8J_7W_QkE6D-CowKjgcKI28kfI1SwbVGxbFONouJwxLhx7zX0jHgci-yAS0Yj9TL6jc8rgP4XHlUNL6aed4Fi1QRONpmQNvYWcy7eWg_GwoL5fWniqroGWgHaEJyENTwzStX5aHQ"/>
+</div>
+</div>
+<p class="mt-4 text-sm font-medium text-gray-600 dark:text-gray-400">White on Black</p>
+</section>
+</div>
+<div class="w-full mt-12 bg-white/40 dark:bg-black/40 rounded-[2.5rem] p-8 border border-white/20 dark:border-black/20 blur-bg">
+<h4 class="text-center text-[10px] font-bold uppercase tracking-widest text-gray-500 dark:text-gray-400 mb-6">Drawer Context</h4>
+<div class="grid grid-cols-4 gap-6">
+<div class="flex flex-col items-center gap-1.5">
+<div class="w-14 h-14 bg-blue-500 ios-icon-mask flex items-center justify-center">
+<span class="material-icons-round text-white text-3xl">mail</span>
+</div>
+<span class="text-[10px] font-medium opacity-70">Mail</span>
+</div>
+<div class="flex flex-col items-center gap-1.5">
+<div class="w-14 h-14 bg-white ios-icon-mask flex items-center justify-center">
+<img alt="Leé-Io" class="w-7 h-7 object-contain" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBSc603FthXUwSXba5yThdoJkqrWKe0C6dhnB8CkVlCBYtrLgHwfutIKxgzzDOnwxK57hHVkX0DyLkmRERuKKYaIaX-PVD5JMFAuwsBKDjkh4GYwR7InJzr-wYMLFskbUwV2nOsAaffcbJKGK-jh3tdL-5ThFjJvuUFLHhufG1XBvARd0IQE4sVKxl68-UzVfnXNBaAlGzss80iON2xVC_V6eIAlWm1vozrXredjFVCR8fGxayh-OiuYOvukS55S7_MTlTs8nWudZvJ"/>
+</div>
+<span class="text-[10px] font-semibold">Leé-Io</span>
+</div>
+<div class="flex flex-col items-center gap-1.5">
+<div class="w-14 h-14 bg-green-500 ios-icon-mask flex items-center justify-center">
+<span class="material-icons-round text-white text-3xl">call</span>
+</div>
+<span class="text-[10px] font-medium opacity-70">Phone</span>
+</div>
+<div class="flex flex-col items-center gap-1.5">
+<div class="w-14 h-14 bg-gray-100 ios-icon-mask flex items-center justify-center">
+<span class="material-icons-round text-gray-800 text-3xl">settings</span>
+</div>
+<span class="text-[10px] font-medium opacity-70">Settings</span>
+</div>
+<div class="flex flex-col items-center gap-1.5">
+<div class="w-14 h-14 bg-black ios-icon-mask flex items-center justify-center">
+<img alt="Leé-Io Dark" class="w-7 h-7 object-contain invert" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCIfV7TYRyqnWPJGBdwsP0O8uV64AnSV0rpKW4IvAIf2rABmAfk4wLmZwJsKfB7muraAjZr1atHbtazhA_8dWCWs6xCZoLwwCC9PzdxOS8GXsUZwt1LDrWDOq4ATl8VjOcbCQuNfM8svoQb-p-ADJyvxcjaw2Rp0ftZ1ONzhVxKvvIKbxz3WbpZ-yLdk9OasvGbcAuky1Mw0-CAo9sYcN2xjWO3OPgtKHSynHc8AMweon3nqTcIFJ4_LlUvhARnI9x62AuNVblbqkk5"/>
+</div>
+<span class="text-[10px] font-semibold">Leé-Io</span>
+</div>
+<div class="flex flex-col items-center gap-1.5 opacity-40">
+<div class="w-14 h-14 bg-orange-400 ios-icon-mask flex items-center justify-center">
+<span class="material-icons-round text-white text-3xl">photo</span>
+</div>
+<span class="text-[10px] font-medium">Photos</span>
+</div>
+<div class="flex flex-col items-center gap-1.5 opacity-40">
+<div class="w-14 h-14 bg-indigo-600 ios-icon-mask flex items-center justify-center">
+<span class="material-icons-round text-white text-3xl">music_note</span>
+</div>
+<span class="text-[10px] font-medium">Music</span>
+</div>
+<div class="flex flex-col items-center gap-1.5 opacity-40">
+<div class="w-14 h-14 bg-red-500 ios-icon-mask flex items-center justify-center">
+<span class="material-icons-round text-white text-3xl">favorite</span>
+</div>
+<span class="text-[10px] font-medium">Health</span>
+</div>
+</div>
+</div>
+<footer class="w-full mt-8 py-4 flex justify-between text-[10px] text-gray-400 dark:text-gray-500 font-medium">
+<div class="flex flex-col">
+<span>STROKE WEIGHT: BOLD</span>
+<span>SYSTEM: iOS 17+</span>
+</div>
+<div class="flex flex-col text-right">
+<span>LEÉ-IO OFFICIAL</span>
+<span>BRAND GUIDELINES V1.0</span>
+</div>
+</footer>
+</div>
+
+</body></html>

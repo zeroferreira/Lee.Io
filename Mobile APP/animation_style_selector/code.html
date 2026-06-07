@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Animation Style Selector - Leé-Io</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,200..800;1,6..72,200..800&amp;family=Noto+Sans:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#0dccf2",
+                        "background-light": "#f5f8f8",
+                        "background-dark": "#101f22",
+                    },
+                    fontFamily: {
+                        "display": ["Newsreader", "serif"],
+                        "sans": ["Noto Sans", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            font-family: 'Noto Sans', sans-serif;
+        }
+        .font-display {
+            font-family: 'Newsreader', serif;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark min-h-screen flex items-center justify-center p-4">
+<!-- iOS Style Bottom Sheet Container -->
+<div class="relative flex h-[700px] w-full max-w-[400px] flex-col bg-background-light dark:bg-background-dark shadow-2xl rounded-[3rem] border-8 border-gray-800 overflow-hidden group/design-root">
+<!-- BottomSheetHandle Overlay Style -->
+<div class="flex flex-col items-stretch bg-background-light dark:bg-background-dark pt-4">
+<button class="flex h-5 w-full items-center justify-center">
+<div class="h-1.5 w-12 rounded-full bg-gray-300 dark:bg-[#315f68]"></div>
+</button>
+</div>
+<!-- SectionHeader -->
+<div class="px-6 pt-6">
+<div class="flex justify-between items-center mb-2">
+<h4 class="text-primary text-xs font-bold uppercase tracking-[0.1em] font-sans">Reader Settings</h4>
+<span class="material-symbols-outlined text-gray-400 cursor-pointer">close</span>
+</div>
+<h2 class="text-gray-900 dark:text-white text-3xl font-display font-semibold leading-tight">Animation Style</h2>
+<p class="text-gray-500 dark:text-[#90c1cb] text-sm mt-1">Choose how your pages turn</p>
+</div>
+<!-- Style Selection Chips -->
+<div class="px-6 py-6 grid grid-cols-3 gap-3">
+<!-- Real Paper Chip -->
+<label class="cursor-pointer group">
+<input checked="" class="peer hidden" name="animation-style" type="radio" value="real-paper"/>
+<div class="flex flex-col items-center justify-center p-4 rounded-xl border-2 border-transparent bg-gray-100 dark:bg-[#182f34] peer-checked:border-primary peer-checked:bg-primary/10 transition-all duration-200">
+<span class="material-symbols-outlined text-3xl mb-2 text-gray-600 dark:text-[#90c1cb] group-hover:text-primary peer-checked:text-primary">menu_book</span>
+<span class="text-xs font-bold text-gray-800 dark:text-white">Real Paper</span>
+<span class="text-[10px] text-gray-500 dark:text-[#90c1cb]/70">3D Curl</span>
+</div>
+</label>
+<!-- Slide Chip -->
+<label class="cursor-pointer group">
+<input class="peer hidden" name="animation-style" type="radio" value="slide"/>
+<div class="flex flex-col items-center justify-center p-4 rounded-xl border-2 border-transparent bg-gray-100 dark:bg-[#182f34] peer-checked:border-primary peer-checked:bg-primary/10 transition-all duration-200">
+<span class="material-symbols-outlined text-3xl mb-2 text-gray-600 dark:text-[#90c1cb] group-hover:text-primary peer-checked:text-primary">swap_horiz</span>
+<span class="text-xs font-bold text-gray-800 dark:text-white">Slide</span>
+<span class="text-[10px] text-gray-500 dark:text-[#90c1cb]/70">Horizontal</span>
+</div>
+</label>
+<!-- None Chip -->
+<label class="cursor-pointer group">
+<input class="peer hidden" name="animation-style" type="radio" value="none"/>
+<div class="flex flex-col items-center justify-center p-4 rounded-xl border-2 border-transparent bg-gray-100 dark:bg-[#182f34] peer-checked:border-primary peer-checked:bg-primary/10 transition-all duration-200">
+<span class="material-symbols-outlined text-3xl mb-2 text-gray-600 dark:text-[#90c1cb] group-hover:text-primary peer-checked:text-primary">flash_on</span>
+<span class="text-xs font-bold text-gray-800 dark:text-white">None</span>
+<span class="text-[10px] text-gray-500 dark:text-[#90c1cb]/70">Instant</span>
+</div>
+</label>
+</div>
+<!-- SectionHeader: Preview Title -->
+<div class="px-6">
+<h3 class="text-gray-900 dark:text-white text-lg font-bold leading-tight tracking-[-0.015em] font-display">Test your selection</h3>
+</div>
+<!-- Card: Interactive Preview -->
+<div class="px-6 py-4 flex-1">
+<div class="flex flex-col h-full items-stretch justify-start rounded-xl shadow-lg bg-white dark:bg-[#182f34] border border-gray-200 dark:border-white/5 overflow-hidden">
+<!-- Sample Page Content -->
+<div class="flex-1 p-6 relative overflow-hidden">
+<div class="w-full h-full opacity-90">
+<h1 class="font-display text-2xl mb-4 text-gray-900 dark:text-white italic">Chapter One</h1>
+<p class="font-display text-base leading-relaxed text-gray-700 dark:text-[#90c1cb]">
+                            The wind howled through the digital corridors of the old library. Every byte of data felt heavy with history, as if the very air was saturated with stories waiting to be told. It was here that Leé-Io began its journey...
+                        </p>
+<div class="mt-4 w-full h-32 rounded-lg bg-gradient-to-br from-primary/20 to-primary/5 border border-primary/20 flex items-center justify-center">
+<span class="material-symbols-outlined text-primary text-4xl">auto_stories</span>
+</div>
+</div>
+<!-- Decorative Curl Indicator for 'Real Paper' context -->
+<div class="absolute bottom-0 right-0 w-16 h-16 bg-gradient-to-tl from-gray-200 dark:from-primary/30 to-transparent rounded-tl-full opacity-50"></div>
+</div>
+<!-- Action Bar -->
+<div class="flex items-center gap-3 justify-between p-4 bg-gray-50 dark:bg-black/20 border-t border-gray-100 dark:border-white/5">
+<p class="text-gray-500 dark:text-[#90c1cb] text-xs font-sans">Swipe left or right to test effect</p>
+<button class="flex min-w-[100px] cursor-pointer items-center justify-center overflow-hidden rounded-full h-9 px-4 bg-primary text-[#102023] text-sm font-bold leading-normal shadow-sm hover:brightness-110 active:scale-95 transition-all">
+<span class="truncate">Try Swipe</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Contextual Footer Note -->
+<div class="px-6 pb-10">
+<div class="flex items-start gap-2 p-3 bg-gray-100 dark:bg-[#102023] rounded-lg border border-gray-200 dark:border-[#315f68]/30">
+<span class="material-symbols-outlined text-sm text-gray-400 dark:text-primary">info</span>
+<p class="text-[11px] leading-tight text-gray-500 dark:text-[#90c1cb]">
+                    Changes will be applied globally to all books in your Leé-Io library. High-contrast settings are optimized for OLED displays.
+                </p>
+</div>
+</div>
+<!-- Home Indicator -->
+<div class="absolute bottom-2 left-1/2 -translate-x-1/2 w-32 h-1.5 bg-gray-800 dark:bg-white/20 rounded-full"></div>
+</div>
+</body></html>

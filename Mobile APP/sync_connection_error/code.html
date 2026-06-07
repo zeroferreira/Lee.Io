@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#0dccf2",
+                        "background-light": "#f5f8f8",
+                        "background-dark": "#101f22",
+                    },
+                    fontFamily: {
+                        "display": ["Inter"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            font-family: 'Inter', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-white min-h-screen flex flex-col">
+<!-- TopAppBar -->
+<header class="flex items-center bg-background-light dark:bg-background-dark p-4 justify-between sticky top-0 z-10">
+<div class="text-slate-900 dark:text-white flex size-12 shrink-0 items-center justify-start cursor-pointer">
+<span class="material-symbols-outlined text-2xl">arrow_back_ios</span>
+</div>
+<div class="flex-grow text-center">
+<h1 class="text-sm font-semibold uppercase tracking-widest opacity-60">Sincronización</h1>
+</div>
+<div class="size-12 shrink-0"></div> <!-- Spacer for symmetry -->
+</header>
+<main class="flex-grow flex flex-col items-center justify-center px-8 text-center">
+<!-- EmptyState Content -->
+<div class="flex flex-col items-center gap-10 w-full max-w-md">
+<!-- Minimalist Illustration (Broken Cloud/Cable Concept) -->
+<div class="relative w-48 h-48 flex items-center justify-center">
+<div class="absolute inset-0 bg-primary/5 rounded-full blur-3xl"></div>
+<div class="relative flex flex-col items-center">
+<span class="material-symbols-outlined text-[120px] text-slate-300 dark:text-slate-700">cloud_off</span>
+<div class="absolute bottom-6 right-6 bg-white dark:bg-slate-900 rounded-full p-2 border-4 border-background-light dark:border-background-dark">
+<span class="material-symbols-outlined text-red-500 font-bold">link_off</span>
+</div>
+</div>
+</div>
+<!-- Text Content -->
+<div class="flex flex-col items-center gap-4">
+<h2 class="text-2xl md:text-3xl font-bold leading-tight tracking-tight text-slate-900 dark:text-white">
+                    Parece que no hay conexión
+                </h2>
+<p class="text-slate-500 dark:text-slate-400 text-base md:text-lg font-normal leading-relaxed max-w-[320px]">
+                    Tus notas están seguras localmente. Se sincronizarán cuando vuelvas a estar en línea.
+                </p>
+</div>
+<!-- Retry Button (Variant 2: Black/White Contrast) -->
+<div class="w-full flex flex-col gap-3 mt-4">
+<button class="flex w-full cursor-pointer items-center justify-center overflow-hidden rounded-xl h-14 px-6 bg-slate-900 dark:bg-white text-white dark:text-slate-900 text-base font-bold transition-transform active:scale-95 shadow-lg">
+<span class="material-symbols-outlined mr-2">refresh</span>
+<span class="truncate">Reintentar</span>
+</button>
+<button class="flex w-full cursor-pointer items-center justify-center h-12 text-slate-500 dark:text-slate-400 text-sm font-medium hover:underline">
+                    Configurar red
+                </button>
+</div>
+</div>
+</main>
+<!-- BottomNavBar -->
+<nav class="sticky bottom-0 w-full border-t border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-background-dark/80 backdrop-blur-lg pb-8 pt-3">
+<div class="flex justify-around items-center px-4">
+<a class="flex flex-col items-center gap-1 text-primary" href="#">
+<div class="flex h-8 items-center justify-center">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">description</span>
+</div>
+<p class="text-[10px] font-medium uppercase tracking-tighter">Notas</p>
+</a>
+<a class="flex flex-col items-center gap-1 text-slate-400 dark:text-slate-500" href="#">
+<div class="flex h-8 items-center justify-center">
+<span class="material-symbols-outlined">menu_book</span>
+</div>
+<p class="text-[10px] font-medium uppercase tracking-tighter">Libros</p>
+</a>
+<a class="flex flex-col items-center gap-1 text-slate-400 dark:text-slate-500" href="#">
+<div class="flex h-8 items-center justify-center">
+<span class="material-symbols-outlined">person</span>
+</div>
+<p class="text-[10px] font-medium uppercase tracking-tighter">Perfil</p>
+</a>
+<a class="flex flex-col items-center gap-1 text-slate-400 dark:text-slate-500" href="#">
+<div class="flex h-8 items-center justify-center">
+<span class="material-symbols-outlined">settings</span>
+</div>
+<p class="text-[10px] font-medium uppercase tracking-tighter">Ajustes</p>
+</a>
+</div>
+</nav>
+</body></html>

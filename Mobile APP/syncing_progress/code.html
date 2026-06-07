@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Leé-Io Syncing Progress</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#0dccf2",
+                        "background-light": "#f5f8f8",
+                        "background-dark": "#101f22",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+        .typewriter-cursor {
+            animation: blink 1s step-end infinite;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark min-h-screen flex flex-col font-display">
+<!-- iOS Status Bar Spacer (TopAppBar component style) -->
+<div class="relative flex h-auto w-full flex-col bg-background-light dark:bg-background-dark group/design-root overflow-x-hidden">
+<div class="flex items-center bg-background-light dark:bg-background-dark p-4 pb-2 justify-end h-10">
+<!-- Representing iOS Top Bar Icons -->
+<div class="flex gap-2 items-center opacity-60 dark:text-white">
+<span class="material-symbols-outlined text-sm">signal_cellular_4_bar</span>
+<span class="material-symbols-outlined text-sm">wifi</span>
+<span class="material-symbols-outlined text-sm">battery_full</span>
+</div>
+</div>
+</div>
+<!-- Main Content Container -->
+<div class="flex-grow flex flex-col items-center justify-center px-8 relative">
+<!-- Background HeaderImage Pattern (Decorative/Minimalist) -->
+<div class="absolute inset-0 pointer-events-none opacity-5 flex items-center justify-center">
+<div class="w-full h-full bg-center bg-no-repeat bg-cover" data-alt="Abstract minimalist background pattern with literary geometric shapes" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuA-5q1JwRmAvlc_tQWPsvtmCUZNeDGbh56c_lMbLexU2-p5JGzHiB0e-VkJ-LjVZwNVTHRaMzPVZcZHFWPwWbSNVhpNDDwdhoKxlfGtbvitze7AKIV3Q7EITDKWnlzVtyRXQ3zKBE9EEJttSflFzDovcatVh4ZKqaJhMg3GICNM_QfOLcPXXDdHDz-s7vocSl62AJDuuxQ_o_9ivF-wqkZTRn_3FwM7-qQ735RblZ4twZvi86Izv71HMiHeFokfWbURdhAf42N5TocN");'>
+</div>
+</div>
+<!-- Central Branding (HeadlineText component inspired) -->
+<div class="relative z-10 flex flex-col items-center">
+<div class="flex items-center justify-center">
+<h1 class="text-white tracking-tighter text-[48px] font-bold leading-tight text-center">
+                    Leé-Io
+                </h1>
+<!-- Blinking Typewriter Cursor -->
+<div class="w-[4px] h-[40px] bg-primary ml-2 typewriter-cursor rounded-full"></div>
+</div>
+<!-- Status Text (BodyText component style) -->
+<div class="mt-8 flex flex-col items-center">
+<p class="text-white/90 text-lg font-medium leading-normal text-center tracking-wide">
+                    Sincronizando tu biblioteca...
+                </p>
+<p class="text-white/50 text-sm font-normal leading-normal mt-1 text-center">
+                    Esto solo tomará un momento
+                </p>
+</div>
+</div>
+<!-- Progress Section (ProgressBar component) -->
+<div class="w-full max-w-xs mt-12 z-10">
+<div class="flex flex-col gap-3">
+<div class="flex gap-6 justify-between items-end">
+<p class="text-white/70 text-xs font-medium uppercase tracking-widest">Estado</p>
+<p class="text-primary text-sm font-bold leading-normal">68%</p>
+</div>
+<div class="rounded-full bg-white/10 overflow-hidden h-1.5 w-full">
+<!-- The primary bar -->
+<div class="h-full rounded-full bg-primary" style="width: 68%;"></div>
+</div>
+</div>
+</div>
+</div>
+<!-- Bottom Spacer / iOS Home Indicator area -->
+<div class="h-12 bg-background-light dark:bg-background-dark flex items-center justify-center">
+<div class="w-32 h-1 bg-white/20 rounded-full"></div>
+</div>
+<!-- Overlay variant hint (if user requested variation) -->
+<!-- This structure behaves as the "Loading State" requested -->
+</body></html>

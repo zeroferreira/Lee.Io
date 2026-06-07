@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Reader with Visual Bookmark</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,600;1,400&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#000000",
+                        "reader-bg": "#ffffff",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"],
+                        "serif": ["Crimson Pro", "serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style type="text/tailwindcss">
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #ffffff;
+        }
+        .ios-status-bar {
+            height: 44px;
+        }
+        .serif-content {
+            font-family: 'Crimson Pro', serif;
+        }
+        .bookmark-ribbon {
+            width: 24px;
+            height: 36px;
+            background-color: #000000;
+            clip-path: polygon(0% 0%, 100% 0%, 100% 100%, 50% 85%, 0% 100%);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-white font-display text-black">
+<div class="relative flex min-h-screen w-full flex-col max-w-[430px] mx-auto overflow-hidden bg-white">
+<div class="ios-status-bar flex items-center justify-between px-6 pt-2 z-20">
+<span class="text-black text-sm font-semibold">9:41</span>
+<div class="flex gap-1.5 items-center">
+<span class="material-symbols-outlined text-black text-[18px]">signal_cellular_4_bar</span>
+<span class="material-symbols-outlined text-black text-[18px]">wifi</span>
+<span class="material-symbols-outlined text-black text-[18px]">battery_full</span>
+</div>
+</div>
+<div class="absolute top-0 right-8 z-30">
+<div class="bookmark-ribbon shadow-sm flex items-end justify-center pb-1">
+<span class="material-symbols-outlined text-white text-[14px]">bookmark</span>
+</div>
+</div>
+<div class="absolute top-16 right-4 z-40">
+<div class="bg-black text-white text-[11px] font-medium px-3 py-1.5 rounded-full shadow-lg flex items-center gap-2 border border-white/20">
+<span class="material-symbols-outlined text-[12px] text-white">check_circle</span>
+<span>Page 124 saved</span>
+</div>
+</div>
+<div class="flex items-center bg-white p-4 pb-2 justify-between z-10">
+<div class="text-black flex size-12 shrink-0 items-center justify-start">
+<span class="material-symbols-outlined cursor-pointer">arrow_back_ios</span>
+</div>
+<h2 class="text-black text-xs uppercase tracking-widest font-medium flex-1 text-center opacity-60">Reading Now</h2>
+<div class="flex w-12 items-center justify-end">
+<button class="flex cursor-pointer items-center justify-center h-12 bg-transparent text-black">
+<span class="material-symbols-outlined">more_horiz</span>
+</button>
+</div>
+</div>
+<div class="flex-1 overflow-y-auto pt-4 px-6 pb-32">
+<h1 class="serif-content text-black text-3xl font-bold mb-8 leading-tight">The Architecture of Digital Knowledge</h1>
+<div class="serif-content space-y-6 text-[20px] leading-relaxed text-black/90">
+<p>
+                    The future of digital reading is not just about the text itself, but how we interact with it. Knowledge management systems allow us to bridge the gap between passive consumption and active learning.
+                </p>
+<p>
+                    By highlighting key passages, we create a second brain. Minimalist design focuses on the essentials, stripping away distractions to let the content breathe. In this reader, every element is purposeful. 
+                </p>
+<p>
+                    As we move towards a more connected ecosystem, the portability of our thoughts becomes paramount. Local-first software provides speed and privacy, while cloud synchronization ensures that our curated library is accessible from any device.
+                </p>
+<p>
+                    When users engage with the text, the UI responds with contextual utilities that don't disrupt the flow of focus. This approach respects the cognitive load of the reader while providing powerful tools for synthesis.
+                </p>
+</div>
+</div>
+<div class="fixed bottom-10 left-0 right-0 z-50 px-6 max-w-[430px] mx-auto">
+<div class="flex items-center justify-around bg-black text-white rounded-2xl p-3 shadow-2xl border border-white/10">
+<button class="p-2 hover:bg-white/10 rounded-lg">
+<span class="material-symbols-outlined">format_size</span>
+</button>
+<div class="h-6 w-px bg-white/20"></div>
+<button class="p-2 hover:bg-white/10 rounded-lg">
+<span class="material-symbols-outlined">edit</span>
+</button>
+<button class="p-2 hover:bg-white/10 rounded-lg">
+<span class="material-symbols-outlined">sticky_note_2</span>
+</button>
+<button class="p-2 hover:bg-white/10 rounded-lg">
+<span class="material-symbols-outlined">share</span>
+</button>
+<div class="h-6 w-px bg-white/20"></div>
+<button class="p-2 hover:bg-white/10 rounded-lg text-primary-color">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1">bookmark</span>
+</button>
+</div>
+</div>
+<div class="fixed bottom-28 left-0 right-0 z-50 px-4 max-w-[430px] mx-auto">
+<div class="flex flex-col items-stretch bg-white border border-black/5 shadow-[0_8px_30px_rgb(0,0,0,0.08)] rounded-xl p-4">
+<div class="flex items-start gap-3">
+<div class="p-2 bg-black text-white rounded-lg">
+<span class="material-symbols-outlined text-[20px]">cloud_sync</span>
+</div>
+<div class="flex flex-col gap-0.5">
+<p class="text-black text-sm font-bold">Your notes are currently local.</p>
+<p class="text-black/60 text-xs">Sign in to sync them with lee-io.vercel.app</p>
+</div>
+</div>
+<div class="flex gap-2 mt-4">
+<button class="flex-1 h-10 rounded-lg bg-black text-white text-xs font-bold uppercase tracking-wider">
+                        Sync Now
+                    </button>
+<button class="px-4 h-10 rounded-lg bg-black/5 text-black text-xs font-medium">
+                        Later
+                    </button>
+</div>
+</div>
+</div>
+<div class="h-8 flex justify-center items-end pb-2 bg-white">
+<div class="w-32 h-1 bg-black/10 rounded-full"></div>
+</div>
+</div>
+
+</body></html>

@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Reader with Sync Prompt</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#0dccf2",
+                        "background-light": "#f5f8f8",
+                        "background-dark": "#101f22",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .ios-status-bar {
+            height: 44px;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark font-display">
+<div class="relative flex min-h-screen w-full flex-col max-w-[430px] mx-auto overflow-hidden bg-background-light dark:bg-background-dark">
+<!-- iOS Status Bar Placeholder -->
+<div class="ios-status-bar flex items-center justify-between px-6 pt-2">
+<span class="text-white text-sm font-semibold">9:41</span>
+<div class="flex gap-1.5 items-center">
+<span class="material-symbols-outlined text-white text-[18px]">signal_cellular_4_bar</span>
+<span class="material-symbols-outlined text-white text-[18px]">wifi</span>
+<span class="material-symbols-outlined text-white text-[18px]">battery_full</span>
+</div>
+</div>
+<!-- TopAppBar -->
+<div class="flex items-center bg-background-light dark:bg-background-dark p-4 pb-2 justify-between">
+<div class="text-white flex size-12 shrink-0 items-center justify-start">
+<span class="material-symbols-outlined cursor-pointer">arrow_back_ios</span>
+</div>
+<h2 class="text-white text-lg font-bold leading-tight tracking-[-0.015em] flex-1 text-center">Article Reader</h2>
+<div class="flex w-12 items-center justify-end">
+<button class="flex max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 bg-transparent text-white gap-2 text-base font-bold leading-normal tracking-[0.015em] min-w-0 p-0">
+<span class="material-symbols-outlined">more_horiz</span>
+</button>
+</div>
+</div>
+<!-- Article Content Area -->
+<div class="flex-1 overflow-y-auto pt-4 px-4 pb-32">
+<h1 class="text-white text-2xl font-bold mb-6 px-4">The Architecture of Digital Knowledge</h1>
+<!-- BodyText -->
+<p class="text-white/90 text-lg font-normal leading-relaxed pb-6 px-4">
+                The future of digital reading is not just about the text itself, but how we interact with it. Knowledge management systems allow us to bridge the gap between passive consumption and active learning. By highlighting key passages, we create a second brain.
+            </p>
+<!-- Highlighted Sentence (Trigger for Toast) -->
+<div class="px-4 pb-6">
+<p class="text-background-dark bg-primary/90 text-lg font-medium leading-relaxed rounded-sm px-1 inline shadow-[0_0_15px_rgba(13,204,242,0.3)]">
+                    This is a sample sentence that represents a highlight made by the user to trigger the synchronization prompt appearing at the bottom of the interface.
+                </p>
+<span class="material-symbols-outlined text-primary align-middle ml-1 text-xl">edit</span>
+</div>
+<!-- BodyText -->
+<p class="text-white/90 text-lg font-normal leading-relaxed pb-6 px-4">
+                Minimalist design focuses on the essentials, stripping away distractions to let the content breathe. In this reader, every element is purposeful. When users engage with the text, the UI responds with contextual utilities that don't disrupt the flow of focus.
+            </p>
+<!-- BodyText -->
+<p class="text-white/60 text-lg font-normal leading-relaxed pb-6 px-4">
+                As we move towards a more connected ecosystem, the portability of our thoughts becomes paramount. Local-first software provides speed and privacy, while cloud synchronization ensures that our curated library is accessible from any device, anywhere in the world.
+            </p>
+</div>
+<!-- Floating Action Panel (Sync Toast) -->
+<div class="fixed bottom-8 left-0 right-0 z-50 px-4 max-w-[430px] mx-auto">
+<div class="flex flex-col items-stretch justify-between gap-4 rounded-xl border border-white/10 bg-white/10 dark:bg-background-dark/90 backdrop-blur-xl p-5 shadow-2xl ring-1 ring-white/20">
+<div class="flex items-start gap-3">
+<div class="p-2 bg-primary/20 rounded-lg">
+<span class="material-symbols-outlined text-primary">cloud_sync</span>
+</div>
+<div class="flex flex-col gap-1">
+<p class="text-white text-base font-bold leading-tight">Your notes are currently local.</p>
+<p class="text-white/60 text-sm font-normal leading-normal">Sign in to sync them with lee-io.vercel.app</p>
+</div>
+<button class="ml-auto text-white/40 hover:text-white">
+<span class="material-symbols-outlined text-sm">close</span>
+</button>
+</div>
+<div class="flex gap-3 mt-2">
+<button class="flex-1 flex min-w-[84px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-11 px-4 bg-primary text-background-dark text-base font-bold transition-transform active:scale-95">
+<span class="truncate">Sync Now</span>
+</button>
+<button class="flex min-w-[44px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-11 px-4 bg-white/10 text-white text-sm font-medium hover:bg-white/20 transition-colors">
+<span class="truncate">Later</span>
+</button>
+</div>
+</div>
+</div>
+<!-- iOS Home Indicator -->
+<div class="h-8 flex justify-center items-end pb-2">
+<div class="w-32 h-1 bg-white/20 rounded-full"></div>
+</div>
+</div>
+</body></html>

@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Reader &amp; Annotations</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,200..800;1,6..72,200..800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              colors: {
+                "primary": "#0dccf2",
+                "background-light": "#f5f8f8",
+                "background-dark": "#101f22",
+              },
+              fontFamily: {
+                "display": ["Newsreader", "serif"]
+              },
+              borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+            },
+          },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .serif-text {
+            font-family: 'Newsreader', serif;
+            line-height: 1.8;
+        }
+        .highlight-gold {
+            background-color: rgba(212, 175, 55, 0.25);
+            border-bottom: 2px solid rgba(212, 175, 55, 0.5);
+        }
+        .highlight-primary {
+            background-color: rgba(13, 204, 242, 0.15);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark font-display selection:bg-primary/30">
+<!-- TopAppBar -->
+<header class="sticky top-0 z-50 bg-background-light/90 dark:bg-background-dark/90 backdrop-blur-md border-b border-gray-200 dark:border-gray-800">
+<div class="flex items-center p-4 pb-2 justify-between max-w-2xl mx-auto">
+<div class="text-gray-900 dark:text-white flex size-10 shrink-0 items-center cursor-pointer">
+<span class="material-symbols-outlined">arrow_back_ios</span>
+</div>
+<div class="flex-1 text-center">
+<h2 class="text-gray-900 dark:text-white text-sm font-bold leading-tight tracking-tight uppercase tracking-widest opacity-60">
+                    Chapter 4: The Great Design
+                </h2>
+</div>
+<div class="flex w-10 items-center justify-end">
+<button class="flex items-center justify-center rounded-lg h-10 bg-transparent text-primary gap-2 transition-colors">
+<span class="material-symbols-outlined text-[20px]">cloud_done</span>
+</button>
+</div>
+</div>
+<!-- ProgressBar Integrated -->
+<div class="px-4 pb-2 max-w-2xl mx-auto">
+<div class="flex items-center gap-3">
+<div class="flex-1 h-1 rounded-full bg-gray-200 dark:bg-gray-700">
+<div class="h-1 rounded-full bg-primary" style="width: 45%;"></div>
+</div>
+<span class="text-[10px] font-medium text-gray-500 dark:text-gray-400">45%</span>
+</div>
+</div>
+</header>
+<main class="max-w-2xl mx-auto px-6 py-8 pb-32">
+<!-- BodyText with Chapter Start -->
+<h1 class="text-4xl font-bold text-gray-900 dark:text-white mb-10 mt-4 leading-tight italic">
+            Of Light and Shadows
+        </h1>
+<div class="relative mb-8 group">
+<!-- Annotation Note Icon in Margin -->
+<div class="absolute -right-2 top-2 text-primary opacity-80 cursor-pointer">
+<span class="material-symbols-outlined text-lg">sticky_note_2</span>
+</div>
+<p class="text-gray-800 dark:text-gray-200 text-lg serif-text">
+                The concept of invisible design is not about hiding the interface entirely, but about making it so intuitive that the user forgets it exists. When we read, the typography
+                should disappear into the meaning of the words. <span class="highlight-gold px-1 rounded-sm">This specific paragraph has a small note attached to it in the margin to signify a user's thought captured during the
+                process.</span>
+</p>
+</div>
+<!-- ListItem as an Annotation Highlight Preview -->
+<div class="my-10 p-4 rounded-xl border border-primary/20 bg-primary/5 dark:bg-primary/10">
+<div class="flex items-start gap-4">
+<div class="text-primary flex items-center justify-center rounded-full bg-primary/20 shrink-0 size-8 mt-1">
+<span class="material-symbols-outlined text-[18px]">format_quote</span>
+</div>
+<div class="flex-1">
+<p class="text-gray-700 dark:text-gray-300 text-base italic leading-relaxed">
+                        "Every detail, from the serif font choice to the line spacing, is crafted for long-form immersion."
+                    </p>
+<div class="mt-2 flex items-center gap-2">
+<span class="text-[11px] font-semibold text-primary uppercase tracking-wider">Highlight • 2m ago</span>
+</div>
+</div>
+</div>
+</div>
+<p class="text-gray-800 dark:text-gray-200 text-lg serif-text mb-8">
+            As the reader continues down the page, the high-contrast theme ensures that eye strain is minimized, especially in low-light environments. Every detail, from the serif font
+            choice to the line spacing, is crafted for long-form immersion.
+        </p>
+<p class="text-gray-800 dark:text-gray-200 text-lg serif-text mb-8">
+            Transitioning between chapters should feel like turning a physical page. The digital medium offers us the chance to enhance the reading experience without cluttering the canvas. We use primary blue accents only where attention is required—syncing status, progress milestones, and active tools.
+        </p>
+<p class="text-gray-800 dark:text-gray-200 text-lg serif-text">
+            In the end, a reader is a sanctuary. <span class="highlight-primary px-1 rounded-sm">A tool for the mind that respects the silence required for deep thought.</span> The interface must be a servant to the content, stepping back whenever the user is engaged.
+        </p>
+</main>
+<!-- Minimalist Bottom Toolbar -->
+<div class="fixed bottom-0 left-0 right-0 p-6 flex justify-center pointer-events-none">
+<div class="flex items-center gap-2 p-2 px-4 rounded-full bg-white/90 dark:bg-gray-900/90 backdrop-blur-xl border border-gray-200 dark:border-gray-800 shadow-2xl pointer-events-auto">
+<button class="flex flex-col items-center justify-center size-14 text-gray-600 dark:text-gray-400 hover:text-primary transition-colors">
+<span class="material-symbols-outlined">highlighter_size_3</span>
+<span class="text-[10px] font-bold mt-1 uppercase tracking-tighter">Highlight</span>
+</button>
+<div class="w-[1px] h-8 bg-gray-200 dark:bg-gray-800"></div>
+<button class="flex flex-col items-center justify-center size-14 text-gray-600 dark:text-gray-400 hover:text-primary transition-colors">
+<span class="material-symbols-outlined">add_comment</span>
+<span class="text-[10px] font-bold mt-1 uppercase tracking-tighter">Note</span>
+</button>
+<div class="w-[1px] h-8 bg-gray-200 dark:bg-gray-800"></div>
+<button class="flex flex-col items-center justify-center size-14 text-gray-600 dark:text-gray-400 hover:text-primary transition-colors">
+<span class="material-symbols-outlined">palette</span>
+<span class="text-[10px] font-bold mt-1 uppercase tracking-tighter">Theme</span>
+</button>
+<div class="w-[1px] h-8 bg-gray-200 dark:bg-gray-800"></div>
+<button class="flex flex-col items-center justify-center size-14 text-gray-600 dark:text-gray-400 hover:text-primary transition-colors">
+<span class="material-symbols-outlined">menu_book</span>
+<span class="text-[10px] font-bold mt-1 uppercase tracking-tighter">Library</span>
+</button>
+</div>
+</div>
+</body></html>

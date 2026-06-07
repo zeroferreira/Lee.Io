@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Leé-Io App Icon Variants</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Courier+Prime&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#0dccf2",
+                        "background-light": "#f5f8f8",
+                        "background-dark": "#101f22",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"],
+                        "typewriter": ["Courier Prime", "monospace"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        .ios-squircle {
+            border-radius: 22%;
+        }
+        .glass-dock {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+        }
+        .wallpaper-gradient {
+            background: radial-gradient(circle at top right, #1a3a40, #101f22);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark font-display text-white overflow-x-hidden">
+<!-- Top App Bar -->
+<div class="flex items-center bg-background-light dark:bg-background-dark p-4 pb-2 justify-between border-b border-gray-200 dark:border-gray-800">
+<div class="text-primary flex size-12 shrink-0 items-center justify-center">
+<span class="material-symbols-outlined">arrow_back</span>
+</div>
+<h2 class="text-gray-900 dark:text-white text-lg font-bold leading-tight tracking-tight flex-1 text-center">Leé-Io Icon Variants</h2>
+<div class="size-12 flex items-center justify-center">
+<span class="material-symbols-outlined text-primary">share</span>
+</div>
+</div>
+<main class="max-w-md mx-auto min-h-screen pb-20">
+<!-- Variant 1 Section -->
+<div class="px-4 pt-8">
+<h3 class="text-gray-900 dark:text-white text-xl font-bold leading-tight tracking-tight mb-2">Variant 1: Minimalist Dark</h3>
+<p class="text-gray-500 dark:text-[#90c1cb] text-sm mb-6">Bold typewriter glyphs on a deep black canvas.</p>
+<!-- Phone Mockup Container -->
+<div class="relative w-full aspect-[9/19] rounded-[3rem] border-[8px] border-gray-800 dark:border-gray-900 bg-black overflow-hidden shadow-2xl wallpaper-gradient">
+<!-- Status Bar -->
+<div class="flex justify-between px-8 pt-4 items-center">
+<span class="text-xs font-semibold">9:41</span>
+<div class="flex gap-1 items-center">
+<span class="material-symbols-outlined text-sm">signal_cellular_4_bar</span>
+<span class="material-symbols-outlined text-sm">wifi</span>
+<span class="material-symbols-outlined text-sm">battery_full</span>
+</div>
+</div>
+<!-- App Grid -->
+<div class="grid grid-cols-4 gap-4 px-6 pt-12">
+<!-- Row 1 -->
+<div class="flex flex-col items-center gap-1 opacity-20"><div class="w-full aspect-square bg-white/20 ios-squircle"></div><span class="text-[10px]">Mail</span></div>
+<div class="flex flex-col items-center gap-1 opacity-20"><div class="w-full aspect-square bg-white/20 ios-squircle"></div><span class="text-[10px]">Music</span></div>
+<div class="flex flex-col items-center gap-1 opacity-20"><div class="w-full aspect-square bg-white/20 ios-squircle"></div><span class="text-[10px]">Maps</span></div>
+<div class="flex flex-col items-center gap-1 opacity-20"><div class="w-full aspect-square bg-white/20 ios-squircle"></div><span class="text-[10px]">Photos</span></div>
+<!-- Row 2 (Featured Icon) -->
+<div class="flex flex-col items-center gap-1">
+<div class="w-full aspect-square bg-black ios-squircle flex items-center justify-center border border-white/10 shadow-lg ring-1 ring-white/5">
+<span class="font-typewriter text-3xl font-bold tracking-tighter">L i</span>
+</div>
+<span class="text-[10px] font-medium">Leé-Io</span>
+</div>
+<div class="flex flex-col items-center gap-1 opacity-20"><div class="w-full aspect-square bg-white/20 ios-squircle"></div><span class="text-[10px]">Notes</span></div>
+<div class="flex flex-col items-center gap-1 opacity-20"><div class="w-full aspect-square bg-white/20 ios-squircle"></div><span class="text-[10px]">Stocks</span></div>
+<div class="flex flex-col items-center gap-1 opacity-20"><div class="w-full aspect-square bg-white/20 ios-squircle"></div><span class="text-[10px]">Health</span></div>
+</div>
+<!-- Dock -->
+<div class="absolute bottom-6 left-1/2 -translate-x-1/2 w-[90%] h-20 glass-dock rounded-[2rem] flex items-center justify-around px-4">
+<div class="size-12 bg-white/10 ios-squircle opacity-30"></div>
+<div class="size-12 bg-white/10 ios-squircle opacity-30"></div>
+<div class="size-12 bg-white/10 ios-squircle opacity-30"></div>
+<div class="size-12 bg-white/10 ios-squircle opacity-30"></div>
+</div>
+</div>
+</div>
+<div class="h-12"></div>
+<!-- Variant 2 Section -->
+<div class="px-4 pb-12">
+<h3 class="text-gray-900 dark:text-white text-xl font-bold leading-tight tracking-tight mb-2">Variant 2: Elegant Light</h3>
+<p class="text-gray-500 dark:text-[#90c1cb] text-sm mb-6">Full wordmark in refined typewriter typography.</p>
+<!-- Phone Mockup Container -->
+<div class="relative w-full aspect-[9/19] rounded-[3rem] border-[8px] border-gray-800 dark:border-gray-900 bg-black overflow-hidden shadow-2xl wallpaper-gradient">
+<!-- Status Bar -->
+<div class="flex justify-between px-8 pt-4 items-center text-white">
+<span class="text-xs font-semibold">9:41</span>
+<div class="flex gap-1 items-center">
+<span class="material-symbols-outlined text-sm">signal_cellular_4_bar</span>
+<span class="material-symbols-outlined text-sm">wifi</span>
+<span class="material-symbols-outlined text-sm">battery_full</span>
+</div>
+</div>
+<!-- App Grid -->
+<div class="grid grid-cols-4 gap-4 px-6 pt-12">
+<!-- Row 1 (Featured Icon) -->
+<div class="flex flex-col items-center gap-1 opacity-20"><div class="w-full aspect-square bg-white/20 ios-squircle"></div><span class="text-[10px]">Messages</span></div>
+<div class="flex flex-col items-center gap-1">
+<div class="w-full aspect-square bg-white ios-squircle flex items-center justify-center shadow-lg ring-1 ring-black/5">
+<span class="font-typewriter text-[11px] font-bold text-black tracking-widest">Leé-Io</span>
+</div>
+<span class="text-[10px] font-medium text-white">Leé-Io</span>
+</div>
+<div class="flex flex-col items-center gap-1 opacity-20"><div class="w-full aspect-square bg-white/20 ios-squircle"></div><span class="text-[10px]">Calendar</span></div>
+<div class="flex flex-col items-center gap-1 opacity-20"><div class="w-full aspect-square bg-white/20 ios-squircle"></div><span class="text-[10px]">Files</span></div>
+</div>
+<!-- Dock -->
+<div class="absolute bottom-6 left-1/2 -translate-x-1/2 w-[90%] h-20 glass-dock rounded-[2rem] flex items-center justify-around px-4">
+<div class="size-12 bg-white/10 ios-squircle opacity-30"></div>
+<div class="size-12 bg-white/10 ios-squircle opacity-30"></div>
+<div class="size-12 bg-white/10 ios-squircle opacity-30"></div>
+<div class="size-12 bg-white/10 ios-squircle opacity-30"></div>
+</div>
+</div>
+</div>
+<!-- Detail Cards -->
+<div class="p-4 grid grid-cols-2 gap-4">
+<div class="bg-white dark:bg-background-dark/50 border border-gray-200 dark:border-gray-800 p-4 rounded-xl">
+<div class="w-full aspect-square bg-black rounded-lg mb-3 flex items-center justify-center">
+<span class="font-typewriter text-4xl text-white">L i</span>
+</div>
+<p class="text-sm font-bold text-gray-900 dark:text-white">The Glyph</p>
+<p class="text-xs text-gray-500 dark:text-[#90c1cb]">Typeface: Courier Prime Bold</p>
+</div>
+<div class="bg-white dark:bg-background-dark/50 border border-gray-200 dark:border-gray-800 p-4 rounded-xl">
+<div class="w-full aspect-square bg-white rounded-lg mb-3 flex items-center justify-center">
+<span class="font-typewriter text-xs text-black font-bold">Leé-Io</span>
+</div>
+<p class="text-sm font-bold text-gray-900 dark:text-white">The Wordmark</p>
+<p class="text-xs text-gray-500 dark:text-[#90c1cb]">High contrast, centered.</p>
+</div>
+</div>
+<div class="px-4 pb-12">
+<div class="w-full bg-primary/10 border border-primary/20 p-6 rounded-2xl flex items-center gap-4">
+<div class="bg-primary p-3 rounded-xl">
+<span class="material-symbols-outlined text-white">design_services</span>
+</div>
+<div>
+<h4 class="font-bold text-gray-900 dark:text-white">Design Philosophy</h4>
+<p class="text-sm text-gray-600 dark:text-[#90c1cb]">Extreme minimalism inspired by classic typography and modern editorial design.</p>
+</div>
+</div>
+</div>
+</main>
+<!-- Bottom Navigation Mock -->
+<div class="fixed bottom-0 left-0 right-0 h-16 bg-white dark:bg-background-dark border-t border-gray-200 dark:border-gray-800 flex justify-around items-center px-8">
+<span class="material-symbols-outlined text-primary">home</span>
+<span class="material-symbols-outlined text-gray-400">grid_view</span>
+<span class="material-symbols-outlined text-gray-400">palette</span>
+<span class="material-symbols-outlined text-gray-400">settings</span>
+</div>
+</body></html>

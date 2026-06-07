@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Annotated Notes - Dark Mode</title>
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&amp;family=Lora:ital,wght@0,600;1,600&amp;family=Noto+Sans:wght@400;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#0dccf2",
+                        "background-dark": "#000000",
+                        "tag-blue-bg": "#073a52",
+                        "tag-blue-text": "#38bdf8",
+                        "tag-green-bg": "#064e3b",
+                        "tag-green-text": "#4ade80",
+                        "tag-amber-bg": "#451a03",
+                        "tag-amber-text": "#fbbf24",
+                        "soft-grey": "#71717a",
+                    },
+                    fontFamily: {
+                        "display": ["Lexend", "sans-serif"],
+                        "serif": ["Lora", "serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style type="text/tailwindcss">
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body {
+            font-family: 'Lexend', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+            min-height: 100dvh;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-dark text-white antialiased">
+<div class="relative flex min-h-screen w-full flex-col max-w-[430px] mx-auto bg-background-dark overflow-x-hidden border-x border-zinc-900">
+<div class="sticky top-0 z-50 bg-black/80 backdrop-blur-xl px-4 pt-6 pb-2">
+<div class="flex items-center justify-between h-14">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-white cursor-pointer hover:bg-zinc-800 p-2 rounded-full transition-colors">arrow_back_ios</span>
+<h2 class="text-xl font-bold leading-tight tracking-tight">Annotated Notes</h2>
+</div>
+<div class="flex items-center justify-end">
+<button class="relative flex items-center justify-center p-2 rounded-full text-primary hover:bg-primary/10 transition-colors">
+<span class="material-symbols-outlined" style="font-variation-settings: 'wght' 600">sync</span>
+<span class="absolute top-2 right-2 flex h-2 w-2">
+<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+<span class="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
+</span>
+</button>
+</div>
+</div>
+<div class="py-3 flex gap-2">
+<label class="flex flex-col min-w-0 flex-1 h-11">
+<div class="flex w-full flex-1 items-stretch rounded-xl h-full overflow-hidden border border-zinc-800">
+<div class="text-zinc-500 flex bg-zinc-900 items-center justify-center pl-4">
+<span class="material-symbols-outlined text-[20px]">search</span>
+</div>
+<input class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden text-white focus:outline-0 focus:ring-0 border-none bg-zinc-900 placeholder:text-zinc-500 px-3 text-sm font-normal" placeholder="Search annotations..." value=""/>
+</div>
+</label>
+<button class="flex items-center justify-center w-11 h-11 rounded-xl border border-zinc-800 bg-zinc-900 text-zinc-400 hover:bg-zinc-800 transition-colors">
+<span class="material-symbols-outlined text-[20px]">filter_list</span>
+</button>
+</div>
+</div>
+<div class="flex flex-col pb-24">
+<div class="flex items-center justify-between px-4 pt-4 pb-2">
+<h3 class="text-[10px] font-bold uppercase tracking-[0.2em] text-zinc-500">Your Library</h3>
+<span class="text-[10px] font-bold text-primary uppercase">3 Documents</span>
+</div>
+<div class="flex flex-col px-4 gap-4">
+<details class="flex flex-col rounded-2xl border border-zinc-800 bg-zinc-900/30 overflow-hidden group" open="">
+<summary class="flex cursor-pointer items-center justify-between gap-4 p-5 list-none">
+<div class="flex flex-col">
+<p class="text-white text-lg font-serif font-semibold leading-tight">The Great Gatsby</p>
+<p class="text-zinc-500 text-[10px] font-bold uppercase tracking-widest mt-1">F. Scott Fitzgerald</p>
+</div>
+<div class="flex flex-col items-end gap-2">
+<span class="bg-primary/10 text-primary text-[10px] px-2 py-0.5 rounded-full font-bold">14 NOTES</span>
+<span class="material-symbols-outlined text-zinc-600 group-open:rotate-180 transition-transform">expand_more</span>
+</div>
+</summary>
+<div class="px-5 pb-6 pt-2">
+<div class="grid grid-cols-[24px_1fr] gap-x-4">
+<div class="flex flex-col items-center gap-1">
+<div class="size-2 rounded-full bg-primary mt-4"></div>
+<div class="w-px bg-zinc-800 h-full grow"></div>
+</div>
+<div class="flex flex-1 flex-col py-4 border-b border-zinc-800/80">
+<div class="flex justify-between items-center mb-2.5">
+<div class="flex items-center gap-2">
+<p class="text-soft-grey text-[10px] font-bold tracking-wider uppercase">Page 180</p>
+<span class="text-[10px] text-soft-grey font-medium">• Oct 24</span>
+<span class="px-2 py-0.5 rounded-md text-[9px] font-bold uppercase tracking-wide bg-tag-blue-bg text-tag-blue-text border border-tag-blue-text/20">Reference</span>
+</div>
+<span class="material-symbols-outlined text-zinc-600 text-[18px]">more_horiz</span>
+</div>
+<p class="text-zinc-400 text-sm italic font-serif leading-relaxed mb-3 border-l-2 border-zinc-700 pl-3">"He believed in the green light, the orgastic future that year by year recedes before us."</p>
+<p class="text-white text-sm font-normal leading-relaxed">Powerful symbolism of hope vs. reality. The unattainable nature of the American Dream.</p>
+</div>
+<div class="flex flex-col items-center gap-1">
+<div class="size-2 rounded-full bg-zinc-800 mt-4"></div>
+<div class="w-px bg-zinc-800 h-full grow"></div>
+</div>
+<div class="flex flex-1 flex-col py-4 border-b border-zinc-800/80">
+<div class="flex justify-between items-center mb-2.5">
+<div class="flex items-center gap-2">
+<p class="text-soft-grey text-[10px] font-bold tracking-wider uppercase">Page 182</p>
+<span class="text-[10px] text-soft-grey font-medium">• Oct 24</span>
+<span class="px-2 py-0.5 rounded-md text-[9px] font-bold uppercase tracking-wide bg-tag-green-bg text-tag-green-text border border-tag-green-text/20">Insight</span>
+</div>
+<span class="material-symbols-outlined text-zinc-600 text-[18px]">more_horiz</span>
+</div>
+<p class="text-zinc-400 text-sm italic font-serif leading-relaxed mb-3 border-l-2 border-zinc-700 pl-3">"So we beat on, boats against the current, borne back ceaselessly into the past."</p>
+<p class="text-white text-sm font-normal leading-relaxed">The cycle of human struggle and our inability to escape our history.</p>
+</div>
+<div class="flex flex-col items-center gap-1">
+<div class="size-2 rounded-full bg-zinc-800 mt-4"></div>
+</div>
+<div class="flex flex-1 flex-col py-4">
+<div class="flex justify-between items-center mb-2.5">
+<div class="flex items-center gap-2">
+<p class="text-soft-grey text-[10px] font-bold tracking-wider uppercase">Page 17</p>
+<span class="text-[10px] text-soft-grey font-medium">• Oct 21</span>
+<span class="px-2 py-0.5 rounded-md text-[9px] font-bold uppercase tracking-wide bg-tag-amber-bg text-tag-amber-text border border-tag-amber-text/20">Important</span>
+</div>
+<span class="material-symbols-outlined text-zinc-600 text-[18px]">more_horiz</span>
+</div>
+<p class="text-zinc-400 text-sm italic font-serif leading-relaxed mb-3 border-l-2 border-zinc-700 pl-3">"I hope she'll be a fool—that's the best thing a girl can be in this world, a beautiful little fool."</p>
+<p class="text-white text-sm font-normal leading-relaxed">Daisy's profound cynicism regarding the role of women in her social class.</p>
+</div>
+</div>
+</div>
+</details>
+<details class="flex flex-col rounded-2xl border border-zinc-800 bg-zinc-900/30 overflow-hidden group">
+<summary class="flex cursor-pointer items-center justify-between gap-4 p-5 list-none">
+<div class="flex flex-col">
+<p class="text-white text-lg font-serif font-semibold leading-tight">Meditations</p>
+<p class="text-zinc-500 text-[10px] font-bold uppercase tracking-widest mt-1">Marcus Aurelius</p>
+</div>
+<div class="flex flex-col items-end gap-2">
+<span class="bg-zinc-800 text-zinc-400 text-[10px] px-2 py-0.5 rounded-full font-bold uppercase">42 Highlights</span>
+<span class="material-symbols-outlined text-zinc-600 group-open:rotate-180 transition-transform">expand_more</span>
+</div>
+</summary>
+<div class="px-5 pb-5 text-zinc-500 text-xs italic">Loading...</div>
+</details>
+<details class="flex flex-col rounded-2xl border border-zinc-800 bg-zinc-900/30 overflow-hidden group">
+<summary class="flex cursor-pointer items-center justify-between gap-4 p-5 list-none">
+<div class="flex flex-col">
+<p class="text-white text-lg font-serif font-semibold leading-tight">Atomic Habits</p>
+<p class="text-zinc-500 text-[10px] font-bold uppercase tracking-widest mt-1">James Clear</p>
+</div>
+<div class="flex flex-col items-end gap-2">
+<span class="bg-zinc-800 text-zinc-400 text-[10px] px-2 py-0.5 rounded-full font-bold uppercase">8 Highlights</span>
+<span class="material-symbols-outlined text-zinc-600 group-open:rotate-180 transition-transform">expand_more</span>
+</div>
+</summary>
+<div class="px-5 pb-5 text-zinc-500 text-xs italic">Loading...</div>
+</details>
+</div>
+</div>
+<button class="fixed bottom-8 right-6 lg:right-[calc(50vw-180px)] size-14 bg-primary text-black rounded-full shadow-2xl shadow-primary/20 flex items-center justify-center active:scale-90 transition-all z-50">
+<span class="material-symbols-outlined" style="font-variation-settings: 'wght' 700">add</span>
+</button>
+<div class="h-10"></div>
+</div>
+
+</body></html>

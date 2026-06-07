@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Leé-Io | Brand Identity</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,200..800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#0dccf2",
+                        "background-light": "#f5f8f8",
+                        "background-dark": "#101f22",
+                    },
+                    fontFamily: {
+                        "display": ["Newsreader", "serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            font-family: 'Newsreader', serif;
+        }
+        /* Custom squircle shape approximation for iOS icon */
+        .ios-icon-shape {
+            border-radius: 22.5%;
+        }
+        .book-icon-stroke {
+            stroke-width: 1.5;
+            stroke: white;
+            fill: none;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark text-white transition-colors duration-300">
+<div class="relative flex h-auto min-h-screen w-full flex-col bg-background-light dark:bg-background-dark group/design-root overflow-x-hidden">
+<!-- TopAppBar Component -->
+<div class="flex items-center bg-background-light dark:bg-background-dark p-4 pb-2 justify-between">
+<div class="text-black dark:text-white flex size-12 shrink-0 items-center justify-center cursor-pointer" data-icon="ArrowLeft">
+<span class="material-symbols-outlined">arrow_back</span>
+</div>
+<h2 class="text-black dark:text-white text-lg font-bold leading-tight tracking-[-0.015em] flex-1 text-center pr-12 font-display">Leé-Io Brand Icon</h2>
+</div>
+<div class="h-5"></div>
+<!-- HeaderImage / Icon Display Section -->
+<div class="@container px-4">
+<div class="flex flex-col items-center justify-center py-12">
+<!-- iOS Icon Representation -->
+<div class="ios-icon-shape w-64 h-64 bg-black shadow-2xl flex items-center justify-center border border-white/5 relative overflow-hidden group">
+<!-- The Leé-Io Book Line Art Symbol (SVG) -->
+<svg class="w-40 h-40" viewbox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+<!-- Precise vector outline of the book -->
+<path class="book-icon-stroke" d="M30 20 H70 C75 20 80 25 80 30 V80 C80 85 75 90 70 90 H30 C25 90 20 85 20 80 V30 C20 25 25 20 30 20 Z"></path>
+<path class="book-icon-stroke" d="M50 20 V90"></path>
+<path class="book-icon-stroke" d="M20 75 H80"></path>
+</svg>
+<!-- Subtle Glow -->
+<div class="absolute inset-0 bg-primary/5 pointer-events-none"></div>
+</div>
+</div>
+</div>
+<!-- HeadlineText Component -->
+<div class="flex flex-col items-center">
+<h1 class="text-black dark:text-white tracking-light text-[32px] font-bold leading-tight px-4 text-center pb-3 pt-6 font-display">
+                Leé-Io
+            </h1>
+</div>
+<!-- BodyText Component -->
+<div class="flex flex-col items-center max-w-md mx-auto">
+<p class="text-gray-600 dark:text-gray-400 text-base font-normal leading-normal pb-3 pt-1 px-8 text-center font-display italic">
+                Official App Identity — Variant 2 (Minimal Line Art)
+            </p>
+</div>
+<div class="h-5"></div>
+<!-- ProfileStats Component (Used for technical specs) -->
+<div class="flex flex-wrap gap-3 px-4 py-3 max-w-2xl mx-auto w-full">
+<div class="flex min-w-[111px] flex-1 basis-[fit-content] flex-col gap-2 rounded-lg border border-gray-200 dark:border-[#315f68] p-4 items-center text-center bg-white/50 dark:bg-transparent">
+<p class="text-black dark:text-white tracking-light text-2xl font-bold leading-tight font-display">2.0</p>
+<div class="flex items-center gap-2">
+<p class="text-gray-500 dark:text-[#90c1cb] text-sm font-normal leading-normal">Version</p>
+</div>
+</div>
+<div class="flex min-w-[111px] flex-1 basis-[fit-content] flex-col gap-2 rounded-lg border border-gray-200 dark:border-[#315f68] p-4 items-center text-center bg-white/50 dark:bg-transparent">
+<p class="text-black dark:text-white tracking-light text-2xl font-bold leading-tight font-display">Line</p>
+<div class="flex items-center gap-2">
+<p class="text-gray-500 dark:text-[#90c1cb] text-sm font-normal leading-normal">Style</p>
+</div>
+</div>
+<div class="flex min-w-[111px] flex-1 basis-[fit-content] flex-col gap-2 rounded-lg border border-gray-200 dark:border-[#315f68] p-4 items-center text-center bg-white/50 dark:bg-transparent">
+<p class="text-black dark:text-white tracking-light text-2xl font-bold leading-tight font-display">Pure</p>
+<div class="flex items-center gap-2">
+<p class="text-gray-500 dark:text-[#90c1cb] text-sm font-normal leading-normal">Fill</p>
+</div>
+</div>
+</div>
+<div class="h-10"></div>
+<!-- Descriptive Body Section -->
+<div class="px-6 py-4 max-w-xl mx-auto">
+<div class="p-6 rounded-xl bg-primary/10 border border-primary/20">
+<h3 class="text-primary font-bold mb-2 font-display text-lg">Design Specification</h3>
+<p class="text-black dark:text-gray-300 text-sm leading-relaxed">
+                    This variant focuses on the pure structural geometry of the Leé-Io brand. The book icon uses a consistent stroke width of 1.5pt, ensuring clarity on high-density Retina displays. The background uses a #000000 base to maximize contrast for the white line art, adhering to the brand's premium dark-mode aesthetic.
+                </p>
+</div>
+</div>
+<!-- Mini Icon Previews (Contextual Sizing) -->
+<div class="flex justify-center gap-8 py-10 opacity-60">
+<div class="flex flex-col items-center gap-2">
+<div class="ios-icon-shape w-12 h-12 bg-black flex items-center justify-center">
+<svg class="w-7 h-7" viewbox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+<path class="book-icon-stroke" d="M30 20 H70 C75 20 80 25 80 30 V80 C80 85 75 90 70 90 H30 C25 90 20 85 20 80 V30 C20 25 25 20 30 20 Z"></path>
+<path class="book-icon-stroke" d="M50 20 V90"></path>
+</svg>
+</div>
+<span class="text-[10px] uppercase tracking-widest text-gray-500">Grid View</span>
+</div>
+<div class="flex flex-col items-center gap-2">
+<div class="ios-icon-shape w-8 h-8 bg-black flex items-center justify-center">
+<svg class="w-5 h-5" viewbox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+<path class="book-icon-stroke" d="M30 20 H70 C75 20 80 25 80 30 V80 C80 85 75 90 70 90 H30 C25 90 20 85 20 80 V30 C20 25 25 20 30 20 Z"></path>
+<path class="book-icon-stroke" d="M50 20 V90"></path>
+</svg>
+</div>
+<span class="text-[10px] uppercase tracking-widest text-gray-500">Settings</span>
+</div>
+</div>
+<div class="h-20"></div>
+</div>
+</body></html>

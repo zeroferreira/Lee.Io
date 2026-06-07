@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html class="dark" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Leé-Io - Panel de Inicio</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;family=Lora:ital,wght@0,400;0,600;1,400&amp;family=Courier+Prime:wght@400;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#ffffff",
+                        "background-dark": "#000000",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"],
+                        "serif": ["Lora", "serif"],
+                        "mono": ["Courier Prime", "monospace"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style type="text/tailwindcss">
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .filled-icon {
+            font-variation-settings: 'FILL' 1;
+        }
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        @keyframes typing {
+            from { width: 0 }
+            to { width: 100% }
+        }
+        @keyframes blink {
+            from, to { border-color: transparent }
+            50% { border-color: white }
+        }
+        .typewriter {
+            display: inline-block;
+            overflow: hidden;
+            border-right: .12em solid white;
+            white-space: nowrap;
+            margin: 0;
+            letter-spacing: -0.02em;
+            animation: 
+                typing 2s steps(7, end),
+                blink .75s step-end infinite;
+        }
+        .sync-overlay {
+            display: none;
+            opacity: 0;
+        }
+        .sync-trigger:active .sync-overlay {
+            display: flex;
+            opacity: 1;
+        }
+        @keyframes rotate-sync {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        .animate-sync {
+            animation: rotate-sync 1s linear infinite;
+        }
+    </style>
+<style>
+        body {
+            min-height: max(884px, 100dvh);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-black font-display text-white antialiased">
+<div class="relative mx-auto min-h-screen max-w-md bg-black overflow-x-hidden flex flex-col pb-32">
+<header class="flex items-center bg-black p-6 pb-4 justify-between sticky top-0 z-50 border-b border-white/5">
+<div class="flex flex-col gap-1">
+<h1 class="font-mono text-2xl font-bold tracking-tight"><span class="typewriter">Leé-Io</span></h1>
+<div class="flex items-center gap-2">
+<span class="text-[10px] font-bold text-white/90">ALEX</span>
+<div class="flex items-center gap-1 bg-white/10 px-2 py-0.5 rounded-full">
+<span class="material-symbols-outlined text-[10px] filled-icon text-white">sync</span>
+<span class="text-[8px] uppercase tracking-widest font-bold text-white/80">Sincronizado</span>
+</div>
+</div>
+</div>
+<div class="flex items-center gap-3">
+<button class="flex size-10 items-center justify-center rounded-full bg-white/5 border border-white/10 text-white">
+<span class="material-symbols-outlined text-xl">search</span>
+</button>
+<div class="relative size-10 shrink-0 overflow-hidden rounded-full border border-white/20">
+<div class="bg-center bg-no-repeat aspect-square bg-cover w-full h-full" data-alt="Profile" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuC6kJoaHsRCftnmUBJN_TES3UCFajurcjh6FC24TfkV3YaM6dhO6_kXfChFxdOJr3BqnPMPhf8fzvoV1SJE2SSHAwLQtQflfNFTGka-wVgrJkKYAlTwoY2-K97XRNvKBdt265lJ_1EeGyrSdc0QN8QaTHsgtVH9crveLEyZ2LNcvxc2hBih-5uIggeH4HKCVgpNiavY4v6luVbxB9mp6nCZ9K_ZlYf2uFm-lGrXOhTFJKdmoFZAJxoenh5RUHHvb8haHO26ykRQ3k28");'>
+</div>
+</div>
+</div>
+</header>
+<section class="px-6 pt-4">
+<div class="bg-white/5 border border-white/10 rounded-xl p-3 flex items-center gap-3">
+<span class="material-symbols-outlined text-white/60">cloud_upload</span>
+<p class="text-[10px] font-medium leading-tight text-white/80">Sincroniza con Google para acceder a tus notas en la web</p>
+</div>
+</section>
+<section class="px-6 py-6">
+<h3 class="text-[10px] text-white/60 uppercase tracking-[0.25em] font-black mb-4">Continuar leyendo</h3>
+<div class="relative group">
+<div class="sync-trigger flex flex-col items-stretch justify-start rounded-2xl bg-black overflow-hidden border border-white/15 active:border-white transition-all cursor-pointer relative">
+<div class="sync-overlay absolute inset-0 z-50 bg-black/90 backdrop-blur-md flex flex-col items-center justify-center gap-4 transition-opacity duration-300">
+<span class="material-symbols-outlined animate-sync text-4xl">sync</span>
+<span class="text-[11px] font-bold tracking-[0.2em] uppercase">Sincronizando página...</span>
+</div>
+<div class="w-full bg-center bg-no-repeat aspect-[16/9] bg-cover opacity-80" data-alt="Book cover" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuAPQU749ihLxNwzYrEzWjAGJewc6Zi1uyigg7n3lJz4rl3UiKg49mj4clR4s8rmH8qcD17C2FMYnGpdQGU8WJ4_-6vrcREExDyFtf8sonNYZwzQ74s7Ihbn4ibB85H_lGwbGZBJPcX2_FmUyrcM4stkPOHBjQtTMiZ2_g86bY4Eiyq2rHAz9fFx0RIeGBWybgv13BE2XsZW__N42M5KE28W8KdfmklDXEBO-GxPXQqeaJj1Eomd9cQnumy4shgThRqAHvORPuk7wRaY");'>
+<div class="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent"></div>
+</div>
+<div class="flex flex-col gap-1 p-5 relative bg-black">
+<h4 class="font-serif text-2xl font-semibold leading-tight tracking-tight text-white mb-1">Los siete maridos de Evelyn Hugo</h4>
+<p class="text-white/50 text-sm font-medium mb-6">Taylor Jenkins Reid</p>
+<div class="flex flex-col gap-3 mb-6">
+<div class="flex justify-between items-center">
+<span class="text-[10px] font-bold text-white tracking-[0.1em]">PÁGINA 242 DE 372</span>
+<span class="text-[10px] text-white/40 font-bold uppercase">65% LEÍDO</span>
+</div>
+<div class="h-1 w-full rounded-full bg-white/10 overflow-hidden">
+<div class="h-full rounded-full bg-white" style="width: 65%;"></div>
+</div>
+</div>
+<button class="flex w-full items-center justify-center gap-3 rounded-xl h-14 bg-white text-black text-[11px] font-black tracking-[0.2em] uppercase active:scale-[0.97] transition-transform">
+<span class="material-symbols-outlined filled-icon text-xl">auto_stories</span>
+<span>Continuar Pág. 242</span>
+</button>
+</div>
+</div>
+</div>
+</section>
+<section class="py-4">
+<div class="flex justify-between items-center px-6 mb-4">
+<h3 class="font-serif text-xl font-semibold text-white">Biblioteca</h3>
+<button class="text-white text-[10px] font-black uppercase tracking-widest opacity-40 hover:opacity-100 transition-opacity">Ver todo</button>
+</div>
+<div class="flex gap-3 px-6 overflow-x-auto no-scrollbar pb-2">
+<div class="flex h-10 shrink-0 items-center justify-center rounded-full bg-white px-6">
+<p class="text-black text-[11px] font-black uppercase tracking-wider">Todos</p>
+</div>
+<div class="flex h-10 shrink-0 items-center justify-center rounded-full bg-black px-6 border border-white/20">
+<p class="text-white text-[11px] font-bold uppercase tracking-wider">Por leer</p>
+</div>
+<div class="flex h-10 shrink-0 items-center justify-center rounded-full bg-black px-6 border border-white/20">
+<p class="text-white text-[11px] font-bold uppercase tracking-wider">Terminados</p>
+</div>
+<div class="flex h-10 shrink-0 items-center justify-center rounded-full bg-black px-6 border border-white/20">
+<p class="text-white text-[11px] font-bold uppercase tracking-wider">Favoritos</p>
+</div>
+</div>
+</section>
+<section class="px-6 py-4 flex flex-col gap-6">
+<h3 class="font-serif text-xl font-semibold text-white">Recientes</h3>
+<div class="flex gap-4 items-center group">
+<div class="w-20 h-28 shrink-0 rounded-lg overflow-hidden border border-white/10 bg-white/5">
+<div class="w-full h-full bg-center bg-cover opacity-80 group-hover:opacity-100 transition-opacity" data-alt="Book cover" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuDX0vfUobNXH6mEHI5ptjKqEDTSnqXet-Mfrnocby12s6NSTIp4Vcse0Gkd1Skm7MI1QjAGtMOnAXzv4FscO9Db4ca-lZhjlcBAiIOHJJH-GapX54uqjycLUCcS-3hBS3SfTtcgGYblWChPf_8h1EE7LSjJVqok4HtMHvUkAFO_1YhSDeXlPy9NvE6vV2HaAIS7oN1Ks4W0AMc17bRtzArWVIseHmqEN8i1QNS1W7iSch-LSDqm5QZtqB7hFFMEmIE_qlv3ix4vQaa8");'></div>
+</div>
+<div class="flex flex-col grow">
+<h4 class="font-serif text-lg font-semibold leading-snug text-white">Project Hail Mary</h4>
+<p class="text-sm text-white/50 mb-2">Andy Weir</p>
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-white text-[14px] filled-icon">star</span>
+<span class="material-symbols-outlined text-white text-[14px] filled-icon">star</span>
+<span class="material-symbols-outlined text-white text-[14px] filled-icon">star</span>
+<span class="material-symbols-outlined text-white text-[14px] filled-icon">star</span>
+<span class="material-symbols-outlined text-white text-[14px] filled-icon">star</span>
+<span class="text-[10px] text-white/40 ml-1 font-bold">(4.9)</span>
+</div>
+</div>
+<button class="size-10 flex items-center justify-center text-white/30 hover:text-white transition-colors">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</div>
+<div class="flex gap-4 items-center group">
+<div class="w-20 h-28 shrink-0 rounded-lg overflow-hidden border border-white/10 bg-white/5">
+<div class="w-full h-full bg-center bg-cover opacity-80 group-hover:opacity-100 transition-opacity" data-alt="Book cover" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuC77nxXFsZRZbLEAsWn3OF2qBjLuibhiFv2EZh1kCgH0odXcOOXvQiwrdiMRGyAlvFdT69F1PwokmuTS1zR-VKNi9zhx-iSLusL1jmaVh5H-5DggETaeGDk9D-w89l74GjxqyHBu5EfzuReFFT_Fj-9fzL7_ePstWPa2v43VJFmO_arEWVr7R5DuprW9LlA2-hEs_DKlvNyHOrowE7GZonfdJ3x8FAwf82cfFc1BxN4D2xpPwG9gypCgteTJknotVEtk-MqmL0G1q4u");'></div>
+</div>
+<div class="flex flex-col grow">
+<h4 class="font-serif text-lg font-semibold leading-snug text-white">La Biblioteca de la Medianoche</h4>
+<p class="text-sm text-white/50 mb-2">Matt Haig</p>
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-white text-[14px] filled-icon">star</span>
+<span class="material-symbols-outlined text-white text-[14px] filled-icon">star</span>
+<span class="material-symbols-outlined text-white text-[14px] filled-icon">star</span>
+<span class="material-symbols-outlined text-white text-[14px] filled-icon">star</span>
+<span class="material-symbols-outlined text-white/20 text-[14px]">star</span>
+<span class="text-[10px] text-white/40 ml-1 font-bold">(4.2)</span>
+</div>
+</div>
+<button class="size-10 flex items-center justify-center text-white/30 hover:text-white transition-colors">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</div>
+</section>
+<nav class="fixed bottom-0 left-0 right-0 mx-auto max-w-md bg-black border-t border-white/10 px-8 pt-3 pb-10 flex justify-between items-center z-[70]">
+<button class="flex flex-col items-center gap-1 text-white">
+<span class="material-symbols-outlined filled-icon">home</span>
+<span class="text-[9px] font-black uppercase tracking-widest">Inicio</span>
+</button>
+<button class="flex flex-col items-center gap-1 text-white/40 active:text-white transition-colors">
+<span class="material-symbols-outlined">explore</span>
+<span class="text-[9px] font-black uppercase tracking-widest">Explorar</span>
+</button>
+<div class="relative -top-6">
+<button class="flex size-14 items-center justify-center rounded-full bg-white text-black shadow-xl shadow-white/5 active:scale-95 transition-transform">
+<span class="material-symbols-outlined text-3xl">add</span>
+</button>
+</div>
+<button class="flex flex-col items-center gap-1 text-white/40 active:text-white transition-colors">
+<span class="material-symbols-outlined">auto_stories</span>
+<span class="text-[9px] font-black uppercase tracking-widest">Biblioteca</span>
+</button>
+<button class="flex flex-col items-center gap-1 text-white/40 active:text-white transition-colors">
+<span class="material-symbols-outlined">person</span>
+<span class="text-[9px] font-black uppercase tracking-widest">Perfil</span>
+</button>
+</nav>
+<div class="fixed bottom-2 left-0 right-0 mx-auto w-32 h-1 bg-white/20 rounded-full z-[80]"></div>
+</div>
+
+</body></html>

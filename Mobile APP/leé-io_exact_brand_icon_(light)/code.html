@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Leé-Io Brand Assets</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,200..800;1,6..72,200..800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "primary": "#0dccf2",
+              "background-light": "#f5f8f8",
+              "background-dark": "#101f22",
+            },
+            fontFamily: {
+              "display": ["Newsreader", "serif"]
+            },
+            borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+        body {
+            font-family: 'Newsreader', serif;
+        }
+        /* iOS Squircle Shape Simulation */
+        .ios-icon-shape {
+            mask-image: url('data:image/svg+xml;utf8,<svg preserveAspectRatio="none" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><path d="M 0,20 C 0,0 0,0 20,0 H 80 C 100,0 100,0 100,20 V 80 C 100,100 100,100 80,100 H 20 C 0,100 0,100 0,80 Z" fill="black"></path></svg>');
+            mask-size: 100% 100%;
+            -webkit-mask-image: url('data:image/svg+xml;utf8,<svg preserveAspectRatio="none" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><path d="M 0,20 C 0,0 0,0 20,0 H 80 C 100,0 100,0 100,20 V 80 C 100,100 100,100 80,100 H 20 C 0,100 0,100 0,80 Z" fill="black"></path></svg>');
+            -webkit-mask-size: 100% 100%;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark text-white min-h-screen font-display">
+<!-- TopAppBar -->
+<div class="flex items-center bg-background-light dark:bg-background-dark p-4 pb-2 justify-between sticky top-0 z-10">
+<div class="text-primary flex size-12 shrink-0 items-center justify-center cursor-pointer">
+<span class="material-symbols-outlined">arrow_back</span>
+</div>
+<h2 class="text-black dark:text-white text-lg font-bold leading-tight tracking-[-0.015em] flex-1 text-center pr-12">Brand Assets</h2>
+</div>
+<!-- Main Content -->
+<div class="flex flex-col items-center px-4 py-8">
+<!-- Icon Preview Stage (iOS App Icon) -->
+<div class="relative w-64 h-64 flex items-center justify-center mb-8">
+<!-- Subtle shadow behind the icon -->
+<div class="absolute inset-0 bg-primary/10 blur-3xl rounded-full"></div>
+<!-- The Icon Component -->
+<div class="ios-icon-shape w-48 h-48 bg-white flex items-center justify-center shadow-2xl relative">
+<!-- Book Symbol (SVG recreation style) -->
+<svg fill="none" height="80" viewbox="0 0 24 24" width="80" xmlns="http://www.w3.org/2000/svg">
+<path d="M4 19.5V5C4 3.89543 4.89543 3 6 3H20V21H6C4.89543 21 4 20.1046 4 19.5Z" stroke="black" stroke-linejoin="round" stroke-width="1.8"></path>
+<path d="M20 17H6C4.89543 17 4 17.8954 4 19C4 20.1046 4.89543 21 6 21" stroke="black" stroke-linejoin="round" stroke-width="1.8"></path>
+<path d="M8 7H16" stroke="black" stroke-linecap="round" stroke-width="1.5"></path>
+<path d="M8 11H16" stroke="black" stroke-linecap="round" stroke-width="1.5"></path>
+</svg>
+</div>
+<!-- Selection Indicator -->
+<div class="absolute -bottom-4 flex flex-col items-center">
+<div class="w-1.5 h-1.5 rounded-full bg-primary"></div>
+</div>
+</div>
+<!-- HeadlineText -->
+<h2 class="text-black dark:text-white tracking-light text-[28px] font-bold leading-tight px-4 text-center pb-3">App Icon: Light</h2>
+<!-- BodyText -->
+<p class="text-black/70 dark:text-white/70 text-base font-normal leading-normal pb-6 pt-1 px-8 text-center max-w-lg">
+            Pure black stroke vector art on a clean white background. Recreates the exact book symbol from the Leé-Io website with precise 1.8pt weight and defined corner radii.
+        </p>
+<!-- Stats Section -->
+<div class="w-full max-w-md flex flex-wrap gap-4 p-4">
+<div class="flex min-w-[140px] flex-1 flex-col gap-2 rounded-xl p-5 border border-primary/20 bg-primary/5">
+<p class="text-primary text-sm font-medium leading-normal uppercase tracking-wider">Stroke Weight</p>
+<p class="text-black dark:text-white tracking-light text-2xl font-bold leading-tight">1.8pt</p>
+</div>
+<div class="flex min-w-[140px] flex-1 flex-col gap-2 rounded-xl p-5 border border-primary/20 bg-primary/5">
+<p class="text-primary text-sm font-medium leading-normal uppercase tracking-wider">Colorway</p>
+<p class="text-black dark:text-white tracking-light text-2xl font-bold leading-tight">Monochrome</p>
+</div>
+</div>
+<!-- Technical Specs -->
+<div class="w-full max-w-md mt-4 px-4">
+<div class="flex flex-col gap-4 bg-black/5 dark:bg-white/5 rounded-xl p-6">
+<div class="flex justify-between items-center border-b border-black/10 dark:border-white/10 pb-3">
+<span class="text-black/60 dark:text-white/60">Format</span>
+<span class="font-bold text-black dark:text-white">SVG / PNG</span>
+</div>
+<div class="flex justify-between items-center border-b border-black/10 dark:border-white/10 pb-3">
+<span class="text-black/60 dark:text-white/60">Platform</span>
+<span class="font-bold text-black dark:text-white">iOS Standard</span>
+</div>
+<div class="flex justify-between items-center">
+<span class="text-black/60 dark:text-white/60">Variant</span>
+<span class="font-bold text-black dark:text-white">1 of 2 (Light)</span>
+</div>
+</div>
+</div>
+<!-- Action Bar -->
+<div class="flex gap-4 w-full max-w-md p-4 mt-8">
+<button class="flex-1 bg-primary text-background-dark font-bold py-4 rounded-xl flex items-center justify-center gap-2 hover:opacity-90 transition-opacity">
+<span class="material-symbols-outlined">download</span>
+                Export Assets
+            </button>
+<button class="flex-1 bg-black/10 dark:bg-white/10 text-black dark:text-white font-bold py-4 rounded-xl flex items-center justify-center gap-2 hover:bg-black/20 dark:hover:bg-white/20 transition-all border border-black/5 dark:border-white/5">
+                Next Variant
+                <span class="material-symbols-outlined">arrow_forward</span>
+</button>
+</div>
+</div>
+<!-- Bottom Spacing -->
+<div class="h-10"></div>
+</body></html>

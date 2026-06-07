@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>lee-io Book Details</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#0dccf2",
+                        "background-light": "#f5f8f8",
+                        "background-dark": "#101f22",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        .glass-header {
+            background: rgba(16, 31, 34, 0.8);
+            backdrop-filter: blur(12px);
+        }
+        .book-shadow {
+            box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.3), 0 8px 10px -6px rgb(0 0 0 / 0.3);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-white min-h-screen">
+<!-- Top Navigation Bar -->
+<div class="fixed top-0 left-0 right-0 z-50 glass-header border-b border-white/5">
+<div class="flex items-center p-4 justify-between max-w-md mx-auto">
+<div class="flex size-10 items-center justify-center rounded-full hover:bg-white/10 cursor-pointer">
+<span class="material-symbols-outlined">arrow_back_ios_new</span>
+</div>
+<h2 class="text-lg font-bold tracking-tight">Book Details</h2>
+<div class="flex size-10 items-center justify-center rounded-full hover:bg-white/10 cursor-pointer">
+<span class="material-symbols-outlined">more_horiz</span>
+</div>
+</div>
+</div>
+<!-- Main Content Container -->
+<main class="max-w-md mx-auto pb-24">
+<!-- Hero Section with Blur Background -->
+<div class="relative pt-20 overflow-hidden">
+<div class="absolute inset-0 z-0 scale-110 opacity-30 blur-3xl bg-center bg-cover" data-alt="Blurred abstract background of book cover colors" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuC5rpvNRrhCgsqoa3qDJeVVGfm3GkwiT2loG2ebi9F_Ht164bXABYYPVtLnxP1nwiK_RXG28GWhF8ycT1WWSMUKHpG9g_RkB6UrGc7KjWPQOVwbJS7tcJe_11EBniiCUFmOfkqt9mAxZvSAfVzwmMsswUBcsia8Fir6bRJM8eVETuAHJLGEQ-BDaoaXwNkHOaHPSFzb_sJ9kUKeLd-RS0Mjr1_AqPMjCFzsUqb56b4Wp4e6tyA7J49keJVpiOk_xmTUGirJfPHTUeMj");'>
+</div>
+<div class="relative z-10 flex flex-col items-center px-4 py-8">
+<!-- Large Book Cover -->
+<div class="w-56 h-80 rounded-lg overflow-hidden book-shadow">
+<img alt="Book Cover" class="w-full h-full object-cover" data-alt="Modern book cover design with minimalist art" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAd8F78BVDhbpiVL-K3p7y5iOAHTxHzTyFTHT0h5X_H3OhxUl9K7nY207_jDZUbDgNthMuya8L0T4fLsUQYWtsibqTLC0_WlKC_NVfcBkqzs4N9LwsGRkejsamcHHFbDM3TaWWNX6s6sv8Wz3qNLV_Pn0qSccWEdJS6oEyzXXtmaYYUGAjh2HXlNHxKXp9qof9EwWDpzLvd7eJlRxNIGMnRIeGO_IP9Ldiw-2CISMD_5w2Mg4UZGl7kTnY4SnUU9cfoRIxKbu0BXWz_"/>
+</div>
+<!-- Headline & Title -->
+<h1 class="mt-8 text-3xl font-bold text-center tracking-tight leading-tight px-4">The Midnight Library</h1>
+<p class="mt-2 text-primary text-lg font-medium opacity-90">by Matt Haig</p>
+</div>
+</div>
+<!-- Stats Grid -->
+<div class="px-4 py-4">
+<div class="flex gap-3 justify-between">
+<div class="flex-1 flex flex-col items-center justify-center gap-1 rounded-xl p-4 bg-white/5 border border-white/10">
+<span class="material-symbols-outlined text-primary mb-1">star</span>
+<p class="text-xs font-medium text-slate-400 uppercase tracking-wider">Rating</p>
+<p class="text-xl font-bold">4.8/5</p>
+</div>
+<div class="flex-1 flex flex-col items-center justify-center gap-1 rounded-xl p-4 bg-white/5 border border-white/10">
+<span class="material-symbols-outlined text-primary mb-1">auto_stories</span>
+<p class="text-xs font-medium text-slate-400 uppercase tracking-wider">Pages</p>
+<p class="text-xl font-bold">304</p>
+</div>
+<div class="flex-1 flex flex-col items-center justify-center gap-1 rounded-xl p-4 bg-white/5 border border-white/10">
+<span class="material-symbols-outlined text-primary mb-1">category</span>
+<p class="text-xs font-medium text-slate-400 uppercase tracking-wider">Genre</p>
+<p class="text-xl font-bold">Fiction</p>
+</div>
+</div>
+</div>
+<!-- Action Buttons -->
+<div class="px-4 py-6 flex gap-3">
+<button class="flex-1 bg-primary text-background-dark h-14 rounded-xl font-bold text-lg flex items-center justify-center gap-2 shadow-lg shadow-primary/20 active:scale-95 transition-transform">
+<span class="material-symbols-outlined">menu_book</span>
+                Start Reading
+            </button>
+<button class="w-14 h-14 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center hover:bg-white/10">
+<span class="material-symbols-outlined">bookmark</span>
+</button>
+<button class="w-14 h-14 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center hover:bg-white/10">
+<span class="material-symbols-outlined">share</span>
+</button>
+</div>
+<!-- Tabbed Section -->
+<div class="mt-4 px-4">
+<div class="flex border-b border-white/10">
+<button class="pb-4 px-6 text-primary border-b-2 border-primary font-bold">Synopsis</button>
+<button class="pb-4 px-6 text-slate-400 font-medium hover:text-white">Reviews</button>
+<button class="pb-4 px-6 text-slate-400 font-medium hover:text-white">Similar</button>
+</div>
+<div class="py-6 space-y-4">
+<p class="text-slate-300 leading-relaxed">
+                    Between life and death there is a library, and within that library, the shelves go on forever. Every book provides a chance to try another life you could have lived. To see how things would be if you had made other choices...
+                </p>
+<p class="text-slate-300 leading-relaxed">
+                    Would you have done anything different, if you had the chance to undo your regrets? A dazzling novel about all the choices that go into a life well lived, from the acclaimed author of Reasons to Stay Alive and How To Stop Time.
+                </p>
+<button class="text-primary font-bold flex items-center gap-1">
+                    Read More <span class="material-symbols-outlined text-sm">keyboard_arrow_down</span>
+</button>
+</div>
+</div>
+<!-- Reviews Preview -->
+<div class="mt-6 px-4 pb-12">
+<div class="flex justify-between items-center mb-6">
+<h3 class="text-xl font-bold">Top Reviews</h3>
+<button class="text-primary text-sm font-bold">View All</button>
+</div>
+<div class="space-y-4">
+<!-- Review Card 1 -->
+<div class="p-4 rounded-xl bg-white/5 border border-white/10">
+<div class="flex justify-between mb-3">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center text-primary font-bold">
+                                JD
+                            </div>
+<div>
+<p class="text-sm font-bold">Jane Doe</p>
+<p class="text-xs text-slate-400">2 days ago</p>
+</div>
+</div>
+<div class="flex text-primary">
+<span class="material-symbols-outlined text-sm fill-1">star</span>
+<span class="material-symbols-outlined text-sm fill-1">star</span>
+<span class="material-symbols-outlined text-sm fill-1">star</span>
+<span class="material-symbols-outlined text-sm fill-1">star</span>
+<span class="material-symbols-outlined text-sm fill-1">star</span>
+</div>
+</div>
+<p class="text-sm text-slate-300 italic">"Absolutely life-changing. It made me reflect on my own 'Midnight Library' and find peace with my choices."</p>
+</div>
+<!-- Review Card 2 -->
+<div class="p-4 rounded-xl bg-white/5 border border-white/10">
+<div class="flex justify-between mb-3">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-slate-700 flex items-center justify-center text-white font-bold">
+                                MS
+                            </div>
+<div>
+<p class="text-sm font-bold">Marcus Smith</p>
+<p class="text-xs text-slate-400">1 week ago</p>
+</div>
+</div>
+<div class="flex text-primary">
+<span class="material-symbols-outlined text-sm fill-1">star</span>
+<span class="material-symbols-outlined text-sm fill-1">star</span>
+<span class="material-symbols-outlined text-sm fill-1">star</span>
+<span class="material-symbols-outlined text-sm fill-1">star</span>
+<span class="material-symbols-outlined text-sm">star</span>
+</div>
+</div>
+<p class="text-sm text-slate-300 italic">"Great concept and execution. A bit slow in the middle but the ending is worth it."</p>
+</div>
+</div>
+</div>
+</main>
+<!-- Navigation Spacer for iOS bottom indicator -->
+<div class="h-8"></div>
+</body></html>

@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>lee-io Home Dashboard</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;family=Lora:ital,wght@0,400;0,600;1,400&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#000000",
+                        "background": "#FFFFFF",
+                        "accent-black": "#000000",
+                        "accent-white": "#FFFFFF",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"],
+                        "serif": ["Lora", "serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0px",
+                        "lg": "0px",
+                        "xl": "0px",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style type="text/tailwindcss">
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .filled-icon {
+            font-variation-settings: 'FILL' 1;
+        }
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        body {
+            background-color: #FFFFFF;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-white font-display text-black antialiased">
+<div class="relative mx-auto min-h-screen max-w-md bg-white overflow-x-hidden flex flex-col pb-28">
+<header class="flex items-center bg-white p-6 pb-2 justify-between sticky top-0 z-50">
+<div class="flex items-center gap-3">
+<div class="size-10 shrink-0 overflow-hidden border-2 border-black">
+<div class="bg-center bg-no-repeat aspect-square bg-cover w-full h-full grayscale" data-alt="User profile photo" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuC6kJoaHsRCftnmUBJN_TES3UCFajurcjh6FC24TfkV3YaM6dhO6_kXfChFxdOJr3BqnPMPhf8fzvoV1SJE2SSHAwLQtQflfNFTGka-wVgrJkKYAlTwoY2-K97XRNvKBdt265lJ_1EeGyrSdc0QN8QaTHsgtVH9crveLEyZ2LNcvxc2hBih-5uIggeH4HKCVgpNiavY4v6luVbxB9mp6nCZ9K_ZlYf2uFm-lGrXOhTFJKdmoFZAJxoenh5RUHHvb8haHO26ykRQ3k28");'>
+</div>
+</div>
+<div>
+<div class="flex items-center gap-2">
+<p class="text-[10px] text-black/60 uppercase tracking-[0.2em] font-bold">Good evening</p>
+<div class="flex items-center gap-1 bg-black px-1.5 py-0.5">
+<span class="material-symbols-outlined text-[10px] text-white">sync</span>
+<span class="text-[8px] text-white font-bold uppercase tracking-tighter">Synced</span>
+</div>
+</div>
+<h2 class="text-xl font-bold leading-tight tracking-tight uppercase">Alex</h2>
+</div>
+</div>
+<div class="flex items-center gap-2">
+<button class="flex size-10 items-center justify-center border-2 border-black bg-white text-black">
+<span class="material-symbols-outlined">search</span>
+</button>
+<button class="flex size-10 items-center justify-center border-2 border-black bg-white text-black relative">
+<span class="material-symbols-outlined">notifications</span>
+<span class="absolute top-1.5 right-1.5 size-2 bg-black border border-white"></span>
+</button>
+</div>
+</header>
+<section class="px-6 py-4">
+<h3 class="text-[10px] text-black/60 uppercase tracking-[0.2em] font-bold mb-4">Currently Reading</h3>
+<div class="relative">
+<div class="flex flex-col items-stretch justify-start bg-black text-white overflow-hidden border-2 border-black">
+<div class="w-full bg-center bg-no-repeat aspect-[16/9] bg-cover grayscale" data-alt="Book cover" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuAPQU749ihLxNwzYrEzWjAGJewc6Zi1uyigg7n3lJz4rl3UiKg49mj4clR4s8rmH8qcD17C2FMYnGpdQGU8WJ4_-6vrcREExDyFtf8sonNYZwzQ74s7Ihbn4ibB85H_lGwbGZBJPcX2_FmUyrcM4stkPOHBjQtTMiZ2_g86bY4Eiyq2rHAz9fFx0RIeGBWybgv13BE2XsZW__N42M5KE28W8KdfmklDXEBO-GxPXQqeaJj1Eomd9cQnumy4shgThRqAHvORPuk7wRaY");'>
+<div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+</div>
+<div class="flex flex-col gap-1 p-5 relative">
+<h4 class="font-serif text-2xl font-semibold leading-tight tracking-tight">The Seven Husbands of Evelyn Hugo</h4>
+<p class="text-white/70 text-base font-medium mb-6">Taylor Jenkins Reid</p>
+<div class="flex flex-col gap-2 mb-2">
+<div class="flex justify-between items-center">
+<span class="text-[10px] font-bold tracking-widest">65% READ</span>
+<span class="text-[10px] text-white/50">120 PAGES LEFT</span>
+</div>
+<div class="h-1 w-full bg-white/20">
+<div class="h-1 bg-white" style="width: 65%;"></div>
+</div>
+</div>
+<button class="mt-4 flex w-full cursor-pointer items-center justify-center gap-2 h-12 bg-white text-black text-sm font-bold tracking-[0.1em] uppercase border-2 border-white hover:bg-transparent hover:text-white transition-colors">
+<span class="material-symbols-outlined filled-icon">play_arrow</span>
+<span>Open Reader</span>
+</button>
+</div>
+</div>
+</div>
+</section>
+<section class="py-4">
+<div class="flex justify-between items-center px-6 mb-4">
+<h3 class="font-serif text-xl font-semibold italic">My Library</h3>
+<button class="text-[10px] font-bold uppercase border-b-2 border-black pb-0.5">View All</button>
+</div>
+<div class="flex gap-2 px-6 overflow-x-auto no-scrollbar pb-2">
+<div class="flex h-9 shrink-0 items-center justify-center border-2 border-black bg-black px-5">
+<p class="text-white text-xs font-bold uppercase tracking-widest">All</p>
+</div>
+<div class="flex h-9 shrink-0 items-center justify-center border-2 border-black bg-white px-5">
+<p class="text-black text-xs font-bold uppercase tracking-widest">To Read</p>
+</div>
+<div class="flex h-9 shrink-0 items-center justify-center border-2 border-black bg-white px-5">
+<p class="text-black text-xs font-bold uppercase tracking-widest">Finished</p>
+</div>
+<div class="flex h-9 shrink-0 items-center justify-center border-2 border-black bg-white px-5">
+<p class="text-black text-xs font-bold uppercase tracking-widest">Favorites</p>
+</div>
+</div>
+</section>
+<section class="px-6 py-4 flex flex-col gap-6">
+<h3 class="font-serif text-xl font-semibold italic">Recently Added</h3>
+<div class="flex gap-4 items-center group border-b border-black/10 pb-6">
+<div class="w-20 h-28 shrink-0 border-2 border-black bg-black">
+<div class="w-full h-full bg-center bg-cover grayscale" data-alt="Book cover" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuDX0vfUobNXH6mEHI5ptjKqEDTSnqXet-Mfrnocby12s6NSTIp4Vcse0Gkd1Skm7MI1QjAGtMOnAXzv4FscO9Db4ca-lZhjlcBAiIOHJJH-GapX54uqjycLUCcS-3hBS3SfTtcgGYblWChPf_8h1EE7LSjJVqok4HtMHvUkAFO_1YhSDeXlPy9NvE6vV2HaAIS7oN1Ks4W0AMc17bRtzArWVIseHmqEN8i1QNS1W7iSch-LSDqm5QZtqB7hFFMEmIE_qlv3ix4vQaa8");'></div>
+</div>
+<div class="flex flex-col grow">
+<h4 class="font-serif text-lg font-semibold leading-snug">Project Hail Mary</h4>
+<p class="text-sm text-black/60 mb-3 font-medium">Andy Weir</p>
+<div class="flex items-center gap-0.5">
+<span class="material-symbols-outlined text-black text-xs filled-icon">star</span>
+<span class="material-symbols-outlined text-black text-xs filled-icon">star</span>
+<span class="material-symbols-outlined text-black text-xs filled-icon">star</span>
+<span class="material-symbols-outlined text-black text-xs filled-icon">star</span>
+<span class="material-symbols-outlined text-black text-xs filled-icon">star</span>
+<span class="text-[10px] text-black font-bold ml-1">4.9</span>
+</div>
+</div>
+<button class="size-10 flex items-center justify-center text-black">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</div>
+<div class="flex gap-4 items-center group border-b border-black/10 pb-6">
+<div class="w-20 h-28 shrink-0 border-2 border-black bg-black">
+<div class="w-full h-full bg-center bg-cover grayscale" data-alt="Book cover" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuC77nxXFsZRZbLEAsWn3OF2qBjLuibhiFv2EZh1kCgH0odXcOOXvQiwrdiMRGyAlvFdT69F1PwokmuTS1zR-VKNi9zhx-iSLusL1jmaVh5H-5DggETaeGDk9D-w89l74GjxqyHBu5EfzuReFFT_Fj-9fzL7_ePstWPa2v43VJFmO_arEWVr7R5DuprW9LlA2-hEs_DKlvNyHOrowE7GZonfdJ3x8FAwf82cfFc1BxN4D2xpPwG9gypCgteTJknotVEtk-MqmL0G1q4u");'></div>
+</div>
+<div class="flex flex-col grow">
+<h4 class="font-serif text-lg font-semibold leading-snug">The Midnight Library</h4>
+<p class="text-sm text-black/60 mb-3 font-medium">Matt Haig</p>
+<div class="flex items-center gap-0.5">
+<span class="material-symbols-outlined text-black text-xs filled-icon">star</span>
+<span class="material-symbols-outlined text-black text-xs filled-icon">star</span>
+<span class="material-symbols-outlined text-black text-xs filled-icon">star</span>
+<span class="material-symbols-outlined text-black text-xs filled-icon">star</span>
+<span class="material-symbols-outlined text-black/20 text-xs">star</span>
+<span class="text-[10px] text-black font-bold ml-1">4.2</span>
+</div>
+</div>
+<button class="size-10 flex items-center justify-center text-black">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</div>
+<div class="flex gap-4 items-center group">
+<div class="w-20 h-28 shrink-0 border-2 border-black bg-black">
+<div class="w-full h-full bg-center bg-cover grayscale" data-alt="Book cover" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuAdZiP4BMUTiVDH9l1WCjrTIOxubxqedq6iCx3Xic39pnxaTUL7gdQHxrpjeeS8r7tlF4eg24MC61lxO9oK8aFZdm_yYwEsinKtcLET5lVyyR64EHEL3YgR9rcKCPla21IsTXXxK-ZGPDHDsGLPzL9SGtSPQh4VS_icXW_Dy6kr8pcKOJEt97yqvkEzd1wYOcgHJ-PJnElufUyPmMNaxrAAl8BoTc0vqwkCqJlxxtF13KBEU_8K9iJMfks6GlynlNkXJonGgy9NVsNz");'></div>
+</div>
+<div class="flex flex-col grow">
+<h4 class="font-serif text-lg font-semibold leading-snug">Circe</h4>
+<p class="text-sm text-black/60 mb-3 font-medium">Madeline Miller</p>
+<div class="flex items-center gap-0.5">
+<span class="material-symbols-outlined text-black text-xs filled-icon">star</span>
+<span class="material-symbols-outlined text-black text-xs filled-icon">star</span>
+<span class="material-symbols-outlined text-black text-xs filled-icon">star</span>
+<span class="material-symbols-outlined text-black text-xs filled-icon">star</span>
+<span class="material-symbols-outlined text-black text-xs filled-icon">star_half</span>
+<span class="text-[10px] text-black font-bold ml-1">4.7</span>
+</div>
+</div>
+<button class="size-10 flex items-center justify-center text-black">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</div>
+</section>
+<nav class="fixed bottom-0 left-0 right-0 mx-auto max-w-md bg-white border-t-2 border-black px-8 pt-4 pb-10 flex justify-between items-center z-50">
+<button class="flex flex-col items-center gap-1 text-black">
+<span class="material-symbols-outlined filled-icon">home</span>
+<span class="text-[9px] font-bold uppercase tracking-[0.15em]">Home</span>
+</button>
+<button class="flex flex-col items-center gap-1 text-black/30">
+<span class="material-symbols-outlined">explore</span>
+<span class="text-[9px] font-bold uppercase tracking-[0.15em]">Explore</span>
+</button>
+<div class="relative -top-8">
+<button class="flex size-14 items-center justify-center bg-black text-white border-4 border-white shadow-[0_0_0_2px_black]">
+<span class="material-symbols-outlined text-3xl">add</span>
+</button>
+</div>
+<button class="flex flex-col items-center gap-1 text-black/30">
+<span class="material-symbols-outlined">auto_stories</span>
+<span class="text-[9px] font-bold uppercase tracking-[0.15em]">Library</span>
+</button>
+<button class="flex flex-col items-center gap-1 text-black/30">
+<span class="material-symbols-outlined">person</span>
+<span class="text-[9px] font-bold uppercase tracking-[0.15em]">Profile</span>
+</button>
+</nav>
+<div class="fixed bottom-2 left-0 right-0 mx-auto w-32 h-1.5 bg-black/10 rounded-full z-[60]"></div>
+</div>
+
+</body></html>

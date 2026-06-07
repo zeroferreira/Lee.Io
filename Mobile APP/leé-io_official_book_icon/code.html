@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Leé-Io Icon Design</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,wght@0,400;0,700;1,400&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#0dccf2",
+                        "background-light": "#f5f8f8",
+                        "background-dark": "#101f22",
+                    },
+                    fontFamily: {
+                        "display": ["Newsreader", "serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            font-family: 'Newsreader', serif;
+        }
+        .ios-squircle {
+            mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120' viewBox='0 0 120 120'%3E%3Cpath d='M120,60c0,42.4-17.6,60-60,60S0,102.4,0,60S17.6,0,60,0,120,17.6,120,60z'/%3E%3C/svg%3E");
+            mask-size: contain;
+            mask-repeat: no-repeat;
+            -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120' viewBox='0 0 120 120'%3E%3Cpath d='M120,60c0,42.4-17.6,60-60,60S0,102.4,0,60S17.6,0,60,0,120,17.6,120,60z'/%3E%3C/svg%3E");
+            -webkit-mask-size: contain;
+            -webkit-mask-repeat: no-repeat;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-white transition-colors duration-300">
+<div class="relative flex h-auto min-h-screen w-full flex-col overflow-x-hidden">
+<!-- TopAppBar -->
+<div class="flex items-center bg-background-light dark:bg-background-dark p-4 pb-2 justify-between sticky top-0 z-50">
+<div class="flex size-12 shrink-0 items-center cursor-pointer" data-icon="arrow_back">
+<span class="material-symbols-outlined text-2xl">arrow_back</span>
+</div>
+<h2 class="text-lg font-bold leading-tight tracking-[-0.015em] flex-1 text-center font-display">Leé-Io Icon Design</h2>
+<div class="flex w-12 items-center justify-end">
+<button class="flex max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 bg-transparent gap-2 text-base font-bold leading-normal tracking-[0.015em] min-w-0 p-0">
+<span class="material-symbols-outlined text-2xl" data-icon="share">share</span>
+</button>
+</div>
+</div>
+<div class="h-2"></div>
+<!-- HeadlineText -->
+<div class="px-4">
+<h2 class="tracking-light text-[32px] font-bold leading-tight text-center pb-2 pt-5 font-display">Visual Identity</h2>
+<p class="text-base font-normal leading-normal pb-6 text-center opacity-80">Minimalist geometric book symbol in high-contrast styles.</p>
+</div>
+<!-- SegmentedButtons for Toggle -->
+<div class="flex px-4 py-3 max-w-md mx-auto w-full">
+<div class="flex h-12 flex-1 items-center justify-center rounded-xl bg-gray-200 dark:bg-primary/20 p-1">
+<label class="flex cursor-pointer h-full grow items-center justify-center overflow-hidden rounded-lg px-2 has-[:checked]:bg-white dark:has-[:checked]:bg-background-dark has-[:checked]:shadow-sm text-sm font-medium leading-normal">
+<span class="truncate">Dark Mode</span>
+<input checked="" class="invisible w-0" name="style-toggle" type="radio" value="Dark"/>
+</label>
+<label class="flex cursor-pointer h-full grow items-center justify-center overflow-hidden rounded-lg px-2 has-[:checked]:bg-white dark:has-[:checked]:bg-background-dark has-[:checked]:shadow-sm text-sm font-medium leading-normal">
+<span class="truncate">Light Mode</span>
+<input class="invisible w-0" name="style-toggle" type="radio" value="Light"/>
+</label>
+</div>
+</div>
+<!-- Main Icon Preview (Hero Section) -->
+<div class="flex flex-col items-center justify-center p-8">
+<div class="w-48 h-48 bg-black rounded-[40px] shadow-2xl flex items-center justify-center transition-all duration-500 hover:scale-105 group border-4 border-primary/10" data-alt="High contrast black and white book icon">
+<!-- SVG Book Icon -->
+<svg fill="none" height="100" viewbox="0 0 100 100" width="100" xmlns="http://www.w3.org/2000/svg">
+<path d="M20 30C20 24.4772 24.4772 20 30 20H50V80H30C24.4772 80 20 75.5228 20 70V30Z" stroke="white" stroke-linecap="round" stroke-linejoin="round" stroke-width="6"></path>
+<path d="M50 20H70C75.5228 20 80 24.4772 80 30V70C80 75.5228 75.5228 80 70 80H50V20Z" stroke="white" stroke-linecap="round" stroke-linejoin="round" stroke-width="6"></path>
+<path d="M50 20V80" stroke="white" stroke-linecap="round" stroke-width="6"></path>
+</svg>
+</div>
+<p class="mt-6 text-sm font-medium tracking-widest uppercase opacity-60">Primary Application</p>
+</div>
+<!-- ImageGrid showing variants -->
+<div class="px-4 py-6">
+<h3 class="text-xl font-bold font-display mb-4 px-2">Icon Variants</h3>
+<div class="grid grid-cols-2 gap-4">
+<div class="flex flex-col gap-3">
+<div class="bg-black flex items-center justify-center rounded-[2rem] aspect-square shadow-lg border border-white/5" data-alt="White minimalist book icon on black background">
+<svg fill="none" height="60" viewbox="0 0 100 100" width="60" xmlns="http://www.w3.org/2000/svg">
+<path d="M20 30C20 24.4772 24.4772 20 30 20H50V80H30C24.4772 80 20 75.5228 20 70V30Z" stroke="white" stroke-linecap="round" stroke-linejoin="round" stroke-width="6"></path>
+<path d="M50 20H70C75.5228 20 80 24.4772 80 30V70C80 75.5228 75.5228 80 70 80H50V20Z" stroke="white" stroke-linecap="round" stroke-linejoin="round" stroke-width="6"></path>
+<path d="M50 20V80" stroke="white" stroke-linecap="round" stroke-width="6"></path>
+</svg>
+</div>
+<p class="text-sm font-bold leading-tight text-center px-1">Onyx Night</p>
+</div>
+<div class="flex flex-col gap-3">
+<div class="bg-white flex items-center justify-center rounded-[2rem] aspect-square shadow-lg border border-gray-100" data-alt="Black minimalist book icon on white background">
+<svg fill="none" height="60" viewbox="0 0 100 100" width="60" xmlns="http://www.w3.org/2000/svg">
+<path d="M20 30C20 24.4772 24.4772 20 30 20H50V80H30C24.4772 80 20 75.5228 20 70V30Z" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="6"></path>
+<path d="M50 20H70C75.5228 20 80 24.4772 80 30V70C80 75.5228 75.5228 80 70 80H50V20Z" stroke="black" stroke-linecap="round" stroke-linejoin="round" stroke-width="6"></path>
+<path d="M50 20V80" stroke="black" stroke-linecap="round" stroke-width="6"></path>
+</svg>
+</div>
+<p class="text-sm font-bold leading-tight text-center px-1">Pristine Paper</p>
+</div>
+</div>
+</div>
+<!-- Contextual Home Screen Section -->
+<div class="p-6 bg-slate-100 dark:bg-black/20 mt-4 rounded-t-3xl border-t border-white/10">
+<h3 class="text-xl font-bold font-display mb-6 text-center">In Context</h3>
+<div class="relative w-full aspect-[9/16] max-w-xs mx-auto rounded-[3rem] overflow-hidden border-[8px] border-slate-800 shadow-2xl bg-cover bg-center" data-alt="Abstract gradient mobile wallpaper context" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCr5FHUUv2S_4QL0Q7cyHFiYwAk4VDEKbOxizuZ-yeV--t_hz6VOAazS_I3yBNKQF1MQnJsfgyZoR2vWIu9xcPfkh2cvtKVya_DUkcjGo_G0EmloRl-TL9U6OFJvV7JSHXpOrhwppYDYOP-5rJtojpAS6CUat0SiAZTAY1jQ2TWYRDP8EAt_bFWIdcO-2r1Th13lfL1KM6zacApzkZKkn_1KpmYrlJWQcZf0kzkHEyiHBQjM5tCUl4dCE83uS1MQRA0FWsy82j5MBos');">
+<!-- Simulated Status Bar -->
+<div class="flex justify-between px-8 pt-4 text-[10px] text-white font-bold">
+<span>9:41</span>
+<div class="flex gap-1">
+<span class="material-symbols-outlined text-[12px]">signal_cellular_4_bar</span>
+<span class="material-symbols-outlined text-[12px]">wifi</span>
+<span class="material-symbols-outlined text-[12px]">battery_full</span>
+</div>
+</div>
+<!-- App Icons Grid -->
+<div class="grid grid-cols-4 gap-4 px-6 pt-10">
+<!-- Row 1 -->
+<div class="flex flex-col items-center gap-1">
+<div class="w-12 h-12 rounded-xl bg-blue-500 shadow-sm" data-alt="Blue square icon"></div>
+<span class="text-[8px] text-white font-medium">Messages</span>
+</div>
+<div class="flex flex-col items-center gap-1">
+<div class="w-12 h-12 rounded-xl bg-green-500 shadow-sm" data-alt="Green square icon"></div>
+<span class="text-[8px] text-white font-medium">FaceTime</span>
+</div>
+<div class="flex flex-col items-center gap-1">
+<div class="w-12 h-12 rounded-xl bg-primary shadow-sm flex items-center justify-center" data-alt="Cyan square icon">
+<span class="material-symbols-outlined text-white text-lg">calendar_month</span>
+</div>
+<span class="text-[8px] text-white font-medium">Calendar</span>
+</div>
+<div class="flex flex-col items-center gap-1">
+<div class="w-12 h-12 rounded-xl bg-amber-400 shadow-sm" data-alt="Yellow square icon"></div>
+<span class="text-[8px] text-white font-medium">Notes</span>
+</div>
+<!-- Row 2 (Leé-Io Focused) -->
+<div class="flex flex-col items-center gap-1">
+<div class="w-12 h-12 rounded-xl bg-black shadow-lg flex items-center justify-center border border-white/20 ring-2 ring-primary/40 ring-offset-2 ring-offset-transparent" data-alt="Leé-Io dark icon in app grid">
+<svg fill="none" height="24" viewbox="0 0 100 100" width="24" xmlns="http://www.w3.org/2000/svg">
+<path d="M20 30C20 24.4772 24.4772 20 30 20H50V80H30C24.4772 80 20 75.5228 20 70V30Z" stroke="white" stroke-linecap="round" stroke-linejoin="round" stroke-width="8"></path>
+<path d="M50 20H70C75.5228 20 80 24.4772 80 30V70C80 75.5228 75.5228 80 70 80H50V20Z" stroke="white" stroke-linecap="round" stroke-linejoin="round" stroke-width="8"></path>
+</svg>
+</div>
+<span class="text-[8px] text-white font-bold">Leé-Io</span>
+</div>
+<div class="flex flex-col items-center gap-1">
+<div class="w-12 h-12 rounded-xl bg-slate-200/20 backdrop-blur-md border border-white/20 shadow-sm" data-alt="Glassmorphic app icon"></div>
+<span class="text-[8px] text-white font-medium">Files</span>
+</div>
+</div>
+<!-- Dock -->
+<div class="absolute bottom-6 left-1/2 -translate-x-1/2 w-[90%] h-16 rounded-[2.5rem] bg-white/20 backdrop-blur-xl border border-white/10 flex items-center justify-around px-4">
+<div class="w-10 h-10 rounded-lg bg-emerald-500" data-alt="Phone icon"></div>
+<div class="w-10 h-10 rounded-lg bg-white" data-alt="Mail icon"></div>
+<div class="w-10 h-10 rounded-lg bg-orange-400" data-alt="Music icon"></div>
+<div class="w-10 h-10 rounded-lg bg-red-500" data-alt="Photos icon"></div>
+</div>
+</div>
+</div>
+<!-- Technical Specification BodyText -->
+<div class="px-6 py-10 bg-background-light dark:bg-background-dark">
+<h4 class="text-lg font-bold font-display mb-4 text-primary">Technical Specs</h4>
+<div class="space-y-4 text-sm opacity-90">
+<div class="flex justify-between border-b border-gray-200 dark:border-white/10 pb-2">
+<span>Aspect Ratio</span>
+<span class="font-bold">1:1 (Squircle)</span>
+</div>
+<div class="flex justify-between border-b border-gray-200 dark:border-white/10 pb-2">
+<span>Stroke Weight</span>
+<span class="font-bold">6% proportional</span>
+</div>
+<div class="flex justify-between border-b border-gray-200 dark:border-white/10 pb-2">
+<span>Base Color</span>
+<span class="font-bold">#000000 / #FFFFFF</span>
+</div>
+<div class="flex justify-between border-b border-gray-200 dark:border-white/10 pb-2">
+<span>Export Formats</span>
+<span class="font-bold">SVG, PNG, ICO</span>
+</div>
+</div>
+</div>
+<!-- Footer Button -->
+<div class="px-4 pb-12 pt-4">
+<button class="w-full bg-primary hover:bg-primary/90 text-background-dark font-bold py-4 rounded-xl shadow-lg transition-all active:scale-95 flex items-center justify-center gap-2">
+<span class="material-symbols-outlined">download</span>
+                Export Icon Assets
+            </button>
+</div>
+<div class="h-8"></div>
+</div>
+</body></html>

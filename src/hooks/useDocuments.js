@@ -78,16 +78,15 @@ export const useDocuments = (refreshToken = 0) => {
       // 2. Delete from Firestore if logged in
       if (currentUser) {
          // If we have an ID (from cloud), delete directly
-         if (document.id) {
-           await deleteDoc(doc(db, `users/${currentUser.uid}/documents`, document.id));
-         } else {
-           // If we don't have ID (maybe mapped from local), try to find it by name
-           const q = query(collection(db, `users/${currentUser.uid}/documents`), where("name", "==", document.name));
-           const snapshot = await getDocs(q);
-           snapshot.forEach(async (d) => {
-             await deleteDoc(d.ref);
-           });
-         }
+          if (document.id) {
+            await deleteDoc(doc(db, `users/${currentUser.uid}/documents`, document.id));
+          } else {
+            // If we don't have ID (maybe mapped from local), try to find it by name
+            const q = query(collection(db, `users/${currentUser.uid}/documents`), where("name", "==", document.name));
+            const snapshot = await getDocs(q);
+            const deletePromises = snapshot.docs.map(d => deleteDoc(d.ref));
+            await Promise.all(deletePromises);
+          }
          
          // Note: We are not deleting the actual file from Storage/Drive to avoid data loss on source.
          // We only remove the reference from the app.

@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,200..800;1,6..72,200..800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "primary": "#0dccf2",
+              "background-light": "#f5f8f8",
+              "background-dark": "#101f22",
+              "surface-dark": "#1a2e32",
+            },
+            fontFamily: {
+              "display": ["Newsreader", "serif"]
+            },
+            borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+        body {
+            font-family: 'Newsreader', serif;
+        }
+        .ios-icon-shape {
+            mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1024' height='1024' viewBox='0 0 1024 1024'%3E%3Cpath d='M0 435.2C0 120.44 120.44 0 435.2 0h153.6C903.56 0 1024 120.44 1024 435.2v153.6c0 314.76-120.44 435.2-435.2 435.2h-153.6C120.44 1024 0 903.56 0 588.8z'/%3E%3C/svg%3E");
+            -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1024' height='1024' viewBox='0 0 1024 1024'%3E%3Cpath d='M0 435.2C0 120.44 120.44 0 435.2 0h153.6C903.56 0 1024 120.44 1024 435.2v153.6c0 314.76-120.44 435.2-435.2 435.2h-153.6C120.44 1024 0 903.56 0 588.8z'/%3E%3C/svg%3E");
+            mask-size: contain;
+            -webkit-mask-size: contain;
+            mask-repeat: no-repeat;
+            -webkit-mask-repeat: no-repeat;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-white min-h-screen">
+<!-- TopAppBar Component -->
+<div class="flex items-center bg-background-light dark:bg-background-dark p-4 pb-2 justify-between sticky top-0 z-50 border-b border-primary/10">
+<div class="text-primary flex size-12 shrink-0 items-center cursor-pointer" data-icon="arrow_back">
+<span class="material-symbols-outlined">arrow_back</span>
+</div>
+<h2 class="text-slate-900 dark:text-white text-lg font-bold leading-tight tracking-[-0.015em] flex-1 text-center font-display">Leé-Io Brand Assets</h2>
+<div class="flex w-12 items-center justify-end">
+<button class="flex max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 bg-transparent text-primary gap-2 text-base font-bold leading-normal tracking-[0.015em] min-w-0 p-0">
+<span class="material-symbols-outlined" data-icon="share">share</span>
+</button>
+</div>
+</div>
+<main class="max-w-md mx-auto pb-24">
+<!-- HeadlineText Component -->
+<h2 class="text-slate-900 dark:text-white tracking-light text-[28px] font-bold leading-tight px-4 text-center pb-1 pt-8 font-display">Vector Book Icon</h2>
+<p class="text-primary text-sm font-medium text-center uppercase tracking-widest pb-3">Variant 1: Dark on Light</p>
+<!-- SegmentedButtons Component -->
+<div class="flex px-4 py-3">
+<div class="flex h-12 flex-1 items-center justify-center rounded-xl bg-slate-200 dark:bg-surface-dark p-1.5">
+<label class="flex cursor-pointer h-full grow items-center justify-center overflow-hidden rounded-lg px-2 has-[:checked]:bg-background-light dark:has-[:checked]:bg-background-dark has-[:checked]:shadow-md has-[:checked]:text-primary text-slate-500 dark:text-slate-400 text-sm font-bold leading-normal transition-all">
+<span class="truncate">Black on White</span>
+<input checked="" class="hidden" name="icon-variant" type="radio" value="Black on White"/>
+</label>
+<label class="flex cursor-pointer h-full grow items-center justify-center overflow-hidden rounded-lg px-2 has-[:checked]:bg-background-light dark:has-[:checked]:bg-background-dark has-[:checked]:shadow-md has-[:checked]:text-primary text-slate-500 dark:text-slate-400 text-sm font-bold leading-normal transition-all">
+<span class="truncate">White on Black</span>
+<input class="hidden" name="icon-variant" type="radio" value="White on Black"/>
+</label>
+</div>
+</div>
+<!-- Main Preview Section (Modified ImageGrid approach) -->
+<div class="px-8 py-8 flex flex-col items-center">
+<div class="ios-icon-shape w-64 h-64 bg-white shadow-2xl flex items-center justify-center relative group">
+<!-- Mockup of the vector book icon -->
+<div class="w-40 h-40 border-[10px] border-black rounded-tl-[40px] rounded-br-lg rounded-tr-lg rounded-bl-lg relative">
+<div class="absolute -left-[10px] top-1/2 -translate-y-1/2 w-4 h-24 bg-white"></div>
+<div class="absolute left-4 top-4 right-4 bottom-4 border-l-4 border-black/20"></div>
+</div>
+<div class="absolute inset-0 bg-black/5 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+<span class="material-symbols-outlined text-black text-4xl">zoom_in</span>
+</div>
+</div>
+<p class="mt-6 text-slate-400 text-xs font-mono uppercase tracking-tighter">1024 x 1024 • iOS App Icon Squircle</p>
+</div>
+<!-- BodyText Component -->
+<div class="px-6">
+<p class="text-slate-700 dark:text-slate-300 text-base font-normal leading-relaxed text-center py-4 italic font-display">
+                "A minimalist black outline on a pure white background. The curved spine and open silhouette represent the fluidity of knowledge and digital accessibility."
+            </p>
+</div>
+<!-- Specifications Section -->
+<div class="px-4 mt-4">
+<div class="bg-slate-100 dark:bg-surface-dark rounded-xl p-4 grid grid-cols-2 gap-4 border border-primary/5">
+<div class="flex flex-col gap-1">
+<span class="text-[10px] uppercase text-slate-500 dark:text-slate-400 font-bold tracking-widest">Stroke Weight</span>
+<span class="text-sm font-bold text-slate-800 dark:text-slate-100">Bold (12pt)</span>
+</div>
+<div class="flex flex-col gap-1">
+<span class="text-[10px] uppercase text-slate-500 dark:text-slate-400 font-bold tracking-widest">Format</span>
+<span class="text-sm font-bold text-slate-800 dark:text-slate-100">SVG / Vector</span>
+</div>
+<div class="flex flex-col gap-1">
+<span class="text-[10px] uppercase text-slate-500 dark:text-slate-400 font-bold tracking-widest">Hex Code</span>
+<span class="text-sm font-bold text-slate-800 dark:text-slate-100">#000000</span>
+</div>
+<div class="flex flex-col gap-1">
+<span class="text-[10px] uppercase text-slate-500 dark:text-slate-400 font-bold tracking-widest">Corner Radius</span>
+<span class="text-sm font-bold text-slate-800 dark:text-slate-100">Superellipse</span>
+</div>
+</div>
+</div>
+<!-- Mockup Context Section -->
+<div class="px-4 mt-8">
+<h3 class="text-xs font-bold uppercase tracking-widest text-primary mb-4 ml-1">Home Screen Preview</h3>
+<div class="rounded-2xl overflow-hidden relative aspect-video bg-cover bg-center border border-white/10" data-alt="Abstract colorful iPhone wallpaper background" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDJOMxsI-s1cORApoYIMkP5vsWWdF8FtPOq9Tpux8Cp9FwQxWUZpfX_sV5uklqJ0SdOLNI7hYWAcTXFOrusI3DJpj32kub2W4xLgUcK72ZDoyeh3Yu7oYtQh0o3upRtfhQybbAWLUgYEj6KmikVQv_YUCzlkgr2f5NKmGU_VaFiJhziJqVLEyhLIWvD26sgDT4ELONkGkmo6z1bPisxCURwXwZvJPkN8Z3627-p-uBP0Y4Gf1tnnVhxMMVqQV1HwJ6d_z1YzUaX2Cw2');">
+<div class="absolute inset-0 bg-black/20 backdrop-blur-[2px]"></div>
+<div class="absolute inset-0 flex items-center justify-center gap-6">
+<div class="flex flex-col items-center gap-1">
+<div class="ios-icon-shape w-12 h-12 bg-white flex items-center justify-center p-2 shadow-lg">
+<div class="w-full h-full border-2 border-black rounded-tl-lg rounded-sm"></div>
+</div>
+<span class="text-[10px] text-white font-medium">Leé-Io</span>
+</div>
+<div class="flex flex-col items-center gap-1">
+<div class="ios-icon-shape w-12 h-12 bg-slate-200/50 backdrop-blur-md flex items-center justify-center p-2">
+<span class="material-symbols-outlined text-white/50 text-xl">mail</span>
+</div>
+<span class="text-[10px] text-white font-medium">Mail</span>
+</div>
+<div class="flex flex-col items-center gap-1">
+<div class="ios-icon-shape w-12 h-12 bg-slate-200/50 backdrop-blur-md flex items-center justify-center p-2">
+<span class="material-symbols-outlined text-white/50 text-xl">settings</span>
+</div>
+<span class="text-[10px] text-white font-medium">Settings</span>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- Bottom Action Bar -->
+<div class="fixed bottom-0 left-0 right-0 p-4 bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-xl border-t border-primary/10 flex gap-3">
+<button class="flex-1 bg-primary hover:bg-primary/90 text-background-dark h-12 rounded-xl font-bold flex items-center justify-center gap-2 transition-colors">
+<span class="material-symbols-outlined">download</span>
+            Export SVG
+        </button>
+<button class="w-12 h-12 flex items-center justify-center rounded-xl bg-slate-200 dark:bg-surface-dark text-slate-700 dark:text-slate-200">
+<span class="material-symbols-outlined">content_copy</span>
+</button>
+</div>
+</body></html>

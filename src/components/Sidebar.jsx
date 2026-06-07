@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Moon, Sun, User, BookOpen, PenTool, Info, ArrowLeft, LogIn, LogOut, Github, Cloud, HardDrive } from 'lucide-react';
+import { X, Moon, Sun, User, BookOpen, PenTool, Info, ArrowLeft, LogIn, LogOut, Github, Cloud, HardDrive, Sparkles } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { db } from '../firebase/config';
 import { collection, query, orderBy, onSnapshot } from 'firebase/firestore';
@@ -114,8 +114,24 @@ export const Sidebar = ({ isOpen, onClose, theme, toggleTheme, annotations = {},
                     onClick={toggleTheme}
                     className="w-full flex items-center space-x-3 p-3 hover:bg-foreground/5 rounded-lg transition-colors text-left"
                   >
-                    {theme === 'light' ? <Moon size={20} /> : <Sun size={20} />}
-                    <span>{theme === 'light' ? 'Modo Noche' : 'Modo Día'}</span>
+                    {theme === 'light' && (
+                      <>
+                        <Moon size={20} />
+                        <span>Modo Noche</span>
+                      </>
+                    )}
+                    {theme === 'dark' && (
+                      <>
+                        <Sparkles size={20} className="text-purple-400" />
+                        <span>Modo Vision</span>
+                      </>
+                    )}
+                    {theme === 'vision' && (
+                      <>
+                        <Sun size={20} />
+                        <span>Modo Día</span>
+                      </>
+                    )}
                   </button>
                 </div>
               </>

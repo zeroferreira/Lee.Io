@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Profile &amp; Settings</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#0dccf2",
+                        "background-light": "#f5f8f8",
+                        "background-dark": "#101f22",
+                        "sepia-bg": "#f4ecd8",
+                        "sepia-accent": "#5f4b32",
+                    },
+                    fontFamily: {
+                        "display": ["Inter"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style type="text/tailwindcss">
+        body {
+            font-family: 'Inter', sans-serif;
+            min-height: max(884px, 100dvh);
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .ios-toggle:checked + .ios-toggle-bg {
+            background-color: #34c759;
+        }
+        .ios-toggle:checked + .ios-toggle-bg .ios-toggle-circle {
+            transform: translateX(20px);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark min-h-screen text-gray-900 dark:text-white pb-24">
+<div class="sticky top-0 z-50 flex items-center bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-md p-4 pb-2 justify-between border-b border-gray-200 dark:border-gray-800">
+<div class="text-primary flex size-12 shrink-0 items-center justify-start">
+<span class="material-symbols-outlined cursor-pointer">arrow_back_ios</span>
+</div>
+<h2 class="text-gray-900 dark:text-white text-lg font-bold leading-tight tracking-[-0.015em] flex-1 text-center">Profile</h2>
+<div class="size-12 flex items-center justify-end">
+<span class="material-symbols-outlined text-primary cursor-pointer">settings</span>
+</div>
+</div>
+<main class="max-w-md mx-auto">
+<div class="px-4 pt-6">
+<div class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl p-5 shadow-sm">
+<div class="flex items-start gap-4">
+<div class="size-12 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center shrink-0 border border-gray-200 dark:border-gray-700">
+<svg class="w-6 h-6" viewBox="0 0 24 24">
+<path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"></path>
+<path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"></path>
+<path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"></path>
+<path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"></path>
+</svg>
+</div>
+<div class="flex flex-col gap-1">
+<h3 class="text-base font-bold text-gray-900 dark:text-white leading-tight">Sync with Google</h3>
+<p class="text-xs text-gray-500 dark:text-gray-400 leading-relaxed">Sign in to access your library and annotations across web and mobile devices.</p>
+</div>
+</div>
+<button class="w-full mt-4 bg-gray-900 dark:bg-white text-white dark:text-black py-3 rounded-xl font-bold text-sm tracking-wide transition-active active:scale-95">
+                    Connect Account
+                </button>
+</div>
+</div>
+<div class="px-4 pt-8">
+<h3 class="text-gray-900 dark:text-white text-lg font-bold leading-tight tracking-[-0.015em] mb-4">Theme Selection</h3>
+<div class="grid grid-cols-3 gap-4">
+<div class="flex flex-col gap-3 group">
+<div class="relative aspect-[4/5] rounded-2xl border-2 border-gray-200 bg-white p-3 flex flex-col gap-2 transition-all cursor-pointer overflow-hidden ring-primary/30 ring-offset-2 hover:ring-2">
+<div class="w-full h-3 bg-gray-100 rounded-sm"></div>
+<div class="space-y-1.5 mt-1">
+<div class="w-full h-1 bg-gray-200 rounded-full"></div>
+<div class="w-3/4 h-1 bg-gray-200 rounded-full"></div>
+<div class="w-1/2 h-1 bg-gray-200 rounded-full"></div>
+</div>
+<div class="mt-auto flex justify-center">
+<div class="w-full h-6 bg-gray-100 rounded-md"></div>
+</div>
+</div>
+<div class="flex flex-col items-center">
+<span class="text-xs font-bold text-gray-900 dark:text-white">Light</span>
+<span class="text-[10px] text-gray-400">Black &amp; White</span>
+</div>
+</div>
+<div class="flex flex-col gap-3 group">
+<div class="relative aspect-[4/5] rounded-2xl border-2 border-primary bg-background-dark p-3 flex flex-col gap-2 transition-all cursor-pointer overflow-hidden shadow-lg shadow-primary/10">
+<div class="w-full h-3 bg-gray-800 rounded-sm"></div>
+<div class="space-y-1.5 mt-1">
+<div class="w-full h-1 bg-gray-800 rounded-full"></div>
+<div class="w-3/4 h-1 bg-gray-800 rounded-full"></div>
+<div class="w-1/2 h-1 bg-gray-800 rounded-full"></div>
+</div>
+<div class="mt-auto flex justify-center">
+<div class="w-full h-6 bg-primary/20 rounded-md"></div>
+</div>
+<div class="absolute top-2 right-2">
+<span class="material-symbols-outlined text-primary text-base" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+</div>
+</div>
+<div class="flex flex-col items-center">
+<span class="text-xs font-bold text-primary">Dark</span>
+<span class="text-[10px] text-primary/60">White &amp; Black</span>
+</div>
+</div>
+<div class="flex flex-col gap-3 group">
+<div class="relative aspect-[4/5] rounded-2xl border-2 border-transparent bg-sepia-bg p-3 flex flex-col gap-2 transition-all cursor-pointer overflow-hidden hover:border-sepia-accent/30">
+<div class="w-full h-3 bg-[#e8dec4] rounded-sm"></div>
+<div class="space-y-1.5 mt-1">
+<div class="w-full h-1 bg-[#e8dec4] rounded-full"></div>
+<div class="w-3/4 h-1 bg-[#e8dec4] rounded-full"></div>
+<div class="w-1/2 h-1 bg-[#e8dec4] rounded-full"></div>
+</div>
+<div class="mt-auto flex justify-center">
+<div class="w-full h-6 bg-[#e8dec4] rounded-md"></div>
+</div>
+</div>
+<div class="flex flex-col items-center">
+<span class="text-xs font-bold text-gray-900 dark:text-white">Sepia</span>
+<span class="text-[10px] text-gray-400">Eye Comfort</span>
+</div>
+</div>
+</div>
+</div>
+<div class="mt-8 px-4">
+<div class="bg-white dark:bg-gray-900 rounded-2xl overflow-hidden border border-gray-200 dark:border-gray-800">
+<div class="flex items-center justify-between p-4">
+<div class="flex items-center gap-3">
+<div class="size-9 rounded-xl bg-primary/20 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-xl">devices</span>
+</div>
+<div class="flex flex-col">
+<span class="text-sm font-semibold text-gray-900 dark:text-white">Sync Theme with Web</span>
+<span class="text-[11px] text-gray-500 dark:text-gray-400">Keep preferences consistent</span>
+</div>
+</div>
+<label class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only ios-toggle" type="checkbox"/>
+<div class="w-11 h-6 bg-gray-200 dark:bg-gray-700 rounded-full ios-toggle-bg transition-colors relative">
+<div class="absolute left-0.5 top-0.5 w-5 h-5 bg-white rounded-full shadow-sm ios-toggle-circle transition-transform"></div>
+</div>
+</label>
+</div>
+<div class="h-[1px] bg-gray-100 dark:bg-gray-800 mx-4"></div>
+<div class="flex items-center justify-between p-4">
+<div class="flex items-center gap-3">
+<div class="size-9 rounded-xl bg-orange-500/20 flex items-center justify-center text-orange-500">
+<span class="material-symbols-outlined text-xl">cloud_sync</span>
+</div>
+<div class="flex flex-col">
+<span class="text-sm font-semibold text-gray-900 dark:text-white">Cloud Library</span>
+<span class="text-[11px] text-gray-500 dark:text-gray-400">Sign in to enable syncing</span>
+</div>
+</div>
+<span class="text-xs font-bold text-gray-400 uppercase">Disabled</span>
+</div>
+</div>
+</div>
+<div class="pt-8">
+<div class="flex items-center justify-between px-4 pb-4">
+<h3 class="text-gray-900 dark:text-white text-lg font-bold leading-tight tracking-[-0.015em]">Local Content</h3>
+</div>
+<div class="space-y-1">
+<div class="flex items-center gap-4 bg-white dark:bg-gray-900/40 px-4 min-h-[72px] py-2 justify-between hover:bg-gray-50 dark:hover:bg-white/5 transition-colors cursor-pointer border-y border-gray-100 dark:border-gray-800/50">
+<div class="flex items-center gap-4">
+<div class="bg-center bg-no-repeat aspect-[2/3] bg-cover rounded-md size-12 shadow-sm" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuDd_OP8GRuiB0SRgKAIy6Ag1vz3l5wN1aeQOK_1ZIZ-rPZn_5vuKg1SHrMtZhNw54q15-ri6Kbkyq9lRDlOgznKoP56aUNdsCb2qAH6_XFp9v2TdTbOn0y1I0wAHzgh_ha9xt72mxCg70r-wJkds5XdLHk2Uz1qevUJ93NE_Nf3jCh7KjcV_zbGyoQtgLMGboNuAfxw_r7jhLczoKHXf8a5rT9mvsFncV2VvDXFP8R1eXWVGsajFr_Y18QEVPpCh4FB86rfOhs_0dOv");'></div>
+<div class="flex flex-col justify-center">
+<p class="text-gray-900 dark:text-white text-sm font-semibold leading-normal line-clamp-1">The Great Gatsby</p>
+<p class="text-gray-500 dark:text-[#90c1cb] text-xs font-normal leading-normal">12 notes • Guest User</p>
+</div>
+</div>
+<span class="material-symbols-outlined text-gray-400 text-sm">chevron_right</span>
+</div>
+<div class="flex items-center gap-4 bg-white dark:bg-gray-900/40 px-4 min-h-[72px] py-2 justify-between hover:bg-gray-50 dark:hover:bg-white/5 transition-colors cursor-pointer border-b border-gray-100 dark:border-gray-800/50">
+<div class="flex items-center gap-4">
+<div class="bg-center bg-no-repeat aspect-[2/3] bg-cover rounded-md size-12 shadow-sm" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuAYNUnHsLiKRkWDC7yOHkCxhDmHoYIgR0geTxwe_di6-S9ipt95kHGGPhCeIOep1io1dfto8o8BBiwtM5hCkc3WyXxMPhETgf4w8XmA2JCGc_TYcRYTbsjNbfPXUTTX8dTB-D3YE-0FXZvYwilzPZ_8HcKzYCwZeuAPNbNsrh_mN4JWJnGz1VlDPCD69Bx26Els2qkGRpP6l3IodWbASKTsW_iI4YRiM4y1lxcKNmbuZPPAytrE-JtTLLboQOmN4KbtIglI1DID8bcG");'></div>
+<div class="flex flex-col justify-center">
+<p class="text-gray-900 dark:text-white text-sm font-semibold leading-normal line-clamp-1">1984</p>
+<p class="text-gray-500 dark:text-[#90c1cb] text-xs font-normal leading-normal">8 notes • Guest User</p>
+</div>
+</div>
+<span class="material-symbols-outlined text-gray-400 text-sm">chevron_right</span>
+</div>
+</div>
+</div>
+<div class="p-10 text-center">
+<p class="text-[10px] text-gray-400 dark:text-gray-600 uppercase tracking-widest font-bold">lee-io v2.4.1</p>
+<p class="text-[10px] text-gray-400 dark:text-gray-600 mt-1">Status: Guest Access</p>
+</div>
+</main>
+<nav class="fixed bottom-0 left-0 right-0 bg-white/90 dark:bg-background-dark/90 backdrop-blur-xl border-t border-gray-200 dark:border-gray-800 flex justify-around items-center h-20 pb-4 px-6 z-50">
+<div class="flex flex-col items-center gap-1 text-gray-400">
+<span class="material-symbols-outlined">menu_book</span>
+<span class="text-[10px] font-semibold">Library</span>
+</div>
+<div class="flex flex-col items-center gap-1 text-gray-400">
+<span class="material-symbols-outlined">search</span>
+<span class="text-[10px] font-semibold">Search</span>
+</div>
+<div class="flex flex-col items-center gap-1 text-primary">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">person</span>
+<span class="text-[10px] font-semibold">Profile</span>
+</div>
+</nav>
+
+</body></html>

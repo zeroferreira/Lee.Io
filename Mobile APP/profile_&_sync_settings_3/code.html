@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Profile &amp; Sync Settings</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#0dccf2",
+                        "background-light": "#f5f8f8",
+                        "background-dark": "#101f22",
+                    },
+                    fontFamily: {
+                        "display": ["Inter"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark min-h-screen text-gray-900 dark:text-white">
+<!-- Top Navigation Bar -->
+<div class="sticky top-0 z-50 flex items-center bg-background-light dark:bg-background-dark p-4 pb-2 justify-between border-b border-gray-200 dark:border-gray-800">
+<div class="text-primary flex size-12 shrink-0 items-center justify-start">
+<span class="material-symbols-outlined cursor-pointer">arrow_back_ios</span>
+</div>
+<h2 class="text-gray-900 dark:text-white text-lg font-bold leading-tight tracking-[-0.015em] flex-1 text-center">Profile &amp; Sync</h2>
+<div class="size-12 flex items-center justify-end">
+<span class="material-symbols-outlined text-primary cursor-pointer">settings</span>
+</div>
+</div>
+<main class="max-w-md mx-auto pb-20">
+<!-- Profile Header Component -->
+<div class="flex p-6">
+<div class="flex w-full flex-col gap-4 items-center">
+<div class="flex gap-4 flex-col items-center">
+<div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full border-4 border-primary/20 p-1">
+<div class="w-28 h-28 rounded-full bg-cover bg-center" data-alt="Close up portrait of Alex Rivera" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCJ6oWVUQnGkDyL0uXviWgJfzgFBhxAjRrbXiQjurLjaxKlG3DkPE-Q9EZzkqdxhlSblX3f7wjJ9L4wzA9q2YCRIdbSbYIPSomgmAaAqjr35mSPG8JHFhcrQvmMVUvq4WOJyFtmM3UwD-ziAotG4dBYq8Wd-pqXol6z3dDpv8Ro1x9J2uSQhuq4JM2XuhG3vWbj2WoJ4ApgdmrkB7TdAtD8iO0B5Q31szXT1AqQIuEzraIQQuoUpaa-RqtM6m-Cox-ziPsI3SDIjDSJ");'></div>
+</div>
+<div class="flex flex-col items-center justify-center">
+<p class="text-gray-900 dark:text-white text-[22px] font-bold leading-tight tracking-[-0.015em] text-center">Alex Rivera</p>
+<p class="text-gray-500 dark:text-[#90c1cb] text-base font-normal leading-normal text-center">alex.rivera@lee-io.com</p>
+<div class="mt-2 px-3 py-1 bg-primary/10 rounded-full">
+<p class="text-primary text-xs font-bold uppercase tracking-wider">Premium Member</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Action Panel Component (Sync Status) -->
+<div class="px-4 py-2">
+<div class="flex flex-1 flex-col items-start justify-between gap-4 rounded-xl border border-gray-200 dark:border-[#315f68] bg-white dark:bg-background-dark p-5 sm:flex-row sm:items-center shadow-sm">
+<div class="flex items-center gap-4">
+<div class="flex items-center justify-center size-10 rounded-full bg-primary/20 text-primary">
+<span class="material-symbols-outlined">sync</span>
+</div>
+<div class="flex flex-col gap-1">
+<p class="text-gray-900 dark:text-white text-base font-bold leading-tight">Cloud Synchronization</p>
+<p class="text-gray-500 dark:text-[#90c1cb] text-sm font-normal leading-normal">Last synced: 2 minutes ago</p>
+</div>
+</div>
+<button class="w-full sm:w-auto flex min-w-[100px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-primary text-background-dark text-sm font-bold leading-normal hover:opacity-90 transition-opacity">
+<span class="truncate">Sync Now</span>
+</button>
+</div>
+</div>
+<!-- Theme Selection Section (New Component) -->
+<div class="px-4 pt-6">
+<h3 class="text-gray-900 dark:text-white text-lg font-bold leading-tight tracking-[-0.015em] pb-4">Theme Selection</h3>
+<div class="grid grid-cols-3 gap-3">
+<!-- Light Theme -->
+<div class="flex flex-col items-center gap-2">
+<div class="w-full aspect-video rounded-lg border-2 border-gray-200 bg-white flex flex-col p-2 gap-1 cursor-pointer">
+<div class="h-2 w-full bg-gray-100 rounded"></div>
+<div class="h-2 w-2/3 bg-gray-100 rounded"></div>
+</div>
+<span class="text-xs font-medium text-gray-500">Light (B&amp;W)</span>
+</div>
+<!-- Dark Theme (Active) -->
+<div class="flex flex-col items-center gap-2">
+<div class="w-full aspect-video rounded-lg border-2 border-primary bg-background-dark flex flex-col p-2 gap-1 cursor-pointer relative">
+<div class="h-2 w-full bg-gray-800 rounded"></div>
+<div class="h-2 w-2/3 bg-gray-800 rounded"></div>
+<div class="absolute top-1 right-1">
+<span class="material-symbols-outlined text-primary text-xs">check_circle</span>
+</div>
+</div>
+<span class="text-xs font-bold text-primary">Dark (W&amp;B)</span>
+</div>
+<!-- Pastel Theme -->
+<div class="flex flex-col items-center gap-2">
+<div class="w-full aspect-video rounded-lg border-2 border-transparent bg-[#fef6e4] flex flex-col p-2 gap-1 cursor-pointer">
+<div class="h-2 w-full bg-[#f3d2c1] rounded"></div>
+<div class="h-2 w-2/3 bg-[#f3d2c1] rounded"></div>
+</div>
+<span class="text-xs font-medium text-gray-500">Pastel</span>
+</div>
+</div>
+</div>
+<!-- Section Header Component -->
+<div class="pt-8">
+<h3 class="text-gray-900 dark:text-white text-lg font-bold leading-tight tracking-[-0.015em] px-4 pb-2">My Annotations</h3>
+</div>
+<!-- List Items -->
+<div class="space-y-1">
+<div class="flex items-center gap-4 bg-white dark:bg-background-dark px-4 min-h-[72px] py-2 justify-between hover:bg-gray-50 dark:hover:bg-white/5 transition-colors cursor-pointer">
+<div class="flex items-center gap-4">
+<div class="bg-center bg-no-repeat aspect-[2/3] bg-cover rounded-md size-14" data-alt="Cover of the book The Great Gatsby" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuDd_OP8GRuiB0SRgKAIy6Ag1vz3l5wN1aeQOK_1ZIZ-rPZn_5vuKg1SHrMtZhNw54q15-ri6Kbkyq9lRDlOgznKoP56aUNdsCb2qAH6_XFp9v2TdTbOn0y1I0wAHzgh_ha9xt72mxCg70r-wJkds5XdLHk2Uz1qevUJ93NE_Nf3jCh7KjcV_zbGyoQtgLMGboNuAfxw_r7jhLczoKHXf8a5rT9mvsFncV2VvDXFP8R1eXWVGsajFr_Y18QEVPpCh4FB86rfOhs_0dOv");'></div>
+<div class="flex flex-col justify-center">
+<p class="text-gray-900 dark:text-white text-base font-semibold leading-normal line-clamp-1">The Great Gatsby</p>
+<p class="text-gray-500 dark:text-[#90c1cb] text-sm font-normal leading-normal line-clamp-2">F. Scott Fitzgerald</p>
+</div>
+</div>
+<div class="shrink-0 flex items-center gap-2">
+<p class="text-gray-400 dark:text-white/60 text-sm font-normal leading-normal">12 notes</p>
+<span class="material-symbols-outlined text-gray-400 text-sm">chevron_right</span>
+</div>
+</div>
+<div class="flex items-center gap-4 bg-white dark:bg-background-dark px-4 min-h-[72px] py-2 justify-between hover:bg-gray-50 dark:hover:bg-white/5 transition-colors cursor-pointer">
+<div class="flex items-center gap-4">
+<div class="bg-center bg-no-repeat aspect-[2/3] bg-cover rounded-md size-14" data-alt="Cover of the book 1984 by George Orwell" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuAYNUnHsLiKRkWDC7yOHkCxhDmHoYIgR0geTxwe_di6-S9ipt95kHGGPhCeIOep1io1dfto8o8BBiwtM5hCkc3WyXxMPhETgf4w8XmA2JCGc_TYcRYTbsjNbfPXUTTX8dTB-D3YE-0FXZvYwilzPZ_8HcKzYCwZeuAPNbNsrh_mN4JWJnGz1VlDPCD69Bx26Els2qkGRpP6l3IodWbASKTsW_iI4YRiM4y1lxcKNmbuZPPAytrE-JtTLLboQOmN4KbtIglI1DID8bcG");'></div>
+<div class="flex flex-col justify-center">
+<p class="text-gray-900 dark:text-white text-base font-semibold leading-normal line-clamp-1">1984</p>
+<p class="text-gray-500 dark:text-[#90c1cb] text-sm font-normal leading-normal line-clamp-2">George Orwell</p>
+</div>
+</div>
+<div class="shrink-0 flex items-center gap-2">
+<p class="text-gray-400 dark:text-white/60 text-sm font-normal leading-normal">8 notes</p>
+<span class="material-symbols-outlined text-gray-400 text-sm">chevron_right</span>
+</div>
+</div>
+<div class="flex items-center gap-4 bg-white dark:bg-background-dark px-4 min-h-[72px] py-2 justify-between hover:bg-gray-50 dark:hover:bg-white/5 transition-colors cursor-pointer">
+<div class="flex items-center gap-4">
+<div class="bg-center bg-no-repeat aspect-[2/3] bg-cover rounded-md size-14" data-alt="Cover of the book Atomic Habits" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuAFgsApRFCi9DSMZLJCgQaldTvXHNdzha03hpH3Cv9Oz8uVJKMLaTCRgQWc0Kct-qPlv-ifqk6SidYa83Tpex3dsLIEabgP2cK371slot_tiTR5rpdzl14kAwuDMyirxBli_Ryi2NdwEdolbzo6xK6tq3UmjWwrhfOGXOCPh6Nk82B59A32GFDlOwSQVa4Xr9fYu-ujVBz9DdruDqRiik0PYhuwvduwB9d3a7LTUs9aiUMyDqpy291tndgB4w6jk4_B1M_cb3dXTvTe");'></div>
+<div class="flex flex-col justify-center">
+<p class="text-gray-900 dark:text-white text-base font-semibold leading-normal line-clamp-1">Atomic Habits</p>
+<p class="text-gray-500 dark:text-[#90c1cb] text-sm font-normal leading-normal line-clamp-2">James Clear</p>
+</div>
+</div>
+<div class="shrink-0 flex items-center gap-2">
+<p class="text-gray-400 dark:text-white/60 text-sm font-normal leading-normal">24 notes</p>
+<span class="material-symbols-outlined text-gray-400 text-sm">chevron_right</span>
+</div>
+</div>
+</div>
+<!-- Footer Info -->
+<div class="p-8 text-center">
+<p class="text-xs text-gray-400 dark:text-gray-600">lee-io v2.4.1 (Build 108)</p>
+<p class="text-xs text-gray-400 dark:text-gray-600 mt-1">Cloud ID: LI-9283-AXR</p>
+</div>
+</main>
+<!-- Fixed Bottom Navigation (iOS Style) -->
+<nav class="fixed bottom-0 left-0 right-0 bg-white/80 dark:bg-background-dark/80 backdrop-blur-lg border-t border-gray-200 dark:border-gray-800 flex justify-around items-center h-16 px-6">
+<div class="flex flex-col items-center gap-1 text-gray-400">
+<span class="material-symbols-outlined">menu_book</span>
+<span class="text-[10px] font-medium">Library</span>
+</div>
+<div class="flex flex-col items-center gap-1 text-gray-400">
+<span class="material-symbols-outlined">search</span>
+<span class="text-[10px] font-medium">Search</span>
+</div>
+<div class="flex flex-col items-center gap-1 text-primary">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">person</span>
+<span class="text-[10px] font-medium">Profile</span>
+</div>
+</nav>
+</body></html>

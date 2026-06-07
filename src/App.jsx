@@ -15,8 +15,8 @@ import useDrivePicker from 'react-google-drive-picker';
 import { localFileStorage } from './utils/localFileStorage';
 import { useDocuments } from './hooks/useDocuments';
 
-const GOOGLE_CLIENT_ID = "741889878750-da4cbkfe3q9gjh2figu71gbt4e9vap5e.apps.googleusercontent.com";
-const GOOGLE_API_KEY = "AIzaSyDQHr01GZaojE3wdoGzejocuFM-cXQGwTU";
+const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID;
+const GOOGLE_API_KEY = import.meta.env.VITE_GOOGLE_API_KEY;
 
 function AppContent() {
   const [showIntro, setShowIntro] = useState(true);
@@ -151,16 +151,21 @@ function AppContent() {
 
   useEffect(() => {
     const root = window.document.documentElement;
+    root.classList.remove('dark', 'vision');
     if (theme === 'dark') {
       root.classList.add('dark');
-    } else {
-      root.classList.remove('dark');
+    } else if (theme === 'vision') {
+      root.classList.add('dark', 'vision');
     }
     localStorage.setItem('theme', theme);
   }, [theme]);
 
   const toggleTheme = () => {
-    setTheme(prev => prev === 'light' ? 'dark' : 'light');
+    setTheme(prev => {
+      if (prev === 'light') return 'dark';
+      if (prev === 'dark') return 'vision';
+      return 'light';
+    });
   };
 
   const handleAnnotationClick = (targetPage) => {
