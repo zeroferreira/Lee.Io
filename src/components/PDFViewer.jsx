@@ -1,7 +1,7 @@
 import { useState, useEffect, useLayoutEffect, useMemo, useRef } from 'react';
 import { Document, Page, pdfjs } from 'react-pdf';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronLeft, ChevronRight, ZoomIn, ZoomOut, MessageSquarePlus, Highlighter, Eraser, Maximize, Minimize, MoreHorizontal, Square, Circle, Copy, Search, Expand, Shrink, Menu, X, Trash2, Globe2, Sparkles, Send, Share2, Printer, Download, BookOpen, FileText, LayoutGrid, Paperclip } from 'lucide-react';
+import { ChevronLeft, ChevronRight, ZoomIn, ZoomOut, MessageSquarePlus, Highlighter, Eraser, Maximize, Minimize, MoreHorizontal, Square, Circle, Copy, Search, Expand, Shrink, Menu, X, Trash2, Globe2, Sparkles, Send, Share2, Printer, Download, BookOpen, FileText, LayoutGrid, Paperclip, Cloud } from 'lucide-react';
 import 'react-pdf/dist/Page/AnnotationLayer.css';
 import 'react-pdf/dist/Page/TextLayer.css';
 
@@ -235,7 +235,7 @@ Puedes hacerme preguntas específicas sobre el texto, solicitar resúmenes de p�
 *¿Qué te gustaría explorar hoy?*`;
 };
 
-export const PDFViewer = ({ file, isMobile, onAddAnnotation, annotations = [], currentPage, initialPage = 1, onPageChange, onDeleteAnnotation }) => {
+export const PDFViewer = ({ file, isMobile, onAddAnnotation, annotations = [], currentPage, initialPage = 1, onPageChange, onDeleteAnnotation, currentUser, onSaveToCloud }) => {
   const [numPages, setNumPages] = useState(null);
   const [pageNumber, setPageNumber] = useState(initialPage);
   const [scale, setScale] = useState(1.0);
@@ -283,6 +283,7 @@ export const PDFViewer = ({ file, isMobile, onAddAnnotation, annotations = [], c
   const [geminiInput, setGeminiInput] = useState('');
   const [geminiLoading, setGeminiLoading] = useState(false);
   const [pdfText, setPdfText] = useState('');
+  const [localSyncing, setLocalSyncing] = useState(false);
   const [showShareMenu, setShowShareMenu] = useState(false);
   const chatEndRef = useRef(null);
 
@@ -1119,6 +1120,19 @@ Puedes hacerme preguntas específicas sobre el texto, pedirme resúmenes de secc
     setGeminiLoading(false);
   };
 
+  const handleCloudSaveClick = async () => {
+    if (onSaveToCloud) {
+      setLocalSyncing(true);
+      try {
+        await onSaveToCloud();
+      } catch (err) {
+        console.error("Error al sincronizar en la nube:", err);
+      } finally {
+        setLocalSyncing(false);
+      }
+    }
+  };
+
   return (
     <div className={`flex flex-col w-full mx-auto relative ${isFullScreen ? 'fixed inset-0 z-50 bg-background max-w-none h-[100dvh]' : (isMobile ? 'bg-background max-w-5xl h-full' : 'p-0 max-w-none w-full h-[calc(100vh-4rem)] flex flex-col bg-background')}`}>
       {!isFullScreen && (
@@ -1147,6 +1161,26 @@ Puedes hacerme preguntas específicas sobre el texto, pedirme resúmenes de secc
               <BookOpen size={13} />
               <span>Documentos</span>
             </button>
+            
+            {onSaveToCloud && (
+              <button 
+                onClick={handleCloudSaveClick}
+                disabled={localSyncing}
+                className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-medium transition-all border ${
+                  currentUser 
+                    ? 'bg-emerald-600 hover:bg-emerald-700 border-emerald-500 text-white shadow shadow-emerald-500/10' 
+                    : 'bg-background hover:bg-foreground/5 border-foreground/10 text-foreground'
+                }`}
+                title={currentUser ? "Sincronizar notas y archivos con la nube" : "Inicia sesión para guardar en la nube"}
+              >
+                {localSyncing ? (
+                  <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-current"></div>
+                ) : (
+                  <Cloud size={13} className={currentUser ? 'text-white animate-pulse' : 'text-foreground/60'} />
+                )}
+                <span>{currentUser ? 'Nube Sinc' : 'Salvar en Nube'}</span>
+              </button>
+            )}
             
             <div className="relative">
               <button 

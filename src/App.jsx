@@ -892,6 +892,66 @@ function AppContent() {
             currentPage={currentPage} // This is for external control if needed
             initialPage={pdfInitialPage}
             onPageChange={handlePdfPageChange}
+            currentUser={currentUser}
+            onSaveToCloud={async () => {
+              if (!currentUser) {
+                try {
+                  await loginWithGoogle();
+                  setNotification({ type: 'success', text: "Sesión iniciada. ¡Sincronizando datos!" });
+                } catch (err) {
+                  console.error("Error al iniciar sesión:", err);
+                  setNotification({ type: 'error', text: "No se pudo iniciar sesión para sincronizar." });
+                }
+              } else {
+                setNotification({ type: 'info', text: "Guardando en la nube..." });
+                try {
+                  // Guardar anotaciones en Firestore
+                  await setDoc(doc(db, "users", currentUser.uid), {
+                    annotations: annotations
+                  }, { merge: true });
+                  
+                  // Guardar archivos locales en Storage y Firestore si no están en la nube
+                  const localFiles = await localFileStorage.getFiles();
+                  let syncedAny = false;
+                  
+                  const q = query(collection(db, `users/${currentUser.uid}/documents`));
+                  const querySnapshot = await getDocs(q);
+                  const cloudNames = new Set(querySnapshot.docs.map(doc => doc.data().name));
+                  
+                  for (const localFile of localFiles) {
+                    if (!cloudNames.has(localFile.name) && localFile.source === 'local') {
+                      const fileBlob = await localFileStorage.getFile(localFile.name);
+                      if (fileBlob) {
+                        const storageRef = ref(storage, `users/${currentUser.uid}/documents/${localFile.name}`);
+                        const uploadTask = uploadBytesResumable(storageRef, fileBlob);
+                        await new Promise((res, rej) => {
+                          uploadTask.on('state_changed', null, rej, async () => {
+                            const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
+                            await addDoc(collection(db, `users/${currentUser.uid}/documents`), {
+                              name: localFile.name,
+                              url: downloadURL,
+                              createdAt: serverTimestamp(),
+                              size: localFile.size || fileBlob.size,
+                              lastPage: 1
+                            });
+                            syncedAny = true;
+                            res();
+                          });
+                        });
+                      }
+                    }
+                  }
+                  
+                  if (syncedAny) {
+                     setDocumentsRefresh(v => v + 1);
+                  }
+                  setNotification({ type: 'success', text: "¡Sincronización completada! Tus notas y archivos están en la nube." });
+                } catch (err) {
+                  console.error("Error al guardar en la nube:", err);
+                  setNotification({ type: 'error', text: "Error al guardar en la nube. Inténtalo de nuevo." });
+                }
+              }
+            }}
           />
                     
                     {/* Return to previous page button */}
