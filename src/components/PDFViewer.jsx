@@ -282,6 +282,7 @@ export const PDFViewer = ({ file, isMobile, onAddAnnotation, annotations = [], c
   const [geminiChat, setGeminiChat] = useState([]);
   const [geminiInput, setGeminiInput] = useState('');
   const [geminiLoading, setGeminiLoading] = useState(false);
+  const [pdfText, setPdfText] = useState('');
   const [showShareMenu, setShowShareMenu] = useState(false);
   const chatEndRef = useRef(null);
 
@@ -402,13 +403,31 @@ Puedes hacerme preguntas específicas sobre el texto, pedirme resúmenes de secc
     }
   }
 
-  function onDocumentLoadSuccess({ numPages }) {
-    setNumPages(numPages);
+  async function onDocumentLoadSuccess(pdf) {
+    const num = pdf.numPages;
+    setNumPages(num);
     // Use initialPage if provided and valid, otherwise 1
-    const startPage = (initialPage && initialPage > 0 && initialPage <= numPages) ? initialPage : 1;
+    const startPage = (initialPage && initialPage > 0 && initialPage <= num) ? initialPage : 1;
     setPageNumber(startPage);
     // Don't trigger onPageChange on load to avoid overwriting persisted state with default (1)
     // before async fetch completes
+    
+    // Extract text in the background
+    try {
+      let extractedText = "";
+      const maxPages = Math.min(num, 150); // limit to 150 pages to keep payload size reasonable
+      for (let i = 1; i <= maxPages; i++) {
+        const page = await pdf.getPage(i);
+        const textContent = await page.getTextContent();
+        const pageText = textContent.items.map(item => item.str).join(" ");
+        if (pageText.trim()) {
+          extractedText += `\n[Página ${i}]: ${pageText}\n`;
+        }
+      }
+      setPdfText(extractedText);
+    } catch (error) {
+      console.error("Error al extraer texto del PDF:", error);
+    }
   }
 
   // React to initialPage changes after mount (e.g. async fetch)
@@ -1023,7 +1042,7 @@ Puedes hacerme preguntas específicas sobre el texto, pedirme resúmenes de secc
         }
     }, 10);
   };
-  const handleSendPrompt = (promptText) => {
+  const handleSendPrompt = async (promptText) => {
     if (!promptText.trim() || geminiLoading) return;
     
     setGeminiChat(prev => [...prev, {
@@ -1035,15 +1054,69 @@ Puedes hacerme preguntas específicas sobre el texto, pedirme resúmenes de secc
     setGeminiInput('');
     setGeminiLoading(true);
     
-    setTimeout(() => {
-      const responseText = generateGeminiResponse(promptText, file?.name || 'documento');
-      setGeminiChat(prev => [...prev, {
-        sender: 'gemini',
-        text: responseText,
-        timestamp: new Date()
-      }]);
-      setGeminiLoading(false);
-    }, 1200);
+    const apiKey = import.meta.env.VITE_GOOGLE_API_KEY || "";
+    let responseText = "";
+    
+    if (apiKey && apiKey.startsWith("AIzaSy")) {
+      try {
+        const docContext = pdfText 
+          ? `Estás ayudando al usuario a leer un documento PDF llamado "${file?.name || 'documento'}".\nAquí tienes el contenido de texto extraído del documento:\n\n${pdfText}\n\nResponde a la siguiente pregunta o instrucción del usuario basándote en este contenido. Si la pregunta no se puede responder con este documento, hazlo saber amablemente, pero intenta deducir o aportar contexto relevante.\n\nPregunta: ${promptText}`
+          : `Estás ayudando al usuario a leer el documento "${file?.name || 'documento'}". El contenido del documento no está disponible de inmediato. Responde a la siguiente pregunta: ${promptText}`;
+
+        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            contents: [
+              {
+                parts: [
+                  {
+                    text: docContext
+                  }
+                ]
+              }
+            ],
+            systemInstruction: {
+              parts: [
+                {
+                  text: "Eres Gemini, un asistente de lectura de PDFs inteligente y amigable integrado en la plataforma Leé.Io. Tu objetivo es ayudar al usuario a comprender, resumir y extraer información del documento PDF de forma precisa. Usa formato Markdown limpio, tablas cuando sea apropiado y resalta términos clave. Responde siempre en el mismo idioma en el que te pregunte el usuario."
+                }
+              ]
+            }
+          })
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          const candidateText = data.candidates?.[0]?.content?.parts?.[0]?.text;
+          if (candidateText) {
+            responseText = candidateText;
+          } else {
+            throw new Error("No text returned from Gemini API");
+          }
+        } else {
+          const errData = await response.json().catch(() => ({}));
+          console.warn("Gemini API error status:", response.status, errData);
+          throw new Error(`API returned status ${response.status}`);
+        }
+      } catch (error) {
+        console.error("Error al llamar a Gemini API, usando simulador:", error);
+        responseText = generateGeminiResponse(promptText, file?.name || 'documento');
+      }
+    } else {
+      // No API key or invalid format, use simulator fallback
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      responseText = generateGeminiResponse(promptText, file?.name || 'documento');
+    }
+    
+    setGeminiChat(prev => [...prev, {
+      sender: 'gemini',
+      text: responseText,
+      timestamp: new Date()
+    }]);
+    setGeminiLoading(false);
   };
 
   return (
