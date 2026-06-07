@@ -925,18 +925,30 @@ function AppContent() {
                         const storageRef = ref(storage, `users/${currentUser.uid}/documents/${localFile.name}`);
                         const uploadTask = uploadBytesResumable(storageRef, fileBlob);
                         await new Promise((res, rej) => {
-                          uploadTask.on('state_changed', null, rej, async () => {
-                            const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
-                            await addDoc(collection(db, `users/${currentUser.uid}/documents`), {
-                              name: localFile.name,
-                              url: downloadURL,
-                              createdAt: serverTimestamp(),
-                              size: localFile.size || fileBlob.size,
-                              lastPage: 1
-                            });
-                            syncedAny = true;
-                            res();
-                          });
+                          uploadTask.on('state_changed', 
+                            null, 
+                            (error) => {
+                              console.error("Error en uploadTask:", error);
+                              rej(error);
+                            }, 
+                            async () => {
+                              try {
+                                const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
+                                await addDoc(collection(db, `users/${currentUser.uid}/documents`), {
+                                  name: localFile.name,
+                                  url: downloadURL,
+                                  createdAt: serverTimestamp(),
+                                  size: localFile.size || fileBlob.size,
+                                  lastPage: 1
+                                });
+                                syncedAny = true;
+                                res();
+                              } catch (err) {
+                                console.error("Error al procesar subida en el callback:", err);
+                                rej(err);
+                              }
+                            }
+                          );
                         });
                       }
                     }
