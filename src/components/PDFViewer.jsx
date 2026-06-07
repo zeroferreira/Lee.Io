@@ -1243,7 +1243,13 @@ Puedes hacerme preguntas específicas sobre el texto, pedirme resúmenes de secc
       </div>
       )}
 
-      <div className="flex-1 flex w-full overflow-hidden relative bg-[#eef0f4] dark:bg-[#111112]">
+      <Document
+        file={file}
+        onLoadSuccess={onDocumentLoadSuccess}
+        loading={<div className="flex-1 flex items-center justify-center p-10 text-foreground/60 font-medium">Cargando PDF...</div>}
+        error={<div className="flex-1 flex items-center justify-center p-10 text-red-500 font-medium">Error al cargar el PDF.</div>}
+        className="flex-1 flex w-full overflow-hidden relative bg-[#eef0f4] dark:bg-[#111112]"
+      >
         {/* Panel izquierdo: Miniaturas */}
         {showThumbnails && !isFullScreen && (
           <div className="w-40 border-r border-foreground/10 flex flex-col bg-foreground/[0.01] dark:bg-[#121214]/50 shrink-0 overflow-y-auto p-2 space-y-4">
@@ -1304,12 +1310,8 @@ Puedes hacerme preguntas específicas sobre el texto, pedirme resúmenes de secc
               WebkitTouchCallout: isMobile ? 'none' : 'default',
             }}
       >
-        <Document
-          file={file}
-          onLoadSuccess={onDocumentLoadSuccess}
+        <div
           className={`flex flex-col items-center w-full min-h-full ${isFullScreen ? 'py-0' : 'py-8'}`}
-          loading={<div className="p-10">Cargando PDF...</div>}
-          error={<div className="p-10 text-red-500">Error al cargar el PDF.</div>}
         >
           <AnimatePresence initial={false} custom={direction} mode="wait">
             <motion.div
@@ -1470,7 +1472,7 @@ Puedes hacerme preguntas específicas sobre el texto, pedirme resúmenes de secc
               </div>
             </motion.div>
           </AnimatePresence>
-        </Document>
+        </div>
       </div> {/* Closes pdf-container */}
       </div> {/* Closes Middle Panel */}
 
@@ -1623,7 +1625,7 @@ Puedes hacerme preguntas específicas sobre el texto, pedirme resúmenes de secc
           </div>
         </div>
       )}
-      </div>
+      </Document>
 
       {optionsMenu.open && (
         <div
