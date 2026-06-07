@@ -36,6 +36,37 @@ const findAnnotationsForFile = (annotationsMap, fileName) => {
   return matchedKey ? annotationsMap[matchedKey] : [];
 };
 
+const mergeAnnotations = (localAnns, cloudAnns) => {
+  if (!localAnns) return cloudAnns || {};
+  if (!cloudAnns) return localAnns || {};
+  
+  const merged = { ...localAnns };
+  
+  Object.keys(cloudAnns).forEach(cloudKey => {
+    const normCloudKey = normalizeFilename(cloudKey);
+    const matchedLocalKey = Object.keys(merged).find(
+      localKey => normalizeFilename(localKey) === normCloudKey
+    );
+    
+    const targetKey = matchedLocalKey || cloudKey;
+    const localNotes = merged[targetKey] || [];
+    const cloudNotes = cloudAnns[cloudKey] || [];
+    
+    // Merge arrays, removing duplicates by ID
+    const combinedNotes = [...localNotes];
+    cloudNotes.forEach(cn => {
+      if (!combinedNotes.some(ln => ln.id === cn.id)) {
+        combinedNotes.push(cn);
+      }
+    });
+    
+    combinedNotes.sort((a, b) => new Date(a.date || a.id).getTime() - new Date(b.date || b.id).getTime());
+    merged[targetKey] = combinedNotes;
+  });
+  
+  return merged;
+};
+
 function AppContent() {
   const [showIntro, setShowIntro] = useState(true);
   const { currentUser, accessToken, loginWithGoogle } = useAuth();
@@ -80,11 +111,13 @@ function AppContent() {
   const fileInputRef = useRef(null);
 
   const [cloudLoaded, setCloudLoaded] = useState(false);
+  const [loadedUid, setLoadedUid] = useState(null);
 
   useEffect(() => {
     // Load user annotations from Firestore if logged in
     let unsubscribe = () => {};
     setCloudLoaded(false);
+    setLoadedUid(null);
 
     const loadUserAnnotations = async () => {
       if (currentUser) {
@@ -96,7 +129,7 @@ function AppContent() {
                 const data = docSnap.data();
                 if (data.annotations) {
                     setAnnotations(prev => {
-                        const next = { ...prev, ...data.annotations };
+                        const next = mergeAnnotations(prev, data.annotations);
                         // Compare if actually changed to avoid unnecessary re-renders
                         if (JSON.stringify(prev) !== JSON.stringify(next)) {
                             return next;
@@ -106,12 +139,15 @@ function AppContent() {
                 }
             }
             setCloudLoaded(true);
+            setLoadedUid(currentUser.uid);
         }, (error) => {
             console.error("Error loading user annotations from Firestore:", error);
             setCloudLoaded(true);
+            setLoadedUid(currentUser.uid);
         });
       } else {
         setCloudLoaded(true);
+        setLoadedUid(null);
       }
     };
     loadUserAnnotations();
@@ -129,8 +165,8 @@ function AppContent() {
 
   useEffect(() => {
     localStorage.setItem('annotations', JSON.stringify(annotations));
-    // Save to Firestore if logged in AND cloud data has been loaded
-    if (currentUser && cloudLoaded) {
+    // Save to Firestore if logged in AND cloud data has been loaded for current user
+    if (currentUser && cloudLoaded && loadedUid === currentUser.uid) {
       const saveToFirestore = async () => {
         try {
           await setDoc(doc(db, "users", currentUser.uid), {
@@ -142,7 +178,7 @@ function AppContent() {
       };
       saveToFirestore();
     }
-  }, [annotations, currentUser, cloudLoaded]);
+  }, [annotations, currentUser, cloudLoaded, loadedUid]);
 
   useEffect(() => {
     const syncLocalFilesToCloud = async () => {

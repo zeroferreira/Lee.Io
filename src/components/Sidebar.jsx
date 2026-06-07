@@ -27,6 +27,15 @@ const findAnnotationsForFile = (annotationsMap, fileName) => {
 export const Sidebar = ({ isOpen, onClose, theme, toggleTheme, annotations = {}, currentFileName, onOpenProfile, onAnnotationClick, onCloudDocumentSelect, documents = [], loadingDocs = false }) => {
   const [view, setView] = useState('menu'); // 'menu' | 'annotations'
   const { currentUser, loginWithGoogle, logout } = useAuth();
+  const [selectedFileForAnns, setSelectedFileForAnns] = useState(null);
+
+  useEffect(() => {
+    if (currentFileName) {
+      setSelectedFileForAnns(currentFileName);
+    } else {
+      setSelectedFileForAnns(null);
+    }
+  }, [currentFileName, view]);
   // Internal state removed as we now use props for documents
   // But we need to handle if props are not passed (backward compatibility or if sidebar used elsewhere)
   // For now, let's assume props are passed from App.jsx or default to empty.
@@ -239,28 +248,116 @@ export const Sidebar = ({ isOpen, onClose, theme, toggleTheme, annotations = {},
                 </div>
               </div>
             ) : (
-              <div className="flex-1 overflow-y-auto">
-                <h3 className="text-xl font-bold mb-4">Anotaciones</h3>
-                {!currentFileName ? (
-                    <p className="text-sm opacity-50">Abre un PDF para ver sus anotaciones.</p>
-                ) : currentAnnotations.length === 0 ? (
-                    <p className="text-sm opacity-50">No hay anotaciones para este documento.</p>
-                ) : (
-                    <div className="space-y-4">
-                        {currentAnnotations.map(note => (
-                            <div 
-                              key={note.id} 
-                              onClick={() => onAnnotationClick && onAnnotationClick(note.page)}
-                              className="p-3 bg-foreground/5 rounded-lg text-sm cursor-pointer hover:bg-foreground/10 transition-colors"
-                            >
-                                <div className="flex justify-between mb-2 opacity-70 text-xs">
-                                    <span>Página {note.page}</span>
-                                    <span>{new Date(note.date).toLocaleDateString()}</span>
-                                </div>
-                                <p>{note.text}</p>
-                            </div>
-                        ))}
+              <div className="flex-1 flex flex-col min-h-0">
+                {selectedFileForAnns ? (
+                  // Show annotations for a specific file
+                  <div className="flex-1 flex flex-col min-h-0">
+                    <div className="flex items-center gap-2 mb-4">
+                      <button 
+                        onClick={() => setSelectedFileForAnns(null)} 
+                        className="p-1 hover:bg-foreground/5 rounded-full shrink-0"
+                        title="Ver todos los documentos"
+                      >
+                        <ArrowLeft size={16} />
+                      </button>
+                      <h3 className="font-semibold text-base truncate flex-1" title={selectedFileForAnns}>
+                        {selectedFileForAnns.replace('.pdf', '')}
+                      </h3>
                     </div>
+
+                    {/* Check if this file is in our documents library to offer an "Open" button */}
+                    {(() => {
+                      const matchedDoc = documents.find(d => normalizeFilename(d.name) === normalizeFilename(selectedFileForAnns));
+                      if (matchedDoc && selectedFileForAnns !== currentFileName) {
+                        return (
+                          <button
+                            onClick={() => {
+                              onCloudDocumentSelect(matchedDoc);
+                              onClose();
+                            }}
+                            className="mb-4 w-full flex items-center justify-center gap-2 py-2 px-3 bg-foreground text-background rounded-xl text-xs font-medium hover:opacity-90 transition-all shadow-sm"
+                          >
+                            <BookOpen size={14} />
+                            <span>Abrir este documento</span>
+                          </button>
+                        );
+                      }
+                      return null;
+                    })()}
+
+                    <div className="flex-1 overflow-y-auto space-y-3 pr-1">
+                      {(() => {
+                        const notes = findAnnotationsForFile(annotations, selectedFileForAnns);
+                        if (notes.length === 0) {
+                          return <p className="text-sm opacity-50 italic">No hay anotaciones para este documento.</p>;
+                        }
+                        return notes.map(note => (
+                          <div 
+                            key={note.id} 
+                            onClick={() => {
+                              // If this is the current file, jump to page
+                              if (selectedFileForAnns === currentFileName && onAnnotationClick) {
+                                onAnnotationClick(note.page);
+                              }
+                            }}
+                            className={`p-3 bg-foreground/5 rounded-xl text-sm transition-all ${
+                              selectedFileForAnns === currentFileName 
+                                ? 'cursor-pointer hover:bg-foreground/10 hover:border-foreground/10 border border-transparent' 
+                                : 'border border-foreground/5'
+                            }`}
+                          >
+                            <div className="flex justify-between mb-1.5 opacity-60 text-[10px] font-medium">
+                              <span>Página {note.page}</span>
+                              <span>{new Date(note.date).toLocaleDateString()}</span>
+                            </div>
+                            <p className="text-foreground/90 leading-relaxed font-sans">{note.text}</p>
+                          </div>
+                        ));
+                      })()}
+                    </div>
+                  </div>
+                ) : (
+                  // Show list of all annotated files
+                  <div className="flex-1 flex flex-col min-h-0">
+                    <h3 className="text-xl font-bold mb-4">Anotaciones</h3>
+                    <div className="flex-1 overflow-y-auto space-y-3 pr-1">
+                      {Object.keys(annotations).filter(key => annotations[key] && annotations[key].length > 0).length === 0 ? (
+                        <div className="text-center py-12 px-4 space-y-2">
+                          <p className="text-sm opacity-50 italic">No tienes anotaciones guardadas aún.</p>
+                          <p className="text-xs opacity-40">Las anotaciones que realices en tus PDFs aparecerán aquí.</p>
+                        </div>
+                      ) : (
+                        Object.entries(annotations)
+                          .filter(([_, notes]) => notes && notes.length > 0)
+                          .map(([fileName, notes]) => {
+                            const isCurrent = fileName === currentFileName;
+                            return (
+                              <button
+                                key={fileName}
+                                onClick={() => setSelectedFileForAnns(fileName)}
+                                className={`w-full p-4 rounded-2xl border text-left transition-all hover:scale-[1.01] flex flex-col gap-2 ${
+                                  isCurrent 
+                                    ? 'bg-foreground/5 border-foreground/20 shadow-sm' 
+                                    : 'bg-background hover:bg-foreground/5 border-foreground/10'
+                                }`}
+                              >
+                                <div className="flex justify-between items-start gap-2 w-full">
+                                  <span className="font-semibold text-sm truncate flex-1 text-foreground/90">
+                                    {fileName.replace('.pdf', '')}
+                                  </span>
+                                  <span className="text-[10px] bg-foreground/10 px-2 py-0.5 rounded-full font-medium text-foreground/70 shrink-0">
+                                    {notes.length} {notes.length === 1 ? 'nota' : 'notas'}
+                                  </span>
+                                </div>
+                                <p className="text-xs opacity-60 line-clamp-1 italic">
+                                  "{notes[notes.length - 1].text}"
+                                </p>
+                              </button>
+                            );
+                          })
+                      )}
+                    </div>
+                  </div>
                 )}
               </div>
             )}
