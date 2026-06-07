@@ -94,18 +94,42 @@ export const ProfileScreen = ({ isOpen, onClose, annotations = {}, documents = [
         .filter(([_, notes]) => notes && notes.length > 0)
         .map(([name, notes]) => `${name} (${notes.length} notas)`);
 
+      const localHlStr = localStorage.getItem('globalHighlights');
+      const localHls = localHlStr ? JSON.parse(localHlStr) : {};
+      const localHlKeys = Object.entries(localHls)
+        .map(([name, hls]) => {
+          const count = Object.values(hls).reduce((acc, curr) => acc + (curr?.length || 0), 0);
+          return count > 0 ? `${name} (${count} resaltados)` : null;
+        })
+        .filter(Boolean);
+
       const docRef = doc(db, "users", currentUser.uid);
       const docSnap = await getDoc(docRef);
       
       let cloudKeys = [];
       if (docSnap.exists()) {
         const data = docSnap.data();
+        
+        let annList = [];
         if (data.annotations) {
-          cloudKeys = Object.entries(data.annotations)
+          annList = Object.entries(data.annotations)
             .filter(([_, notes]) => notes && notes.length > 0)
             .map(([name, notes]) => `${name} (${notes.length} notas)`);
-        } else {
-          cloudKeys = ["Sin anotaciones guardadas en la nube."];
+        }
+        
+        let hlList = [];
+        if (data.highlights) {
+          hlList = Object.entries(data.highlights)
+            .map(([name, hls]) => {
+              const count = Object.values(hls).reduce((acc, curr) => acc + (curr?.length || 0), 0);
+              return count > 0 ? `${name} (${count} resaltados)` : null;
+            })
+            .filter(Boolean);
+        }
+
+        cloudKeys = [...annList, ...hlList];
+        if (cloudKeys.length === 0) {
+          cloudKeys = ["Sin datos guardados en la nube."];
         }
       } else {
         cloudKeys = ["No hay registro en la nube aún."];
@@ -114,7 +138,7 @@ export const ProfileScreen = ({ isOpen, onClose, annotations = {}, documents = [
       setDiagInfo({
         loading: false,
         uid: currentUser.uid,
-        localKeys,
+        localKeys: [...localKeys, ...localHlKeys],
         cloudKeys,
         error: null
       });
@@ -139,13 +163,19 @@ export const ProfileScreen = ({ isOpen, onClose, annotations = {}, documents = [
     try {
       const localDataStr = localStorage.getItem('annotations');
       const localAnns = localDataStr ? JSON.parse(localDataStr) : {};
+
+      const localHlStr = localStorage.getItem('globalHighlights');
+      const localHls = localHlStr ? JSON.parse(localHlStr) : {};
       
       const docRef = doc(db, "users", currentUser.uid);
-      await setDoc(docRef, { annotations: localAnns }, { merge: true });
-      alert("Anotaciones locales subidas con éxito a la nube.");
+      await setDoc(docRef, { 
+        annotations: localAnns,
+        highlights: localHls
+      }, { merge: true });
+      alert("Anotaciones y resaltados locales subidos con éxito a la nube.");
       loadDiagInfo();
     } catch (err) {
-      alert(`Error al subir anotaciones: ${err.message}`);
+      alert(`Error al subir datos: ${err.message}`);
     }
   };
 
@@ -158,17 +188,18 @@ export const ProfileScreen = ({ isOpen, onClose, annotations = {}, documents = [
         const data = docSnap.data();
         if (data.annotations) {
           localStorage.setItem('annotations', JSON.stringify(data.annotations));
-          alert("Anotaciones descargadas de la nube y guardadas localmente. Por favor recarga la página.");
-          window.location.reload();
-        } else {
-          alert("No hay anotaciones guardadas en la nube para este usuario.");
         }
+        if (data.highlights) {
+          localStorage.setItem('globalHighlights', JSON.stringify(data.highlights));
+        }
+        alert("Datos descargados de la nube y guardados localmente. Por favor recarga la página.");
+        window.location.reload();
       } else {
         alert("No hay datos guardados en la nube.");
       }
       loadDiagInfo();
     } catch (err) {
-      alert(`Error al descargar anotaciones: ${err.message}`);
+      alert(`Error al descargar datos: ${err.message}`);
     }
   };
 
@@ -306,11 +337,11 @@ export const ProfileScreen = ({ isOpen, onClose, annotations = {}, documents = [
                     </div>
 
                     <div className="space-y-1">
-                      <p className="font-semibold opacity-75">Anotaciones Locales en este equipo:</p>
+                      <p className="font-semibold opacity-75">Datos Locales en este equipo (Anotaciones / Resaltados):</p>
                       {diagInfo.loading ? (
                         <p className="opacity-50">Cargando...</p>
                       ) : diagInfo.localKeys.length === 0 ? (
-                        <p className="opacity-50 italic">Ninguna anotación local encontrada en este navegador.</p>
+                        <p className="opacity-50 italic">Ningún dato local encontrado en este navegador.</p>
                       ) : (
                         <ul className="list-disc list-inside bg-background p-2 rounded border border-foreground/10 space-y-1">
                           {diagInfo.localKeys.map((k, i) => <li key={i} className="truncate">{k}</li>)}
@@ -319,13 +350,13 @@ export const ProfileScreen = ({ isOpen, onClose, annotations = {}, documents = [
                     </div>
 
                     <div className="space-y-1">
-                      <p className="font-semibold opacity-75">Anotaciones en la Nube (Firestore):</p>
+                      <p className="font-semibold opacity-75">Datos en la Nube (Firestore):</p>
                       {diagInfo.loading ? (
                         <p className="opacity-50">Cargando...</p>
                       ) : diagInfo.error ? (
                         <p className="text-red-500 font-medium">Error: {diagInfo.error}</p>
                       ) : diagInfo.cloudKeys.length === 0 ? (
-                        <p className="opacity-50 italic">Ninguna anotación encontrada en la nube.</p>
+                        <p className="opacity-50 italic">Ningún dato encontrado en la nube.</p>
                       ) : (
                         <ul className="list-disc list-inside bg-background p-2 rounded border border-foreground/10 space-y-1">
                           {diagInfo.cloudKeys.map((k, i) => <li key={i} className="truncate">{k}</li>)}

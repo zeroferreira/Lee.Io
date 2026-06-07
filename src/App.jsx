@@ -67,6 +67,54 @@ const mergeAnnotations = (localAnns, cloudAnns) => {
   return merged;
 };
 
+const findHighlightsForFile = (highlightsMap, fileName) => {
+  if (!fileName || !highlightsMap) return {};
+  if (highlightsMap[fileName]) return highlightsMap[fileName];
+  const normTarget = normalizeFilename(fileName);
+  const matchedKey = Object.keys(highlightsMap).find(
+    key => normalizeFilename(key) === normTarget
+  );
+  return matchedKey ? highlightsMap[matchedKey] : {};
+};
+
+const mergeHighlights = (localHls, cloudHls) => {
+  if (!localHls) return cloudHls || {};
+  if (!cloudHls) return localHls || {};
+  
+  const merged = { ...localHls };
+  
+  Object.keys(cloudHls).forEach(cloudKey => {
+    const normCloudKey = normalizeFilename(cloudKey);
+    const matchedLocalKey = Object.keys(merged).find(
+      localKey => normalizeFilename(localKey) === normCloudKey
+    );
+    
+    const targetKey = matchedLocalKey || cloudKey;
+    const localFileHls = merged[targetKey] || {};
+    const cloudFileHls = cloudHls[cloudKey] || {};
+    
+    // Merge page by page
+    const combinedFileHls = { ...localFileHls };
+    Object.keys(cloudFileHls).forEach(pageKey => {
+      const localPageHls = localFileHls[pageKey] || [];
+      const cloudPageHls = cloudFileHls[pageKey] || [];
+      
+      const combinedPageHls = [...localPageHls];
+      cloudPageHls.forEach(ch => {
+        if (!combinedPageHls.some(lh => lh.id === ch.id)) {
+          combinedPageHls.push(ch);
+        }
+      });
+      
+      combinedFileHls[pageKey] = combinedPageHls;
+    });
+    
+    merged[targetKey] = combinedFileHls;
+  });
+  
+  return merged;
+};
+
 function AppContent() {
   const [showIntro, setShowIntro] = useState(true);
   const { currentUser, accessToken, loginWithGoogle } = useAuth();
@@ -92,6 +140,14 @@ function AppContent() {
     }
     return {};
   });
+
+  const [highlightsMap, setHighlightsMap] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('globalHighlights');
+      return saved ? JSON.parse(saved) : {};
+    }
+    return {};
+  });
   
   const [deleteConfirmation, setDeleteConfirmation] = useState({ isOpen: false, doc: null });
   const [documentsRefresh, setDocumentsRefresh] = useState(0);
@@ -107,6 +163,49 @@ function AppContent() {
     window.addEventListener('resize', checkMobile);
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
+
+  // Migrar resaltados heredados (legacy) al mapa global al abrir un archivo
+  useEffect(() => {
+    if (pdfFile?.name) {
+      setHighlightsMap(prev => {
+        const normTarget = normalizeFilename(pdfFile.name);
+        const matchedKey = Object.keys(prev).find(
+          key => normalizeFilename(key) === normTarget
+        );
+        
+        if (!matchedKey) {
+          const legacySaved = localStorage.getItem(`highlights:${pdfFile.name}`);
+          if (legacySaved) {
+            try {
+              const parsed = JSON.parse(legacySaved);
+              return {
+                ...prev,
+                [pdfFile.name]: parsed
+              };
+            } catch (e) {
+              console.error(e);
+            }
+          }
+        }
+        return prev;
+      });
+    }
+  }, [pdfFile]);
+
+  const handleSaveHighlights = (nextFileHls) => {
+    if (!pdfFile?.name) return;
+    setHighlightsMap(prev => {
+      const normTarget = normalizeFilename(pdfFile.name);
+      const matchedKey = Object.keys(prev).find(
+        key => normalizeFilename(key) === normTarget
+      ) || pdfFile.name;
+      
+      return {
+        ...prev,
+        [matchedKey]: nextFileHls
+      };
+    });
+  };
   
   const fileInputRef = useRef(null);
 
@@ -131,6 +230,15 @@ function AppContent() {
                     setAnnotations(prev => {
                         const next = mergeAnnotations(prev, data.annotations);
                         // Compare if actually changed to avoid unnecessary re-renders
+                        if (JSON.stringify(prev) !== JSON.stringify(next)) {
+                            return next;
+                        }
+                        return prev;
+                    });
+                }
+                if (data.highlights) {
+                    setHighlightsMap(prev => {
+                        const next = mergeHighlights(prev, data.highlights);
                         if (JSON.stringify(prev) !== JSON.stringify(next)) {
                             return next;
                         }
@@ -165,12 +273,14 @@ function AppContent() {
 
   useEffect(() => {
     localStorage.setItem('annotations', JSON.stringify(annotations));
+    localStorage.setItem('globalHighlights', JSON.stringify(highlightsMap));
     // Save to Firestore if logged in AND cloud data has been loaded for current user
     if (currentUser && cloudLoaded && loadedUid === currentUser.uid) {
       const saveToFirestore = async () => {
         try {
           await setDoc(doc(db, "users", currentUser.uid), {
-            annotations: annotations
+            annotations: annotations,
+            highlights: highlightsMap
           }, { merge: true });
         } catch (e) {
           console.error("Error saving annotations to cloud", e);
@@ -178,7 +288,7 @@ function AppContent() {
       };
       saveToFirestore();
     }
-  }, [annotations, currentUser, cloudLoaded, loadedUid]);
+  }, [annotations, highlightsMap, currentUser, cloudLoaded, loadedUid]);
 
   useEffect(() => {
     const syncLocalFilesToCloud = async () => {
@@ -1020,6 +1130,8 @@ function AppContent() {
             isMobile={isMobile}
             onAddAnnotation={addAnnotation}
             annotations={findAnnotationsForFile(annotations, pdfFile.name)}
+            highlights={findHighlightsForFile(highlightsMap, pdfFile.name)}
+            onSaveHighlights={handleSaveHighlights}
             onDeleteAnnotation={deleteAnnotation}
             currentPage={currentPage} // This is for external control if needed
             initialPage={pdfInitialPage}

@@ -235,7 +235,7 @@ Puedes hacerme preguntas específicas sobre el texto, solicitar resúmenes de p�
 *¿Qué te gustaría explorar hoy?*`;
 };
 
-export const PDFViewer = ({ file, isMobile, onAddAnnotation, annotations = [], currentPage, initialPage = 1, onPageChange, onDeleteAnnotation, currentUser, onSaveToCloud, onMenuOpen }) => {
+export const PDFViewer = ({ file, isMobile, onAddAnnotation, annotations = [], highlights: highlightsProp = {}, onSaveHighlights, currentPage, initialPage = 1, onPageChange, onDeleteAnnotation, currentUser, onSaveToCloud, onMenuOpen }) => {
   const [numPages, setNumPages] = useState(null);
   const [pageNumber, setPageNumber] = useState(initialPage);
   const [scale, setScale] = useState(1.0);
@@ -498,25 +498,32 @@ Puedes hacerme preguntas específicas sobre el texto, pedirme resúmenes de secc
     };
   }, [isMobile, activeTool]);
 
-  // Load persisted highlights per file
+  // Load persisted highlights per file or prop changes
   useEffect(() => {
     if (!file?.name) return;
-    const saved = localStorage.getItem(`highlights:${file.name}`);
-    if (saved) {
-      try {
-        setHighlights(JSON.parse(saved));
-      } catch {
+    if (highlightsProp && Object.keys(highlightsProp).length > 0) {
+      setHighlights(highlightsProp);
+    } else {
+      const saved = localStorage.getItem(`highlights:${file.name}`);
+      if (saved) {
+        try {
+          setHighlights(JSON.parse(saved));
+        } catch {
+          setHighlights({});
+        }
+      } else {
         setHighlights({});
       }
-    } else {
-      setHighlights({});
     }
-  }, [file?.name]);
+  }, [file?.name, highlightsProp]);
 
   const saveHighlights = (next) => {
     setHighlights(next);
     if (file?.name) {
       localStorage.setItem(`highlights:${file.name}`, JSON.stringify(next));
+      if (onSaveHighlights) {
+        onSaveHighlights(next);
+      }
     }
   };
 
