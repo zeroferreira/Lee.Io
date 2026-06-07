@@ -235,7 +235,7 @@ Puedes hacerme preguntas específicas sobre el texto, solicitar resúmenes de p�
 *¿Qué te gustaría explorar hoy?*`;
 };
 
-export const PDFViewer = ({ file, isMobile, onAddAnnotation, annotations = [], currentPage, initialPage = 1, onPageChange, onDeleteAnnotation, currentUser, onSaveToCloud }) => {
+export const PDFViewer = ({ file, isMobile, onAddAnnotation, annotations = [], currentPage, initialPage = 1, onPageChange, onDeleteAnnotation, currentUser, onSaveToCloud, onMenuOpen }) => {
   const [numPages, setNumPages] = useState(null);
   const [pageNumber, setPageNumber] = useState(initialPage);
   const [scale, setScale] = useState(1.0);
@@ -1137,7 +1137,16 @@ Puedes hacerme preguntas específicas sobre el texto, pedirme resúmenes de secc
     <div className={`flex flex-col w-full mx-auto relative ${isFullScreen ? 'fixed inset-0 z-50 bg-background max-w-none h-[100dvh]' : (isMobile ? 'bg-background max-w-5xl h-full' : 'p-0 max-w-none w-full h-[calc(100vh-4rem)] flex flex-col bg-background')}`}>
       {!isFullScreen && (
         <div className="flex items-center justify-between px-4 py-2 border-b border-foreground/10 bg-background/50 backdrop-blur-md z-30 w-full flex-none">
-          <div className="flex items-center gap-3 min-w-0">
+          <div className="flex items-center gap-2 min-w-0">
+            {onMenuOpen && (
+              <button 
+                onClick={onMenuOpen}
+                className="p-1.5 hover:bg-foreground/5 rounded-lg text-foreground/75 hover:text-foreground transition-colors mr-1 shrink-0"
+                title="Abrir menú principal"
+              >
+                <Menu size={18} />
+              </button>
+            )}
             <div className="w-8 h-8 rounded-lg bg-red-500 flex items-center justify-center shrink-0 shadow-md">
               <span className="text-white text-[10px] font-black tracking-wider">PDF</span>
             </div>
@@ -1145,13 +1154,6 @@ Puedes hacerme preguntas específicas sobre el texto, pedirme resúmenes de secc
               <div className="flex items-center gap-2">
                 <span className="font-semibold text-sm truncate text-foreground/90">{file?.name || 'Documento sin título.pdf'}</span>
                 <span className="text-[9px] bg-foreground/10 px-1.5 py-0.5 rounded font-mono font-medium text-foreground/60">LECTOR PRO</span>
-              </div>
-              <div className="flex items-center gap-3 text-xs text-foreground/50 mt-0.5">
-                <button className="hover:text-foreground transition-all">Archivo</button>
-                <button className="hover:text-foreground transition-all">Editar</button>
-                <button className="hover:text-foreground transition-all">Ver</button>
-                <button className="hover:text-foreground transition-all">Herramientas</button>
-                <button className="hover:text-foreground transition-all">Ayuda</button>
               </div>
             </div>
           </div>

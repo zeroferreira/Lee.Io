@@ -893,6 +893,7 @@ function AppContent() {
             initialPage={pdfInitialPage}
             onPageChange={handlePdfPageChange}
             currentUser={currentUser}
+            onMenuOpen={() => setIsMenuOpen(true)}
             onSaveToCloud={async () => {
               if (!currentUser) {
                 try {
