@@ -5,6 +5,24 @@ import { useAuth } from '../context/AuthContext';
 import { db } from '../firebase/config';
 import { collection, query, orderBy, onSnapshot } from 'firebase/firestore';
 import { localFileStorage } from '../utils/localFileStorage';
+const normalizeFilename = (name) => {
+  if (!name) return "";
+  return name
+    .toLowerCase()
+    .replace(/\s+/g, "") // remove all whitespace
+    .replace(/\(\d+\)/g, "") // remove parenthesized copy numbers
+    .replace(/[^a-z0-9]/g, ""); // remove special characters
+};
+
+const findAnnotationsForFile = (annotationsMap, fileName) => {
+  if (!fileName || !annotationsMap) return [];
+  if (annotationsMap[fileName]) return annotationsMap[fileName];
+  const normTarget = normalizeFilename(fileName);
+  const matchedKey = Object.keys(annotationsMap).find(
+    key => normalizeFilename(key) === normTarget
+  );
+  return matchedKey ? annotationsMap[matchedKey] : [];
+};
 
 export const Sidebar = ({ isOpen, onClose, theme, toggleTheme, annotations = {}, currentFileName, onOpenProfile, onAnnotationClick, onCloudDocumentSelect, documents = [], loadingDocs = false }) => {
   const [view, setView] = useState('menu'); // 'menu' | 'annotations'
@@ -39,7 +57,7 @@ export const Sidebar = ({ isOpen, onClose, theme, toggleTheme, annotations = {},
   ];
 
 
-  const currentAnnotations = currentFileName ? (annotations[currentFileName] || []) : [];
+  const currentAnnotations = findAnnotationsForFile(annotations, currentFileName);
   const readingHistory = Object.keys(annotations);
 
   return (

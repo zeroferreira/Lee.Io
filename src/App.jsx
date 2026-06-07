@@ -17,6 +17,24 @@ import { useDocuments } from './hooks/useDocuments';
 
 const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || "741889878750-da4cbkfe3q9gjh2figu71gbt4e9vap5e.apps.googleusercontent.com";
 const GOOGLE_API_KEY = import.meta.env.VITE_GOOGLE_API_KEY || "AIzaSyDQHr01GZaojE3wdoGzejocuFM-cXQGwTU";
+const normalizeFilename = (name) => {
+  if (!name) return "";
+  return name
+    .toLowerCase()
+    .replace(/\s+/g, "") // remove all whitespace
+    .replace(/\(\d+\)/g, "") // remove parenthesized copy numbers like (1), (2)
+    .replace(/[^a-z0-9]/g, ""); // remove special characters
+};
+
+const findAnnotationsForFile = (annotationsMap, fileName) => {
+  if (!fileName || !annotationsMap) return [];
+  if (annotationsMap[fileName]) return annotationsMap[fileName];
+  const normTarget = normalizeFilename(fileName);
+  const matchedKey = Object.keys(annotationsMap).find(
+    key => normalizeFilename(key) === normTarget
+  );
+  return matchedKey ? annotationsMap[matchedKey] : [];
+};
 
 function AppContent() {
   const [showIntro, setShowIntro] = useState(true);
@@ -196,15 +214,20 @@ function AppContent() {
     if (!pdfFile) return;
     const fileName = pdfFile.name;
     setAnnotations(prev => {
-      const fileNotes = prev[fileName] || [];
+      const normTarget = normalizeFilename(fileName);
+      const matchedKey = Object.keys(prev).find(
+        key => normalizeFilename(key) === normTarget
+      ) || fileName;
+      
+      const fileNotes = prev[matchedKey] || [];
       return {
         ...prev,
-        [fileName]: [...fileNotes, { 
+        [matchedKey]: [...fileNotes, { 
           id: Date.now(), 
           text, 
           page, 
           date: new Date().toISOString(),
-          geometry // { x, y, w, h, type: 'rect'|'circle' }
+          geometry
         }]
       };
     });
@@ -214,10 +237,15 @@ function AppContent() {
     if (!pdfFile) return;
     const fileName = pdfFile.name;
     setAnnotations(prev => {
-      const fileNotes = prev[fileName] || [];
+      const normTarget = normalizeFilename(fileName);
+      const matchedKey = Object.keys(prev).find(
+        key => normalizeFilename(key) === normTarget
+      ) || fileName;
+      
+      const fileNotes = prev[matchedKey] || [];
       return {
         ...prev,
-        [fileName]: fileNotes.filter(note => note.id !== id)
+        [matchedKey]: fileNotes.filter(note => note.id !== id)
       };
     });
   };
@@ -894,7 +922,7 @@ function AppContent() {
             file={pdfFile} 
             isMobile={isMobile}
             onAddAnnotation={addAnnotation}
-            annotations={annotations[pdfFile.name] || []}
+            annotations={findAnnotationsForFile(annotations, pdfFile.name)}
             onDeleteAnnotation={deleteAnnotation}
             currentPage={currentPage} // This is for external control if needed
             initialPage={pdfInitialPage}
