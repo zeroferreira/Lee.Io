@@ -501,20 +501,36 @@ function AppContent() {
       return;
     }
     
-    let token = accessToken;
-    
-    // If no access token (e.g. after refresh), try to get one silently/interactively
-    if (!token) {
+    let token = accessToken || localStorage.getItem('googleAccessToken');
+     
+     // Validar si el token sigue siendo válido antes de usarlo para evitar fallos silenciosos
+     if (token) {
        try {
-         // This will trigger the popup flow again to get a fresh token
-         await loginWithGoogle();
-         token = localStorage.getItem('googleAccessToken');
+         const check = await fetch('https://www.googleapis.com/drive/v3/about?fields=user', {
+           headers: { 'Authorization': `Bearer ${token}` }
+         });
+         if (!check.ok) {
+           console.warn("Token de Google Drive expirado. Se solicitará re-autenticación.");
+           token = null;
+           localStorage.removeItem('googleAccessToken');
+         }
        } catch (e) {
-         console.error("Error refreshing token:", e);
-         setNotification("No se pudo conectar con Drive. Intenta iniciar sesión nuevamente.");
-         return;
+         console.error("Error al validar token de Google:", e);
+         token = null;
        }
-    }
+     }
+     
+     // Si no hay token o expiró, solicitar uno nuevo interactivo
+     if (!token) {
+        try {
+          await loginWithGoogle();
+          token = localStorage.getItem('googleAccessToken');
+        } catch (e) {
+          console.error("Error refreshing token:", e);
+          setNotification("No se pudo conectar con Drive. Intenta iniciar sesión nuevamente.");
+          return;
+        }
+     }
 
     if (!token) {
        setNotification("No se pudo verificar la sesión de Drive.");
@@ -610,6 +626,24 @@ function AppContent() {
 
       } catch (error) {
         console.error("Error downloading from Drive:", error);
+        
+        // Si el token de Google Drive ha expirado (error 401), intentamos re-autenticar y reintentar
+        if (error.message && (error.message.includes('401') || error.message.toLowerCase().includes('unauthorized'))) {
+          console.warn("Token de Google Drive expirado. Solicitando re-autenticación...");
+          try {
+            localStorage.removeItem('googleAccessToken');
+            await loginWithGoogle();
+            const newToken = localStorage.getItem('googleAccessToken');
+            if (newToken) {
+              // Reintentar la descarga con el nuevo token válido
+              await downloadFileFromDrive(fileId, fileName, newToken, shouldSaveToLibrary);
+              return;
+            }
+          } catch (authErr) {
+            console.error("Error al re-autenticar con Google:", authErr);
+          }
+        }
+        
         setNotification(`Error al descargar: ${error.message}`);
       } finally {
         setIsUploading(false);
