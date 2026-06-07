@@ -119,6 +119,72 @@ function AppContent() {
     }
   }, [annotations, currentUser]);
 
+  useEffect(() => {
+    const syncLocalFilesToCloud = async () => {
+      if (!currentUser) return;
+      
+      try {
+        const localFiles = await localFileStorage.getFiles();
+        if (localFiles.length === 0) return;
+        
+        // Obtener documentos existentes en la nube para no duplicar
+        const q = query(collection(db, `users/${currentUser.uid}/documents`));
+        const querySnapshot = await getDocs(q);
+        const cloudNames = new Set(querySnapshot.docs.map(doc => doc.data().name));
+        
+        let syncedAny = false;
+        for (const localFile of localFiles) {
+          // Solo sincronizamos archivos locales que no estén en la nube
+          if (!cloudNames.has(localFile.name) && localFile.source === 'local') {
+            console.log(`Sincronizando archivo local con la nube: ${localFile.name}`);
+            const fileBlob = await localFileStorage.getFile(localFile.name);
+            if (fileBlob) {
+              setNotification(`Sincronizando ${localFile.name} en segundo plano...`);
+              const storageRef = ref(storage, `users/${currentUser.uid}/documents/${localFile.name}`);
+              const uploadTask = uploadBytesResumable(storageRef, fileBlob);
+              
+              await new Promise((resolve, reject) => {
+                uploadTask.on('state_changed', 
+                  null, 
+                  (error) => {
+                    console.error(`Error al subir ${localFile.name}:`, error);
+                    reject(error);
+                  }, 
+                  async () => {
+                    try {
+                      const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
+                      await addDoc(collection(db, `users/${currentUser.uid}/documents`), {
+                        name: localFile.name,
+                        url: downloadURL,
+                        createdAt: serverTimestamp(),
+                        size: localFile.size || fileBlob.size,
+                        lastPage: 1
+                      });
+                      console.log(`Archivo ${localFile.name} sincronizado correctamente`);
+                      syncedAny = true;
+                      resolve();
+                    } catch (err) {
+                      reject(err);
+                    }
+                  }
+                );
+              });
+            }
+          }
+        }
+        if (syncedAny) {
+          setDocumentsRefresh(v => v + 1);
+          setNotification("Sincronización en segundo plano completada");
+          setTimeout(() => setNotification(null), 3000);
+        }
+      } catch (error) {
+        console.error("Error en sincronización automática de archivos locales:", error);
+      }
+    };
+
+    syncLocalFilesToCloud();
+  }, [currentUser]);
+
   const addAnnotation = (text, page, geometry = null) => {
     if (!pdfFile) return;
     const fileName = pdfFile.name;
@@ -383,6 +449,24 @@ function AppContent() {
     } else {
        if (docData.url) {
          setPdfFile({ name: docData.name, url: docData.url });
+         
+         // Descargar y cachear en IndexedDB en segundo plano para acceso offline y cargas rápidas futuras
+         (async () => {
+           try {
+             const res = await fetch(docData.url);
+             if (res.ok) {
+               const blob = await res.blob();
+               const fileObj = new File([blob], docData.name, { type: 'application/pdf' });
+               await localFileStorage.saveFile(fileObj, 'local');
+               console.log(`Guardado archivo de la nube en caché local: ${docData.name}`);
+               setDocumentsRefresh(v => v + 1);
+             } else {
+               console.warn("No se pudo cachear el archivo localmente:", res.statusText);
+             }
+           } catch (err) {
+             console.warn("Fallo al descargar archivo para caché local (puede ser CORS):", err);
+           }
+         })();
          return;
        }
 
