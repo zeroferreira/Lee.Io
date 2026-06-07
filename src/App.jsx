@@ -904,64 +904,83 @@ function AppContent() {
                   setNotification({ type: 'error', text: "No se pudo iniciar sesión para sincronizar." });
                 }
               } else {
-                setNotification({ type: 'info', text: "Guardando en la nube..." });
+                setNotification({ type: 'info', text: "Guardando anotaciones en la nube..." });
                 try {
-                  // Guardar anotaciones en Firestore
-                  await setDoc(doc(db, "users", currentUser.uid), {
-                    annotations: annotations
-                  }, { merge: true });
+                  // Guardar anotaciones en Firestore de forma segura con un timeout de 8 segundos
+                  await Promise.race([
+                    setDoc(doc(db, "users", currentUser.uid), {
+                      annotations: annotations
+                    }, { merge: true }),
+                    new Promise((_, reject) => setTimeout(() => reject(new Error("Timeout de conexión con Firestore")), 8000))
+                  ]);
                   
-                  // Guardar archivos locales en Storage y Firestore si no están en la nube
-                  const localFiles = await localFileStorage.getFiles();
-                  let syncedAny = false;
-                  
-                  const q = query(collection(db, `users/${currentUser.uid}/documents`));
-                  const querySnapshot = await getDocs(q);
-                  const cloudNames = new Set(querySnapshot.docs.map(doc => doc.data().name));
-                  
-                  for (const localFile of localFiles) {
-                    if (!cloudNames.has(localFile.name) && localFile.source === 'local') {
-                      const fileBlob = await localFileStorage.getFile(localFile.name);
-                      if (fileBlob) {
-                        const storageRef = ref(storage, `users/${currentUser.uid}/documents/${localFile.name}`);
-                        const uploadTask = uploadBytesResumable(storageRef, fileBlob);
-                        await new Promise((res, rej) => {
-                          uploadTask.on('state_changed', 
-                            null, 
-                            (error) => {
-                              console.error("Error en uploadTask:", error);
-                              rej(error);
-                            }, 
-                            async () => {
-                              try {
-                                const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
-                                await addDoc(collection(db, `users/${currentUser.uid}/documents`), {
-                                  name: localFile.name,
-                                  url: downloadURL,
-                                  createdAt: serverTimestamp(),
-                                  size: localFile.size || fileBlob.size,
-                                  lastPage: 1
-                                });
-                                syncedAny = true;
-                                res();
-                              } catch (err) {
-                                console.error("Error al procesar subida en el callback:", err);
-                                rej(err);
-                              }
-                            }
-                          );
-                        });
+                  // Sincronizar archivos locales en Storage y Firestore en segundo plano (sin bloquear la UI)
+                  const syncLocalFilesBackground = async () => {
+                    try {
+                      const localFiles = await localFileStorage.getFiles();
+                      if (localFiles.length === 0) return;
+                      
+                      const q = query(collection(db, `users/${currentUser.uid}/documents`));
+                      const querySnapshot = await getDocs(q);
+                      const cloudNames = new Set(querySnapshot.docs.map(doc => doc.data().name));
+                      
+                      let syncedAny = false;
+                      for (const localFile of localFiles) {
+                        if (!cloudNames.has(localFile.name) && localFile.source === 'local') {
+                          const fileBlob = await localFileStorage.getFile(localFile.name);
+                          if (fileBlob) {
+                            const storageRef = ref(storage, `users/${currentUser.uid}/documents/${localFile.name}`);
+                            const uploadTask = uploadBytesResumable(storageRef, fileBlob);
+                            
+                            // Timeout de 30 segundos por cada subida de archivo individual en segundo plano
+                            await Promise.race([
+                              new Promise((res, rej) => {
+                                uploadTask.on('state_changed', 
+                                  null, 
+                                  (error) => {
+                                    console.error("Error en uploadTask de fondo:", error);
+                                    rej(error);
+                                  }, 
+                                  async () => {
+                                    try {
+                                      const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
+                                      await addDoc(collection(db, `users/${currentUser.uid}/documents`), {
+                                        name: localFile.name,
+                                        url: downloadURL,
+                                        createdAt: serverTimestamp(),
+                                        size: localFile.size || fileBlob.size,
+                                        lastPage: 1
+                                      });
+                                      syncedAny = true;
+                                      res();
+                                    } catch (err) {
+                                      console.error("Error en callback de subida de fondo:", err);
+                                      rej(err);
+                                    }
+                                  }
+                                );
+                              }),
+                              new Promise((_, reject) => setTimeout(() => reject(new Error("Timeout en subida de PDF")), 30000))
+                            ]);
+                          }
+                        }
                       }
+                      if (syncedAny) {
+                         setDocumentsRefresh(v => v + 1);
+                      }
+                    } catch (backgroundErr) {
+                      console.warn("Sincronización de archivos locales en segundo plano falló o expiró:", backgroundErr);
                     }
-                  }
+                  };
                   
-                  if (syncedAny) {
-                     setDocumentsRefresh(v => v + 1);
-                  }
-                  setNotification({ type: 'success', text: "¡Sincronización completada! Tus notas y archivos están en la nube." });
+                  // Ejecutar subida de archivos locales en segundo plano sin esperar (sin await)
+                  syncLocalFilesBackground();
+                  
+                  setNotification({ type: 'success', text: "¡Sincronización completada! Tus notas están en la nube." });
                 } catch (err) {
                   console.error("Error al guardar en la nube:", err);
-                  setNotification({ type: 'error', text: "Error al guardar en la nube. Inténtalo de nuevo." });
+                  setNotification({ type: 'error', text: err.message.includes("Timeout") ? "Conexión lenta. Reintenta la sincronización." : "Error al guardar en la nube. Inténtalo de nuevo." });
+                  throw err; // Propagar el error para que la UI limpie el estado cargando en el catch/finally
                 }
               }
             }}
