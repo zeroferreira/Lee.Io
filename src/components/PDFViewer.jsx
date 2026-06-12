@@ -1468,7 +1468,7 @@ Puedes hacerme preguntas específicas sobre el texto, pedirme resúmenes de secc
             onTouchEnd={handleContainerTouchEnd}
             onMouseUp={handleTextSelection}
             onContextMenu={(e) => isMobile && e.preventDefault()}
-            className={`w-full flex justify-center overflow-auto relative flex-1 ${isMobile ? '' : 'p-6 bg-gray-100 dark:bg-gray-900 border border-foreground/10 shadow-inner'}`}
+            className={`w-full flex justify-center overflow-auto relative flex-1 ${(isMobile || isFullScreen) ? '' : 'p-6 bg-gray-100 dark:bg-gray-900 border border-foreground/10 shadow-inner'}`}
             style={{ 
               perspective: '1500px',
               WebkitTouchCallout: isMobile ? 'none' : 'default',
@@ -1491,7 +1491,7 @@ Puedes hacerme preguntas específicas sobre el texto, pedirme resúmenes de secc
               <div className="relative shadow-2xl">
                 <Page 
                   pageNumber={pageNumber} 
-                  scale={resolvedFitMode === 'width' ? undefined : scale} 
+                  scale={scale} 
                   width={resolvedFitMode === 'width' ? containerWidth || undefined : undefined}
                   height={resolvedFitMode === 'height' ? containerHeight || undefined : undefined}
                   className=""
