@@ -28,6 +28,18 @@ export function AuthProvider({ children }) {
   const loginWithGoogle = async () => {
     const provider = new GoogleAuthProvider();
     provider.addScope('https://www.googleapis.com/auth/drive.readonly');
+    
+    // Check if running in WebView/App environment
+    const isWebView = typeof window !== 'undefined' && 
+      (window.location.hostname === 'appassets.androidplatform.net' || 
+       window.location.protocol === 'file:');
+
+    if (isWebView) {
+      const { signInWithRedirect } = await import('firebase/auth');
+      await signInWithRedirect(auth, provider);
+      return;
+    }
+
     try {
       const result = await signInWithPopup(auth, provider);
       const credential = GoogleAuthProvider.credentialFromResult(result);
@@ -49,6 +61,24 @@ export function AuthProvider({ children }) {
   };
 
   useEffect(() => {
+    const handleRedirectResult = async () => {
+      try {
+        const { getRedirectResult, GoogleAuthProvider } = await import('firebase/auth');
+        const result = await getRedirectResult(auth);
+        if (result) {
+          const credential = GoogleAuthProvider.credentialFromResult(result);
+          if (credential?.accessToken) {
+            setAccessToken(credential.accessToken);
+            localStorage.setItem('googleAccessToken', credential.accessToken);
+          }
+        }
+      } catch (error) {
+        console.error("Error getting redirect result:", error);
+      }
+    };
+
+    handleRedirectResult();
+
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       setCurrentUser(user);
       setLoading(false);
