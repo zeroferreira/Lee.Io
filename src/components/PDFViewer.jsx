@@ -1048,7 +1048,11 @@ Puedes hacerme preguntas específicas sobre el texto, pedirme resúmenes de secc
     // Small delay to ensure selection is complete
     setTimeout(() => {
         const sel = window.getSelection();
-        if (!sel || sel.isCollapsed) return;
+        if (!sel || sel.isCollapsed) {
+          setOptionsMenu(prev => prev.open ? { open: false, x: 0, y: 0, targetId: null } : prev);
+          setTempSelection(null);
+          return;
+        }
         
         if (sel.rangeCount > 0) {
           const range = sel.getRangeAt(0);
@@ -1092,7 +1096,6 @@ Puedes hacerme preguntas específicas sobre el texto, pedirme resúmenes de secc
               targetId: id,
               isNewSelection: true
             });
-            try { sel.removeAllRanges(); } catch {}
           }
         }
     }, 10);
@@ -1811,6 +1814,7 @@ Puedes hacerme preguntas específicas sobre el texto, pedirme resúmenes de secc
                   }
                   setOptionsMenu({ open: false, x: 0, y: 0, targetId: null });
                   setTempSelection(null);
+                  try { window.getSelection().removeAllRanges(); } catch {}
                 }}
                 className="px-2 py-1 text-sm rounded hover:bg-foreground/5 flex items-center gap-1"
                 title="Buscar en Google"
@@ -1837,6 +1841,7 @@ Puedes hacerme preguntas específicas sobre el texto, pedirme resúmenes de secc
                   }
                   setOptionsMenu({ open: false, x: 0, y: 0, targetId: null });
                   setTempSelection(null);
+                  try { window.getSelection().removeAllRanges(); } catch {}
                 }}
                 className="px-2 py-1 text-sm rounded hover:bg-foreground/5 flex items-center gap-1"
                 title="Traducir"
@@ -1851,6 +1856,7 @@ Puedes hacerme preguntas específicas sobre el texto, pedirme resúmenes de secc
                   }
                   setOptionsMenu({ open: false, x: 0, y: 0, targetId: null });
                   setTempSelection(null);
+                  try { window.getSelection().removeAllRanges(); } catch {}
                 }}
                 className="px-2 py-1 text-sm rounded hover:bg-foreground/5 flex items-center gap-1"
                 title="Subrayar"
@@ -1868,6 +1874,7 @@ Puedes hacerme preguntas específicas sobre el texto, pedirme resúmenes de secc
                   }
                   setOptionsMenu({ open: false, x: 0, y: 0, targetId: null });
                   setTempSelection(null);
+                  try { window.getSelection().removeAllRanges(); } catch {}
                 }}
                 className="px-2 py-1 text-sm rounded hover:bg-foreground/5 flex items-center gap-1"
                 title="Anotar"
@@ -1885,6 +1892,7 @@ Puedes hacerme preguntas específicas sobre el texto, pedirme resúmenes de secc
                   }
                   setOptionsMenu({ open: false, x: 0, y: 0, targetId: null });
                   setTempSelection(null);
+                  try { window.getSelection().removeAllRanges(); } catch {}
                 }}
                 className="px-2 py-1 text-sm rounded hover:bg-foreground/5 flex items-center gap-1"
                 title="Copiar"
@@ -1895,6 +1903,7 @@ Puedes hacerme preguntas específicas sobre el texto, pedirme resúmenes de secc
                 onClick={() => {
                     setOptionsMenu({ open: false, x: 0, y: 0, targetId: null });
                     setTempSelection(null);
+                    try { window.getSelection().removeAllRanges(); } catch {}
                 }}
                 className="px-2 py-1 text-sm rounded hover:bg-foreground/5"
               >
