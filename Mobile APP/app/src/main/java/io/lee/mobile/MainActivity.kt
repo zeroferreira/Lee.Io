@@ -20,7 +20,6 @@ class MainActivity : ComponentActivity() {
         setContentView(R.layout.activity_main)
 
         webView = findViewById(R.id.webView)
-
         val settings = webView.settings
         settings.javaScriptEnabled = true
         settings.domStorageEnabled = true
@@ -28,6 +27,11 @@ class MainActivity : ComponentActivity() {
         settings.allowFileAccess = true
         settings.mixedContentMode = WebSettings.MIXED_CONTENT_ALWAYS_ALLOW
 
+        // Spoof User-Agent to bypass Google OAuth disallowed_useragent block
+        val defaultUserAgent = settings.userAgentString
+        settings.userAgentString = defaultUserAgent
+            .replace("; wv", "")
+            .replace("Version/4.0 ", "")
         val assetLoader = WebViewAssetLoader.Builder()
             .addPathHandler("/assets/", AssetsPathHandler(this))
             .build()
