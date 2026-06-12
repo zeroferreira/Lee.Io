@@ -235,7 +235,7 @@ Puedes hacerme preguntas específicas sobre el texto, solicitar resúmenes de p�
 *¿Qué te gustaría explorar hoy?*`;
 };
 
-export const PDFViewer = ({ file, isMobile, onAddAnnotation, annotations = [], highlights: highlightsProp = {}, onSaveHighlights, currentPage, initialPage = 1, onPageChange, onDeleteAnnotation, currentUser, onSaveToCloud, onMenuOpen }) => {
+export const PDFViewer = ({ file, isMobile, onAddAnnotation, annotations = [], highlights: highlightsProp = {}, onSaveHighlights, currentPage, initialPage = 1, onPageChange, onDeleteAnnotation, currentUser, onSaveToCloud, onMenuOpen, isFullScreen, setIsFullScreen }) => {
   const [numPages, setNumPages] = useState(null);
   const [pageNumber, setPageNumber] = useState(initialPage);
   const [scale, setScale] = useState(1.0);
@@ -258,7 +258,6 @@ export const PDFViewer = ({ file, isMobile, onAddAnnotation, annotations = [], h
   const [optionsMenu, setOptionsMenu] = useState({ open: false, x: 0, y: 0, targetId: null, isNewSelection: false });
   const [tempSelection, setTempSelection] = useState(null);
   const [selectedText, setSelectedText] = useState('');
-  const [isFullScreen, setIsFullScreen] = useState(false);
   const [isFabMenuOpen, setIsFabMenuOpen] = useState(false);
   const [noteListModal, setNoteListModal] = useState({ isOpen: false, notes: [] });
   const [deleteHighlightModal, setDeleteHighlightModal] = useState({ isOpen: false, targetId: null, message: '' });
@@ -2426,14 +2425,14 @@ Puedes hacerme preguntas específicas sobre el texto, pedirme resúmenes de secc
                         initial={{ opacity: 0, scale: 0.95, y: 20 }}
                         animate={{ opacity: 1, scale: 1, y: 0 }}
                         exit={{ opacity: 0, scale: 0.95, y: 20 }}
-                        className={`bg-background/95 backdrop-blur-md border border-foreground/10 rounded-2xl shadow-2xl p-4 flex flex-col gap-4 ${isMobile ? 'w-full mb-1' : 'min-w-[250px] mb-2'}`}
+                        className={`bg-white/95 dark:bg-zinc-900/95 backdrop-blur-md border border-zinc-200 dark:border-zinc-800 text-zinc-900 dark:text-zinc-100 rounded-2xl shadow-2xl p-4 flex flex-col gap-4 ${isMobile ? 'w-full mb-1' : 'min-w-[250px] mb-2'}`}
                     >
                          {/* Header with Exit */}
-                         <div className="flex items-center justify-between border-b border-foreground/10 pb-2">
-                            <span className="font-medium text-sm">Controles</span>
+                         <div className="flex items-center justify-between border-b border-zinc-200 dark:border-zinc-800 pb-2">
+                            <span className="font-semibold text-zinc-800 dark:text-zinc-200 text-sm">Controles</span>
                             <button 
                                 onClick={() => setIsFullScreen(false)}
-                                className="p-2 hover:bg-foreground/5 rounded-lg text-xs flex items-center gap-1.5 text-red-500 font-medium"
+                                className="p-2 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-lg text-xs flex items-center gap-1.5 text-red-500 font-medium transition-colors"
                             >
                                 <Shrink size={14} />
                                 <span>Salir</span>
@@ -2442,40 +2441,96 @@ Puedes hacerme preguntas específicas sobre el texto, pedirme resúmenes de secc
 
                          {/* Page Navigation */}
                          <div className="flex items-center justify-between gap-2">
-                            <button disabled={pageNumber <= 1} onClick={() => changePage(-1)} className="p-2.5 hover:bg-foreground/5 rounded-full disabled:opacity-50"><ChevronLeft size={20}/></button>
-                            <span className="text-sm font-medium">{pageNumber} / {numPages || '--'}</span>
-                            <button disabled={pageNumber >= numPages} onClick={() => changePage(1)} className="p-2.5 hover:bg-foreground/5 rounded-full disabled:opacity-50"><ChevronRight size={20}/></button>
+                            <button 
+                                disabled={pageNumber <= 1} 
+                                onClick={() => changePage(-1)} 
+                                className="p-2.5 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-full disabled:opacity-50 text-zinc-700 dark:text-zinc-300 transition-colors"
+                            >
+                                <ChevronLeft size={20}/>
+                            </button>
+                            <span className="text-sm font-medium text-zinc-800 dark:text-zinc-200">{pageNumber} / {numPages || '--'}</span>
+                            <button 
+                                disabled={pageNumber >= numPages} 
+                                onClick={() => changePage(1)} 
+                                className="p-2.5 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-full disabled:opacity-50 text-zinc-700 dark:text-zinc-300 transition-colors"
+                            >
+                                <ChevronRight size={20}/>
+                            </button>
                          </div>
                          
                          {/* Zoom */}
-                         <div className="flex items-center justify-between gap-2 bg-foreground/5 rounded-lg p-1.5">
-                            <button onClick={() => setScale(s => Math.max(0.5, s - 0.1))} className="p-1.5 hover:bg-background rounded"><ZoomOut size={16}/></button>
-                            <span className="text-xs w-8 text-center">{Math.round(scale * 100)}%</span>
-                            <button onClick={() => setScale(s => Math.min(2, s + 0.1))} className="p-1.5 hover:bg-background rounded"><ZoomIn size={16}/></button>
+                         <div className="flex items-center justify-between gap-2 bg-zinc-100 dark:bg-zinc-800/80 rounded-lg p-1.5">
+                            <button 
+                                onClick={() => setScale(s => Math.max(0.5, s - 0.1))} 
+                                className="p-1.5 hover:bg-white dark:hover:bg-zinc-700 rounded text-zinc-700 dark:text-zinc-300 transition-colors"
+                            >
+                                <ZoomOut size={16}/>
+                            </button>
+                            <span className="text-xs font-semibold w-8 text-center text-zinc-800 dark:text-zinc-200">{Math.round(scale * 100)}%</span>
+                            <button 
+                                onClick={() => setScale(s => Math.min(2, s + 0.1))} 
+                                className="p-1.5 hover:bg-white dark:hover:bg-zinc-700 rounded text-zinc-700 dark:text-zinc-300 transition-colors"
+                            >
+                                <ZoomIn size={16}/>
+                            </button>
                          </div>
 
                          {/* Tools Grid */}
                          <div className="grid grid-cols-4 gap-2">
-                            <button onClick={() => setActiveTool(activeTool === 'highlight' ? 'none' : 'highlight')} className={`p-3 rounded-xl flex items-center justify-center ${activeTool === 'highlight' ? 'bg-foreground text-background' : 'hover:bg-foreground/5'}`} title="Subrayar"><Highlighter size={18}/></button>
-                            <button onClick={() => setActiveTool(activeTool === 'erase' ? 'none' : 'erase')} className={`p-3 rounded-xl flex items-center justify-center ${activeTool === 'erase' ? 'bg-foreground text-background' : 'hover:bg-foreground/5'}`} title="Borrador"><Eraser size={18}/></button>
-                            <button onClick={() => setActiveTool(activeTool.startsWith('note') ? 'none' : 'note_rect')} className={`p-3 rounded-xl flex items-center justify-center ${activeTool.startsWith('note') ? 'bg-foreground text-background' : 'hover:bg-foreground/5'}`} title="Nota"><MessageSquarePlus size={18}/></button>
-                            <button onClick={clearPageHighlights} className="p-3 hover:bg-foreground/5 rounded-xl flex items-center justify-center text-red-500" title="Limpiar todo"><X size={18}/></button>
+                            <button 
+                                onClick={() => setActiveTool(activeTool === 'highlight' ? 'none' : 'highlight')} 
+                                className={`p-3 rounded-xl flex items-center justify-center transition-colors ${activeTool === 'highlight' ? 'bg-zinc-900 text-white dark:bg-white dark:text-zinc-900' : 'hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-700 dark:text-zinc-300'}`} 
+                                title="Subrayar"
+                            >
+                                <Highlighter size={18}/>
+                            </button>
+                            <button 
+                                onClick={() => setActiveTool(activeTool === 'erase' ? 'none' : 'erase')} 
+                                className={`p-3 rounded-xl flex items-center justify-center transition-colors ${activeTool === 'erase' ? 'bg-zinc-900 text-white dark:bg-white dark:text-zinc-900' : 'hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-700 dark:text-zinc-300'}`} 
+                                title="Borrador"
+                            >
+                                <Eraser size={18}/>
+                            </button>
+                            <button 
+                                onClick={() => setActiveTool(activeTool.startsWith('note') ? 'none' : 'note_rect')} 
+                                className={`p-3 rounded-xl flex items-center justify-center transition-colors ${activeTool.startsWith('note') ? 'bg-zinc-900 text-white dark:bg-white dark:text-zinc-900' : 'hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-700 dark:text-zinc-300'}`} 
+                                title="Nota"
+                            >
+                                <MessageSquarePlus size={18}/>
+                            </button>
+                            <button 
+                                onClick={clearPageHighlights} 
+                                className="p-3 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-xl flex items-center justify-center text-red-500 transition-colors" 
+                                title="Limpiar todo"
+                            >
+                                <X size={18}/>
+                            </button>
                          </div>
                          
                          {/* Additional Note Tools */}
                          {activeTool.startsWith('note') && (
-                            <div className="flex items-center gap-2 justify-center bg-foreground/5 p-1 rounded-lg">
-                                <button onClick={() => setActiveTool('note_rect')} className={`p-1.5 rounded-md ${activeTool === 'note_rect' ? 'bg-background shadow' : ''}`}><Square size={14}/></button>
-                                <button onClick={() => setActiveTool('note_circle')} className={`p-1.5 rounded-md ${activeTool === 'note_circle' ? 'bg-background shadow' : ''}`}><Circle size={14}/></button>
+                            <div className="flex items-center gap-2 justify-center bg-zinc-100 dark:bg-zinc-800/80 p-1 rounded-lg">
+                                <button 
+                                    onClick={() => setActiveTool('note_rect')} 
+                                    className={`p-1.5 rounded-md transition-colors ${activeTool === 'note_rect' ? 'bg-white dark:bg-zinc-700 shadow text-zinc-800 dark:text-zinc-100' : 'text-zinc-600 dark:text-zinc-400'}`}
+                                >
+                                    <Square size={14}/>
+                                </button>
+                                <button 
+                                    onClick={() => setActiveTool('note_circle')} 
+                                    className={`p-1.5 rounded-md transition-colors ${activeTool === 'note_circle' ? 'bg-white dark:bg-zinc-700 shadow text-zinc-800 dark:text-zinc-100' : 'text-zinc-600 dark:text-zinc-400'}`}
+                                >
+                                    <Circle size={14}/>
+                                </button>
                             </div>
                          )}
 
                          {/* View Options */}
-                         <div className="flex items-center gap-2 border-t border-foreground/10 pt-2">
+                         <div className="flex items-center gap-2 border-t border-zinc-200 dark:border-zinc-800 pt-2">
                              <select
                                 value={animationMode}
                                 onChange={e => { setAnimationMode(e.target.value); localStorage.setItem('animationMode', e.target.value); }}
-                                className="text-sm border border-foreground/20 rounded-lg px-3 py-2 bg-background flex-1 outline-none"
+                                className="text-sm border border-zinc-200 dark:border-zinc-700 rounded-lg px-3 py-2 bg-white dark:bg-zinc-800 text-zinc-800 dark:text-zinc-100 flex-1 outline-none transition-colors"
                               >
                                 <option value="slide">Deslizar</option>
                                 <option value="flip">Volteo 3D</option>
@@ -2488,7 +2543,7 @@ Puedes hacerme preguntas específicas sobre el texto, pedirme resúmenes de secc
             
             <button
                 onClick={() => setIsFabMenuOpen(!isFabMenuOpen)}
-                className="w-14 h-14 rounded-full bg-foreground text-background shadow-xl flex items-center justify-center hover:scale-105 transition-transform active:scale-95 shrink-0"
+                className="w-14 h-14 rounded-full bg-zinc-900 text-white dark:bg-white dark:text-zinc-900 shadow-xl flex items-center justify-center hover:scale-105 transition-all active:scale-95 shrink-0 border border-zinc-200 dark:border-zinc-700"
             >
                 {isFabMenuOpen ? <X size={24} /> : <Menu size={24} />}
             </button>

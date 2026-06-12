@@ -155,6 +155,7 @@ function AppContent() {
   const [isMobile, setIsMobile] = useState(false);
   const [currentDocId, setCurrentDocId] = useState(null);
   const [pdfInitialPage, setPdfInitialPage] = useState(1);
+  const [isPdfFullScreen, setIsPdfFullScreen] = useState(false);
   const savePageTimer = useRef(null);
 
   useEffect(() => {
@@ -996,11 +997,13 @@ function AppContent() {
         </AnimatePresence>
 
         {/* Header - Always mounted, controls Small Title visibility */}
-        <Header 
-          onMenuOpen={() => setIsMenuOpen(true)} 
-          showTitle={!showIntro} 
-          onHomeClick={handleHomeClick}
-        />
+        {!isPdfFullScreen && (
+          <Header 
+            onMenuOpen={() => setIsMenuOpen(true)} 
+            showTitle={!showIntro} 
+            onHomeClick={handleHomeClick}
+          />
+        )}
 
         {/* Main Interface Content - Fades in */}
         <motion.div 
@@ -1035,7 +1038,7 @@ function AppContent() {
                onDocumentSelect={handleCloudDocumentSelect}
              />
 
-             <main className="relative flex-1 flex flex-col pt-16">
+             <main className={`relative flex-1 flex flex-col ${isPdfFullScreen ? 'pt-0' : 'pt-16'}`}>
                {!pdfFile ? (
                  <div className="flex-1 flex flex-col items-center justify-center p-4">
                    <motion.div 
@@ -1117,7 +1120,7 @@ function AppContent() {
                  </div>
                ) : (
                  <div className="relative flex-1">
-                    {isMobile && (
+                    {isMobile && !isPdfFullScreen && (
                       <button
                         onClick={handleHomeClick}
                         className="fixed top-4 left-4 z-50 p-3 bg-background/80 backdrop-blur-md border border-foreground/10 text-foreground rounded-full shadow-lg hover:bg-background transition-all"
@@ -1127,6 +1130,8 @@ function AppContent() {
                     )}
                     <PDFViewer 
             file={pdfFile} 
+            isFullScreen={isPdfFullScreen}
+            setIsFullScreen={setIsPdfFullScreen}
             isMobile={isMobile}
             onAddAnnotation={addAnnotation}
             annotations={findAnnotationsForFile(annotations, pdfFile.name)}
