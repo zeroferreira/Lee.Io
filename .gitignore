@@ -129,3 +129,5 @@ dist-ssr
 .gradle/
 **/build/
 
+# Local properties (Android SDK paths)
+**/local.properties
