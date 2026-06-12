@@ -317,6 +317,13 @@ Puedes hacerme preguntas específicas sobre el texto, pedirme resúmenes de secc
   const touchStart = useRef(null);
   const touchEnd = useRef(null);
   const menuRef = useRef(null);
+  
+  // Pinch-to-zoom state
+  const initialTouchDistance = useRef(null);
+  const initialScale = useRef(null);
+  const isPinching = useRef(false);
+  const wasPinching = useRef(false);
+  
   const [windowWidth, setWindowWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 0);
 
   const resolvedFitMode = useMemo(() => {
@@ -368,15 +375,56 @@ Puedes hacerme preguntas específicas sobre el texto, pedirme resúmenes de secc
   const minSwipeDistance = 50; 
 
   const onTouchStart = (e) => {
-    touchEnd.current = null; // Reset
-    touchStart.current = e.targetTouches[0].clientX;
+    if (e.targetTouches.length === 2) {
+      // Start pinch-to-zoom
+      const dx = e.targetTouches[0].clientX - e.targetTouches[1].clientX;
+      const dy = e.targetTouches[0].clientY - e.targetTouches[1].clientY;
+      initialTouchDistance.current = Math.sqrt(dx * dx + dy * dy);
+      initialScale.current = scale;
+      isPinching.current = true;
+      wasPinching.current = true;
+    } else {
+      // Normal single touch for swipe-to-change-page
+      isPinching.current = false;
+      touchEnd.current = null; // Reset
+      touchStart.current = e.targetTouches[0].clientX;
+    }
   };
 
   const onTouchMove = (e) => {
-    touchEnd.current = e.targetTouches[0].clientX;
+    if (isPinching.current && e.targetTouches.length === 2) {
+      // Handle pinch-to-zoom
+      const dx = e.targetTouches[0].clientX - e.targetTouches[1].clientX;
+      const dy = e.targetTouches[0].clientY - e.targetTouches[1].clientY;
+      const distance = Math.sqrt(dx * dx + dy * dy);
+      
+      if (initialTouchDistance.current) {
+        const factor = distance / initialTouchDistance.current;
+        // Limit zoom scale between 0.5 (50%) and 3.0 (300%)
+        const nextScale = Math.min(3.0, Math.max(0.5, initialScale.current * factor));
+        setScale(nextScale);
+      }
+      
+      // Prevent browser default zoom
+      if (e.cancelable) {
+        e.preventDefault();
+      }
+    } else if (!isPinching.current) {
+      // Normal single finger swipe
+      touchEnd.current = e.targetTouches[0].clientX;
+    }
   };
 
   const onTouchEnd = () => {
+    if (wasPinching.current) {
+      // Reset pinching flags and do not trigger swipe page change
+      isPinching.current = false;
+      wasPinching.current = false;
+      initialTouchDistance.current = null;
+      initialScale.current = null;
+      return;
+    }
+
     if (!touchStart.current || !touchEnd.current) return;
     const distance = touchStart.current - touchEnd.current;
     const isLeftSwipe = distance > minSwipeDistance;
