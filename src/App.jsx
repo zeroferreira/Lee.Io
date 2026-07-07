@@ -16,7 +16,7 @@ import { localFileStorage } from './utils/localFileStorage';
 import { useDocuments } from './hooks/useDocuments';
 
 const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || "741889878750-da4cbkfe3q9gjh2figu71gbt4e9vap5e.apps.googleusercontent.com";
-const GOOGLE_API_KEY = import.meta.env.VITE_GOOGLE_API_KEY || "AIzaSyDQHr01GZaojE3wdoGzejocuFM-cXQGwTU";
+const GOOGLE_API_KEY = import.meta.env.VITE_GOOGLE_API_KEY || "AIzaSyBqAknzI2MSUX14hEbdMTIkE_kc30jsqdk";
 const normalizeFilename = (name) => {
   if (!name) return "";
   return name
