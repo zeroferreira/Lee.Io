@@ -11,7 +11,6 @@ import { doc, setDoc, getDoc, collection, addDoc, serverTimestamp, query, where,
 import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
 import { ProfileScreen } from './components/ProfileScreen';
 import { Notification } from './components/Notification';
-import useDrivePicker from 'react-google-drive-picker';
 import { localFileStorage } from './utils/localFileStorage';
 import { useDocuments } from './hooks/useDocuments';
 
@@ -118,7 +117,13 @@ const mergeHighlights = (localHls, cloudHls) => {
 function AppContent() {
   const [showIntro, setShowIntro] = useState(true);
   const { currentUser, accessToken, loginWithGoogle } = useAuth();
-  const [openPicker] = useDrivePicker();
+  
+  const [isDriveModalOpen, setIsDriveModalOpen] = useState(false);
+  const [driveFiles, setDriveFiles] = useState([]);
+  const [isDriveLoading, setIsDriveLoading] = useState(false);
+  const [driveSearchQuery, setDriveSearchQuery] = useState("");
+  const [driveError, setDriveError] = useState("");
+
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
   const [notification, setNotification] = useState(null);
@@ -719,24 +724,27 @@ function AppContent() {
        return;
     }
 
-    openPicker({
-      clientId: GOOGLE_CLIENT_ID,
-      developerKey: GOOGLE_API_KEY,
-      viewId: "DOCS",
-      token: token,
-      showUploadView: false,
-      showUploadFolders: true,
-      supportDrives: true,
-      multiselect: false,
-      mimeTypes: "application/pdf",
-      callbackFunction: (data) => {
-        if (data.action === 'picked') {
-          const fileId = data.docs[0].id;
-          const fileName = data.docs[0].name;
-          downloadFileFromDrive(fileId, fileName, token, true); // true = save to library
-        }
-      },
-    });
+    // Abrir modal y cargar archivos
+     setIsDriveModalOpen(true);
+     setIsDriveLoading(true);
+     setDriveError("");
+     try {
+       const response = await fetch("https://www.googleapis.com/drive/v3/files?q=mimeType='application/pdf'+and+trashed=false&fields=files(id,name,size,modifiedTime)&pageSize=100&orderBy=name", {
+         headers: {
+           'Authorization': `Bearer ${token}`
+         }
+       });
+       if (!response.ok) {
+         throw new Error("No se pudo obtener la lista de archivos de Google Drive.");
+       }
+       const data = await response.json();
+       setDriveFiles(data.files || []);
+     } catch (e) {
+       console.error("Error fetching drive files:", e);
+       setDriveError("No se pudieron cargar los archivos de Drive. Verifica tu conexión o vuelve a iniciar sesión.");
+     } finally {
+       setIsDriveLoading(false);
+     }
   };
 
   const downloadFileFromDrive = async (fileId, fileName, token, shouldSaveToLibrary = true) => {
@@ -1264,8 +1272,125 @@ function AppContent() {
                  </div>
                )}
 
-               {/* Hidden File Input */}
-               <input
+                    {/* Custom Google Drive File Picker Modal */}
+                    <AnimatePresence>
+                      {isDriveModalOpen && (
+                        <motion.div 
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 1 }}
+                          exit={{ opacity: 0 }}
+                          className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 sm:p-6"
+                        >
+                          <motion.div 
+                            initial={{ scale: 0.95, y: 20 }}
+                            animate={{ scale: 1, y: 0 }}
+                            exit={{ scale: 0.95, y: 20 }}
+                            className="bg-white dark:bg-zinc-900 text-foreground border border-zinc-200 dark:border-zinc-800 w-full max-w-2xl rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[85vh] md:max-h-[75vh]"
+                          >
+                            {/* Modal Header */}
+                            <div className="flex items-center justify-between p-6 border-b border-zinc-200 dark:border-zinc-800">
+                              <div className="flex items-center gap-3">
+                                <div className="p-2 bg-blue-500/10 rounded-xl text-blue-500">
+                                  <HardDrive size={24} />
+                                </div>
+                                <div>
+                                  <h3 className="text-xl font-semibold">Google Drive</h3>
+                                  <p className="text-xs opacity-60">Selecciona un documento PDF para importar</p>
+                                </div>
+                              </div>
+                              <button 
+                                onClick={() => setIsDriveModalOpen(false)}
+                                className="p-2 hover:bg-foreground/5 rounded-full transition-colors"
+                              >
+                                <X size={20} />
+                              </button>
+                            </div>
+
+                            {/* Search Bar */}
+                            <div className="p-4 bg-foreground/3 border-b border-zinc-200 dark:border-zinc-800">
+                              <input
+                                type="text"
+                                placeholder="Buscar en tu Drive..."
+                                value={driveSearchQuery}
+                                onChange={(e) => setDriveSearchQuery(e.target.value)}
+                                className="w-full bg-background border border-zinc-200 dark:border-zinc-800 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-foreground/20"
+                              />
+                            </div>
+
+                            {/* Files Content */}
+                            <div className="flex-1 overflow-y-auto p-4 min-h-[250px] flex flex-col">
+                              {isDriveLoading ? (
+                                <div className="flex-1 flex flex-col items-center justify-center gap-3 py-12">
+                                  <Loader2 className="animate-spin text-foreground opacity-60" size={32} />
+                                  <p className="text-sm opacity-60">Cargando tus documentos...</p>
+                                </div>
+                              ) : driveError ? (
+                                <div className="flex-1 flex flex-col items-center justify-center gap-3 text-center py-12 px-6">
+                                  <p className="text-red-500 text-sm font-medium">{driveError}</p>
+                                  <button
+                                    onClick={handleOpenDrive}
+                                    className="mt-2 text-xs px-4 py-2 bg-foreground text-background rounded-full font-medium hover:opacity-90 transition-all"
+                                  >
+                                    Reintentar
+                                  </button>
+                                </div>
+                              ) : (() => {
+                                const filteredFiles = driveFiles.filter(file => 
+                                  file.name.toLowerCase().includes(driveSearchQuery.toLowerCase())
+                                );
+
+                                if (filteredFiles.length === 0) {
+                                  return (
+                                    <div className="flex-1 flex flex-col items-center justify-center text-center py-12 opacity-60">
+                                      <BookOpen size={48} strokeWidth={1.5} className="mb-2" />
+                                      <p className="text-sm">No se encontraron archivos PDF en tu Drive</p>
+                                    </div>
+                                  );
+                                }
+
+                                return (
+                                  <div className="space-y-1">
+                                    {filteredFiles.map((file) => (
+                                      <button
+                                        key={file.id}
+                                        onClick={() => {
+                                          const token = accessToken || localStorage.getItem('googleAccessToken');
+                                          downloadFileFromDrive(file.id, file.name, token, true);
+                                          setIsDriveModalOpen(false);
+                                        }}
+                                        className="w-full flex items-center justify-between p-3.5 hover:bg-foreground/5 rounded-xl transition-all text-left border border-transparent hover:border-zinc-200 dark:hover:border-zinc-800"
+                                      >
+                                        <div className="flex items-center gap-3 min-w-0">
+                                          <div className="p-2 bg-red-500/10 text-red-500 rounded-lg shrink-0">
+                                            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                                            </svg>
+                                          </div>
+                                          <div className="min-w-0 text-zinc-900 dark:text-zinc-100">
+                                            <p className="text-sm font-medium truncate pr-4">{file.name}</p>
+                                            <p className="text-xs opacity-50">
+                                              {file.size ? `${(file.size / (1024 * 1024)).toFixed(2)} MB` : "Tamaño desconocido"}
+                                              {" • "}
+                                              Modificado: {new Date(file.modifiedTime).toLocaleDateString()}
+                                            </p>
+                                          </div>
+                                        </div>
+                                        <span className="text-xs font-semibold px-3 py-1 bg-foreground/5 rounded-full shrink-0 group-hover:bg-foreground group-hover:text-background transition-all">
+                                          Importar
+                                        </span>
+                                      </button>
+                                    ))}
+                                  </div>
+                                );
+                              })()}
+                            </div>
+                          </motion.div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+
+                    {/* Hidden File Input */}
+                    <input
                  type="file"
                  accept=".pdf"
                  ref={fileInputRef}
