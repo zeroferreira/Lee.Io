@@ -45,8 +45,49 @@ class MainActivity : ComponentActivity() {
             }
 
             override fun shouldOverrideUrlLoading(view: WebView, url: String): Boolean {
+                if (url.contains("leeio-f1ab6.firebaseapp.com/__/auth/handler")) {
+                    return false
+                }
                 view.loadUrl(url)
                 return true
+            }
+
+            override fun onPageStarted(view: WebView?, url: String?, favicon: android.graphics.Bitmap?) {
+                super.onPageStarted(view, url, favicon)
+                if (url != null && url.contains("leeio-f1ab6.firebaseapp.com/__/auth/handler")) {
+                    var fragment = ""
+                    val hashIndex = url.indexOf("#")
+                    val queryIndex = url.indexOf("?")
+                    if (hashIndex != -1) {
+                        fragment = url.substring(hashIndex + 1)
+                    } else if (queryIndex != -1) {
+                        fragment = url.substring(queryIndex + 1)
+                    }
+
+                    if (fragment.isNotEmpty()) {
+                        var accessToken = ""
+                        var idToken = ""
+                        val params = fragment.split("&")
+                        for (param in params) {
+                            val keyValue = param.split("=")
+                            if (keyValue.size == 2) {
+                                val key = keyValue[0]
+                                val value = keyValue[1]
+                                if (key == "access_token") {
+                                    accessToken = value
+                                } else if (key == "id_token") {
+                                    idToken = value
+                                }
+                            }
+                        }
+                        if (accessToken.isNotEmpty() || idToken.isNotEmpty()) {
+                            val localUrl = "https://appassets.androidplatform.net/assets/index.html?access_token=$accessToken&id_token=$idToken"
+                            view?.post {
+                                view.loadUrl(localUrl)
+                            }
+                        }
+                    }
+                }
             }
         }
 
